@@ -1,3 +1,5 @@
+"use client";
+
 export const NoPoster = () => {
     return (
         <svg fill="#000000" height="800px" width="800px" version="1.1" id="Capa_1" 

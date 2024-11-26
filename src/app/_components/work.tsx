@@ -1,3 +1,5 @@
+"use client";
+
 import moment from "moment";
 import Image from "next/image";
 import { NoPoster } from "./no-poster";
@@ -41,7 +43,7 @@ export function Work({ data }: WorkProps) {
           )}
         </div>
         {!!data.vote_average && (
-          <Rating value={data.vote_average} />
+          <Rating value={data.vote_average} votes={data.vote_count} />
         )}
       </div>
 
