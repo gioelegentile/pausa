@@ -83,7 +83,7 @@ export function Search() {
             </form>
             <div className="grid grid-cols-6 gap-6 place-content-center">
                 {searchResult.results.length > 0 && searchResult.results.map((result: any) => (
-                    <div className="basis-1/6" key={result.id}>
+                    <div className="basis-1/6 transition ease-in-out hover:scale-105 cursor-pointer" key={result.id}>
                         <Work data={result} />
                     </div>
                 ))}
