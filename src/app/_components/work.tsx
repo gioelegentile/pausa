@@ -1,10 +1,14 @@
+"use client";
+
 import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
 import { Movie } from "~/server/tmdb/tmdbapi";
 import { StarIcon } from "@heroicons/react/16/solid";
-import { useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
+import { api } from "~/trpc/react";
+import { Work } from "@prisma/client";
 
 type WorkProps = {
   data: Movie;
@@ -14,13 +18,45 @@ export function Work({ data }: WorkProps) {
   const [voting, setVoting] = useState(false);
   const [rate, setRate] = useState(0);
 
-  useEffect(() =>
-    console.log(rate), [rate]);
+  const workMutation = api.work.create.useMutation();
+  const ratingMutation = api.workRating.create.useMutation();
+  const workQuery = api.work.getByTmdbId.useQuery(data.id);
+  const rating = api.workRating.getByTmdbId.useQuery(data.id);
+
+  const handleClick = useCallback(() => {
+    setVoting(!voting);
+  }, [voting]);
+
+  const handleSetRate = useCallback((rate: number) => {
+    setRate(rate);
+
+    if (rate > 0) {
+
+      let work: Work | null = null;
+
+      if (workQuery.data) {
+        work = workQuery.data;
+      } else {
+        work = workMutation.mutate({ tmdbId: data.id })!;
+      }
+
+      ratingMutation.mutateAsync({ tmdbId: data.id, workId: work!.id, rating: rate })
+        .catch(error => console.error("Error rating movie:", error));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (workQuery.isSuccess) {
+      if (rating.data) {
+        setRate(rating.data!.rating);
+      }
+    }
+  }, [workQuery.isSuccess, rating.isSuccess]);
 
   return (
     <>
       <div className="relative w-full max-w-md h-64 rounded-lg overflow-hidden shadow-lg cursor-pointer"
-        onClick={() => setVoting(prev => !prev)}>
+        onClick={handleClick}>
 
         {data.poster_path ? (
           <Image
@@ -60,11 +96,11 @@ export function Work({ data }: WorkProps) {
 
         {voting && (
           <div className="relative flex items-center z-10 h-full justify-center">
-            <StarIcon className={`h-10 w-10 ${rate >= 1 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => setRate(1)} />
-            <StarIcon className={`h-10 w-10 ${rate >= 2 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => setRate(2)} />
-            <StarIcon className={`h-10 w-10 ${rate >= 3 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => setRate(3)} />
-            <StarIcon className={`h-10 w-10 ${rate >= 4 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => setRate(4)} />
-            <StarIcon className={`h-10 w-10 ${rate >= 5 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => setRate(5)} />
+            <StarIcon className={`h-10 w-10 ${rate >= 1 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => handleSetRate(1)} />
+            <StarIcon className={`h-10 w-10 ${rate >= 2 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => handleSetRate(2)} />
+            <StarIcon className={`h-10 w-10 ${rate >= 3 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => handleSetRate(3)} />
+            <StarIcon className={`h-10 w-10 ${rate >= 4 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => handleSetRate(4)} />
+            <StarIcon className={`h-10 w-10 ${rate >= 5 ? 'text-yellow-400' : 'text-gray-400'}`} onClick={() => handleSetRate(5)} />
           </div>
         )}
       </div>

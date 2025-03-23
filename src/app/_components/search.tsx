@@ -77,9 +77,9 @@ export function Search() {
                     {searching ? "Searching..." : "Search"}
                 </button>
             </form>
-            <div className="grid grid-cols-6 gap-6 place-content-center">
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-6 md:gap-6 place-content-center">
                 {searchResult.results.length > 0 && searchResult.results.map((result: any) => (
-                    <div className="basis-1/6 transition ease-in-out hover:scale-105" key={result.id}>
+                    <div className="transition ease-in-out hover:scale-105" key={result.id}>
                         <Work data={result} />
                     </div>
                 ))}
