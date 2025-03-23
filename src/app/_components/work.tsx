@@ -6,9 +6,9 @@ import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
 import { Movie } from "~/server/tmdb/tmdbapi";
 import { StarIcon } from "@heroicons/react/16/solid";
-import { use, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
-import { Work } from "@prisma/client";
+import { type Work } from "@prisma/client";
 
 type WorkProps = {
   data: Movie;
@@ -46,12 +46,12 @@ export function Work({ data }: WorkProps) {
   }, []);
 
   useEffect(() => {
-    if (workQuery.isSuccess) {
+    if (workQuery.data) {
       if (rating.data) {
         setRate(rating.data!.rating);
       }
     }
-  }, [workQuery.isSuccess, rating.isSuccess]);
+  }, [workQuery.data, rating.data]);
 
   return (
     <>
