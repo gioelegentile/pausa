@@ -1,0 +1,14 @@
+services:
+
+  pausa:
+      platform: "linux/amd64"
+      image: pausa:latest
+      ports:
+        - "3001:3000"
+      environment:
+        - AUTH_SECRET="cwXj6IKsWLOXxcFBan7VBs/3FjBcjo5kBBIcTzwhapU="
+        - AUTH_DISCORD_ID="1304191392511299637"
+        - AUTH_DISCORD_SECRET="XSGe6f7JdQpnUd1vQDBUxpt-JDbS1e-j"
+        - DATABASE_URL="file:/app/db.sqlite"
+      volumes:
+        - ./prisma:/app

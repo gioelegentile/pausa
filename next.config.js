@@ -13,7 +13,10 @@ const config = {
                 hostname: "image.tmdb.org",
             }
         ]
-    }
+    },
+    reactStrictMode: true,
+    swcMinify: true,
+    output: "standalone",
 };
 
 export default config;
