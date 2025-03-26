@@ -67,9 +67,9 @@ theMovieDb.common = {
   images_uri: "http://image.tmdb.org/t/p/",
   timeout: 5000,
   language: "it-IT",
-  generateQuery: function(options) {
+  generateQuery: function(options: any) {
     'use strict';
-    var myOptions, query, option;
+    let myOptions, query, option;
 
     myOptions = options || {};
     query = "?api_key=" + theMovieDb.common.api_key + "&language=" + theMovieDb.common.language;
@@ -91,7 +91,7 @@ theMovieDb.common = {
   },
   validateRequired: function(args, argsReq, opt, optReq, allOpt) {
     'use strict';
-    var i, allOptional;
+    let i, allOptional;
 
     allOptional = allOpt || false;
 
@@ -117,7 +117,7 @@ theMovieDb.common = {
   },
   client: function(options, success, error) {
     'use strict';
-    var method, status, xhr;
+    let method, status, xhr;
 
     method = options.method || "GET";
     status = options.status || 200;
@@ -305,7 +305,7 @@ theMovieDb.account = {
   },
   addFavorite: function(options, success, error) {
     'use strict';
-    var body;
+    let body;
 
     theMovieDb.common.validateRequired(arguments, 3, options, ["session_id", "id", "media_type", "media_id", "favorite"]);
 
@@ -401,7 +401,7 @@ theMovieDb.account = {
   addToWatchlist: function(options, success, error) {
     'use strict';
 
-    var body;
+    let body;
 
     theMovieDb.common.validateRequired(arguments, 3, options, ["session_id", "id", "media_type", "media_id", "watchlist"]);
 
@@ -863,7 +863,7 @@ theMovieDb.lists = {
   addList: function(options, success, error) {
     'use strict';
 
-    var body;
+    let body;
 
     theMovieDb.common.validateRequired(arguments, 3, options, ["session_id", "name", "description"]);
 
@@ -878,7 +878,7 @@ theMovieDb.lists = {
     delete options.description;
 
     if (options.hasOwnProperty("language")) {
-      body["language"] = options.language;
+      body.language = options.language;
 
       delete options.language;
     }
@@ -896,7 +896,7 @@ theMovieDb.lists = {
   addItem: function(options, success, error) {
     'use strict';
 
-    var body;
+    let body;
 
     theMovieDb.common.validateRequired(arguments, 3, options, ["session_id", "id", "media_id"]);
 
@@ -919,7 +919,7 @@ theMovieDb.lists = {
   removeItem: function(options, success, error) {
     'use strict';
 
-    var body;
+    let body;
 
     theMovieDb.common.validateRequired(arguments, 3, options, ["session_id", "id", "media_id"]);
 

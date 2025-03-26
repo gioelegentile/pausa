@@ -4,7 +4,7 @@ import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import { Movie } from "~/server/tmdb/tmdbapi";
+import { type Movie } from "~/server/tmdb/tmdbapi";
 import { StarIcon } from "@heroicons/react/16/solid";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
@@ -40,7 +40,7 @@ export function Work({ data }: WorkProps) {
         work = workMutation.mutate({ tmdbId: data.id })!;
       }
 
-      ratingMutation.mutateAsync({ tmdbId: data.id, workId: work!.id, rating: rate })
+      ratingMutation.mutateAsync({ tmdbId: data.id, workId: work.id, rating: rate })
         .catch(error => console.error("Error rating movie:", error));
     }
   }, []);
@@ -48,7 +48,7 @@ export function Work({ data }: WorkProps) {
   useEffect(() => {
     if (workQuery.data) {
       if (rating.data) {
-        setRate(rating.data!.rating);
+        setRate(rating.data.rating);
       }
     }
   }, [workQuery.data, rating.data]);

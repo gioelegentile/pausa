@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import theMovieDb, { MoviesResponse } from "~/server/tmdb/tmdbapi";
+import theMovieDb, { Movie, type MoviesResponse } from "~/server/tmdb/tmdbapi";
 
 import { Work } from "./work";
 
@@ -44,8 +44,7 @@ export function Search() {
                 setSearchResult(parsed);
                 setIsSearching(false);
             },
-            (err: any) => {
-                console.log(err);
+            () => {
                 setSearchResult(searchInitialState);
                 setIsSearching(false);
             }
@@ -78,7 +77,7 @@ export function Search() {
                 </button>
             </form>
             <div className="grid grid-cols-2 gap-2 md:grid-cols-6 md:gap-6 place-content-center">
-                {searchResult.results.length > 0 && searchResult.results.map((result: any) => (
+                {searchResult.results.length > 0 && searchResult.results.map((result: Movie) => (
                     <div className="transition ease-in-out hover:scale-105" key={result.id}>
                         <Work data={result} />
                     </div>
