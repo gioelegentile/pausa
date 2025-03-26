@@ -4,6 +4,7 @@ import { Search } from "~/app/_components/search";
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 import Logo from "./_components/logo";
+import Video from "./_components/login-video";
 
 export default async function Home() {
   const session = await auth();
@@ -20,17 +21,8 @@ export default async function Home() {
   return (
     <HydrateClient>
       <main className="relative h-screen">
-      <Logo />
-        <div className="absolute top-0 left-0 z-0 h-full w-full">
-          <video
-            className="h-full w-full object-cover"
-            src="/background_video.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-        </div>
+        <Logo />
+        {!session?.user && <Video />}
 
         <div className="relative">
           <div className="flex flex-col items-center justify-center gap-4">
