@@ -27,13 +27,26 @@ import { db } from "~/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await auth();
-
-  return {
-    db,
-    session,
-    ...opts,
-  };
+  try {
+    const session = await auth();
+    
+    // Verifica che il database sia accessibile
+    await db.$queryRaw`SELECT 1`;
+    
+    return {
+      db,
+      session,
+      ...opts,
+    };
+  } catch (error) {
+    console.error("Errore nella creazione del contesto TRPC:", error);
+    // Restituisci comunque un contesto, anche senza sessione
+    return {
+      db,
+      session: null,
+      ...opts,
+    };
+  }
 };
 
 /**

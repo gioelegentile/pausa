@@ -1,6 +1,7 @@
 import { workRouter } from "~/server/api/routers/work";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { workRatingRouter } from "./routers/work-rating";
+import { commentRouter } from "./routers/comment";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +11,7 @@ import { workRatingRouter } from "./routers/work-rating";
 export const appRouter = createTRPCRouter({
   work: workRouter,
   workRating: workRatingRouter,
+  comment: commentRouter,
 });
 
 // export type definition of API

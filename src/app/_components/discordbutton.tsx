@@ -1,9 +1,9 @@
-import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const DiscordButton = () => {
   return (
-    <Link
-      href="/api/auth/signin"
+    <button
+      onClick={() => signIn("discord", { callbackUrl: "/" })}
       className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-800 shadow-md hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
     >
       <div className="flex items-center justify-center">
@@ -24,7 +24,7 @@ const DiscordButton = () => {
         </svg>
         <span>Continue with Discord</span>
       </div>
-    </Link>
+    </button>
   );
 };
 

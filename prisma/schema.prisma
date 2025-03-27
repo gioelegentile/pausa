@@ -18,6 +18,7 @@ model Work {
   id         Int          @id @default(autoincrement())
   tmdbId     Int          @unique
   WorkRating WorkRating[]
+  Comment    Comment[]
   createdAt  DateTime
 }
 
@@ -27,6 +28,18 @@ model WorkRating {
   tmdbId    Int
   userId    String
   rating    Float
+  createdAt DateTime
+  updatedAt DateTime
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  workId    Int
+  tmdbId    Int
+  userId    String
   createdAt DateTime
   updatedAt DateTime
   work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
@@ -70,6 +83,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   ratings       WorkRating[]
+  comments      Comment[]
 }
 
 model VerificationToken {
