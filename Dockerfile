@@ -1,6 +1,6 @@
 ##### DEPENDENCIES
 
-FROM --platform=linux/arm64 node:20-alpine AS deps
+FROM --platform=linux/arm64 arm64v8/node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN npm ci
 
 ##### BUILDER
 
-FROM --platform=linux/arm64 node:20-alpine AS builder
+FROM --platform=linux/arm64 arm64v8/node:20-alpine AS builder
 ARG DATABASE_URL
 ARG NEXT_PUBLIC_CLIENTVAR
 WORKDIR /app
@@ -30,7 +30,7 @@ RUN SKIP_ENV_VALIDATION=1 npm run build
 
 ##### RUNNER
 
-FROM --platform=linux/arm64 node:20-alpine AS runner
+FROM --platform=linux/arm64 arm64v8/node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
