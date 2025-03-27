@@ -1,7 +1,7 @@
 ##### DEPENDENCIES
 
 FROM --platform=linux/arm64 arm64v8/node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl libssl/openssl libssl.so.1.1
 WORKDIR /app
 
 # Install Prisma Client - remove if not using Prisma
