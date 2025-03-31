@@ -15,9 +15,6 @@ const config = {
         ]
     },
     output: "standalone",
-    experimental: {
-        trustHost: true,
-    }
 };
 
 export default config;
