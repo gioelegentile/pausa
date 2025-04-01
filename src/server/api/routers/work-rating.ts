@@ -21,7 +21,7 @@ export const workRatingRouter = createTRPCRouter({
                     tmdbId: input.tmdbId,
                     rating: input.rating,
                     workId: input.workId,
-                    userId: ctx.session!.user.id,
+                    userId: ctx.session.user!.id,
                     updatedAt: moment().toISOString(),
                     createdAt: moment().toISOString()
                 },
@@ -52,7 +52,7 @@ export const workRatingRouter = createTRPCRouter({
             const rating = await ctx.db.workRating.findFirst({
                 where: {
                     tmdbId: input,
-                    userId: ctx.session!.user.id
+                    userId: ctx.session.user!.id
                 }
             });
 

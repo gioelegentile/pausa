@@ -1,14 +1,13 @@
 "use client";
 
-import { Session } from "next-auth";
 import Link from "next/link";
 import Logo from "./logo";
 import LoginVideo from "./Login_video";
 import { Search } from "./search";
-import DiscordButton from "./discordbutton";
+import { type CloudflareSession } from "~/server/auth/cloudflare";
 
 interface LoginPageProps {
-  session: Session | null;
+  session: CloudflareSession | null;
 }
 
 function LoginPage({ session }: LoginPageProps) {
@@ -20,15 +19,6 @@ function LoginPage({ session }: LoginPageProps) {
 
       <div className="relative">
         <div className="flex flex-col items-center justify-center gap-4">
-          {session?.user && (
-            <Link
-              href="/api/auth/signout"
-              className="absolute top-4 right-4 me-2 mb-2 rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-blue-300"
-            >
-              Sign out
-            </Link>
-          )}
-
           {session?.user && (
             <p className="mt-6 bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-center text-2xl text-transparent">
               Logged in as {session.user.name}
@@ -45,8 +35,10 @@ function LoginPage({ session }: LoginPageProps) {
                   </span>
                 </h2>
 
-                <div className="mt-8 flex justify-center">
-                  <DiscordButton />
+                <div className="mt-8 text-center">
+                  <p className="text-gray-600">
+                    Autenticazione gestita tramite Cloudflare Zero Trust.
+                  </p>
                 </div>
               </div>
             </div>

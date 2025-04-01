@@ -7,10 +7,8 @@ services:
       - "3001:3000"
     environment:
       - DATABASE_URL=file:./db.sqlite
-      - AUTH_SECRET="cwXj6IKsWLOXxcFBan7VBs/3FjBcjo5kBBIcTzwhapU="
-      - AUTH_DISCORD_ID="1304191392511299637"
-      - AUTH_DISCORD_SECRET="XSGe6f7JdQpnUd1vQDBUxpt-JDbS1e-j"
-      - NEXTAUTH_URL=http://localhost:3001/api/auth/signin
+      - POLICY_AUD=your-audience-tag
+      - TEAM_DOMAIN=your-team-domain.cloudflareaccess.com
     volumes:
       - ./db.sqlite:/db.sqlite
 
