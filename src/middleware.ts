@@ -2,17 +2,31 @@ import * as jose from 'jose';
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 import { db } from './server/db';
-
-// The Application Audience (AUD) tag for your application
-const AUD = process.env.POLICY_AUD;
-
-// Your CF Access team domain
-const TEAM_DOMAIN = process.env.TEAM_DOMAIN;
-const CERTS_URL = `${TEAM_DOMAIN}/cdn-cgi/access/certs`;
-
-const JWKS = jose.createRemoteJWKSet(new URL(CERTS_URL));
+import { env } from './env';
 
 export async function middleware(req: NextRequest) {
+
+  // The Application Audience (AUD) tag for your application
+  const AUD = env.POLICY_AUD;
+  // Your CF Access team domain
+  const TEAM_DOMAIN = env.TEAM_DOMAIN;
+  const CERTS_URL = `${TEAM_DOMAIN}/cdn-cgi/access/certs`;
+
+  const JWKS = jose.createRemoteJWKSet(new URL(CERTS_URL));
+
+  // log env
+  console.log('ENV:', {
+    AUD,
+    TEAM_DOMAIN,
+    CERTS_URL,
+  });
+  console.log('Request URL:', req.url);
+  console.log('Request Headers:', req.headers);
+  console.log('Request Method:', req.method);
+  console.log('Request Pathname:', req.nextUrl.pathname);
+  console.log('Request Query:', req.nextUrl.searchParams);
+  console.log('Request Body:', req.body);
+
   // Permetti accesso alle risorse statiche
   if (req.nextUrl.pathname.startsWith('/_next') || 
       req.nextUrl.pathname.startsWith('/public')) {
