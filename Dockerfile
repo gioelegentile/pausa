@@ -27,6 +27,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
 COPY --from=builder /app/prisma ./prisma
 
 COPY --from=builder /app/next.config.js ./
