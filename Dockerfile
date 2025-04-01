@@ -19,11 +19,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN SKIP_ENV_VALIDATION=1 npm run build
 
 ##### RUNNER
-FROM --platform=linux/arm64 gcr.io/distroless/nodejs20-debian12 AS runner
+FROM --platform=linux/arm64 node:20-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma ./prisma
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
