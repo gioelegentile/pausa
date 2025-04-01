@@ -11,6 +11,7 @@ export const env = createEnv({
     POLICY_AUD: z.string(),
     TEAM_DOMAIN: z.string(),
     DATABASE_URL: z.string().url(),
+    TMDB_API_KEY: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -33,6 +34,7 @@ export const env = createEnv({
     POLICY_AUD: process.env.POLICY_AUD,
     TEAM_DOMAIN: process.env.TEAM_DOMAIN,
     DATABASE_URL: process.env.DATABASE_URL,
+    TMDB_API_KEY: process.env.TMDB_API_KEY,
     NODE_ENV: process.env.NODE_ENV,
   },
   /**

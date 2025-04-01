@@ -6,6 +6,9 @@
  * https://github.com/cavestri/themoviedb-javascript-library
  *
  */
+
+import { env } from "~/env";
+
 // Rappresenta un singolo film
 export interface Movie {
   adult: boolean;
@@ -65,7 +68,7 @@ type TheMovieDb = {
 const theMovieDb: TheMovieDb = {};
 
 theMovieDb.common = {
-  api_key: "d51b66c093495463df2866fb898835ab",
+  api_key: env.TMDB_API_KEY,
   base_uri: "https://api.themoviedb.org/3/",
   images_uri: "https://image.tmdb.org/t/p/",
   timeout: 5000,
