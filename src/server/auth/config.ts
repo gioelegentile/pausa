@@ -37,39 +37,36 @@ export const authConfig = {
       name: "Cloudflare Google",
       type: "oauth",
       // Non abbiamo bisogno di clientId e clientSecret perché li gestisce Cloudflare
-      clientId: "661680861042-oakvtm6oj6lgalaba1fdj68u6qqs0e41.apps.googleusercontent.com",
-      clientSecret: "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",
+      clientId: "cloudflare-proxy",
+      clientSecret: "cloudflare-proxy",
       // Questi campi sono necessari ma non vengono usati direttamente
       authorization: { params: { scope: "" } },
       token: { url: "" },
       userinfo: { url: "" },
       // La logica principale è qui
-      profile: async (profile) => {
+      profile(profile, tokens) {
+        // Qui riceviamo i dati dell'utente Google da Cloudflare
         return {
           id: profile.sub,
-          name: profile.name,
           email: profile.email,
+          name: profile.name,
           image: profile.picture,
         };
       },
     },
   ],
   adapter: PrismaAdapter(db),
-  session: {
-    strategy: "jwt",
-  },
   callbacks: {
-    async session({ session, token }) {
-      if (token.sub) {
-        session.user.id = token.sub;
-      }
-      return session;
-    },
-    async jwt({ token, account, profile }) {
-      if (account) {
-        token.sub = profile?.id!;
-      }
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
+    async jwt({ token, user }) {
+      // ...existing code...
       return token;
-    },
+    }
   },
 } satisfies NextAuthConfig;
