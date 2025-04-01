@@ -17,10 +17,27 @@ const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 
 export async function verifyCloudflareJWT(token: string): Promise<CloudflareJWT> {
   try {
+
+    let audience;
+
+    switch (process.env.NODE_ENV) {
+      case "production":
+        audience = "pausa";
+        break;
+      case "development":
+        audience = "pausa-dev";
+        break;
+      case "test":
+        audience = "pausa-test";
+        break;
+      default:
+        audience = "pausa-dev"; // Default to development if NODE_ENV is not set
+    }
+
     // Verifica il JWT usando le chiavi pubbliche di Cloudflare
     const { payload } = await jwtVerify(token, JWKS, {
       // Opzioni di verifica, per esempio audience e issuer
-      audience: process.env.NODE_ENV === "production" ? "pausa" : "pausa-dev", // Solitamente l'ID della tua applicazione in Cloudflare Access
+      audience,
       issuer: "https://gnagno.cloudflareaccess.com",
     });
     
