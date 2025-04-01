@@ -17,7 +17,6 @@ export const getSession = cache(async (): Promise<CloudflareSession> => {
   
   const userId = headersList.get('x-user-id');
   const userEmail = headersList.get('x-user-email');
-  const userName = headersList.get('x-user-name');
   
   if (!userId || !userEmail) {
     return { user: null };

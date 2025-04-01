@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     let user = await db.user.findUnique({
       where: { email: userEmail },
     });
-    
+
     if (!user) {
       // Crea un nuovo utente se non esiste
       user = await db.user.create({
