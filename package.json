@@ -1,6 +1,6 @@
 {
   "name": "pausa",
-  "version": "0.0.2-snapshot",
+  "version": "0.0.3-snapshot",
   "private": true,
   "type": "module",
   "scripts": {
