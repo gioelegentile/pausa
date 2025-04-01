@@ -84,6 +84,14 @@ export async function middleware(req: NextRequest) {
     });
   } catch (error) {
     console.error('Errore nella verifica del token:', error);
+
+    // Log dettagliato dell'errore per diagnostica
+    if (error instanceof Error) {
+      console.error('Tipo di errore:', error.name);
+      console.error('Messaggio errore:', error.message);
+      console.error('Stack trace:', error.stack);
+    }
+    
     return NextResponse.json(
       { error: "Token di autenticazione non valido" },
       { status: 401 }
