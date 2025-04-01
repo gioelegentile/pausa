@@ -37,19 +37,27 @@ export async function middleware(req: NextRequest) {
       audience: AUD,
     });
 
+    console.log('Token verificato:', result);
+
     // Estrai i dati dell'utente dal payload
     const userEmail = result.payload.email as string;
     const userName = result.payload.name as string;
     const userIdentity = result.payload.sub!;
 
+    console.log('Dati utente:', userEmail, userName, userIdentity);
+
     // Verifica se l'utente esiste nel database o crealo
     const user = await ensureUserExists(userEmail, userName, userIdentity);
+
+    console.log('Utente:', user);
 
     // Aggiungi informazioni utente alla richiesta che saranno disponibili per l'applicazione
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set('x-user-id', user.id);
     requestHeaders.set('x-user-email', userEmail);
     requestHeaders.set('x-user-name', userName || '');
+
+    console.log('Richiesta:', requestHeaders);
 
     // Continua con la richiesta
     return NextResponse.next({
@@ -72,6 +80,8 @@ async function ensureUserExists(email: string, name: string, identity: string) {
     where: { email },
   });
 
+  console.log('Utente esistente:', user);
+
   if (!user) {
     // Crea un nuovo utente se non esiste
     user = await db.user.create({
@@ -83,6 +93,8 @@ async function ensureUserExists(email: string, name: string, identity: string) {
         // cfIdentity: identity,
       },
     });
+
+    console.log('Nuovo utente:', user);
   }
 
   return user;
