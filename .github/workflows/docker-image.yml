@@ -11,6 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -51,13 +53,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Create GitHub Tag
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-            git tag "v${{ env.VERSION }}"
-            git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git --tags
+      - name: New Tag
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          tagging_message: 'v${{ env.VERSION }}'
   
   build-develop:
     runs-on: ubuntu-latest
@@ -117,7 +116,8 @@ jobs:
           next_patch=$((patch+1))
           new_version="${major}.${minor}.${next_patch}-snapshot"
           jq ".version = \"$new_version\"" package.json > tmp.$$.json && mv tmp.$$.json package.json
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git commit -am "chore: bump version to ${new_version}"
-          git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git main
+
+      - name: Bump version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump version to ${{ env.VERSION }}"
