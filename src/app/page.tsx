@@ -1,12 +1,14 @@
 // page.tsx (Server Component)
 import { HydrateClient } from "~/trpc/server";
+import { auth } from "~/server/auth";
 import LoginPage from "./_components/Login_page";
-import {Search} from "~/app/_components/search";
 
 export default async function Home() {
+  const session = await auth();
+
   return (
     <HydrateClient>
-        <Search />
+      <LoginPage session={session} />
     </HydrateClient>
   );
 }
