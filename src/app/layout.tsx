@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { AuthProvider } from '~/contexts/AuthContext';
 
 export const metadata: Metadata = {
   title: "Pausa",
@@ -15,9 +16,13 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="it" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

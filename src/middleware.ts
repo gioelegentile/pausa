@@ -1,7 +1,6 @@
 import * as jose from 'jose';
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
-import { db } from './server/db';
 import { env } from './env';
 
 export async function middleware(req: NextRequest) {
@@ -63,18 +62,13 @@ export async function middleware(req: NextRequest) {
 
     console.log('Dati utente:', userEmail, userName, userIdentity);
 
-    // Verifica se l'utente esiste nel database o crealo
-    const user = await ensureUserExists(userEmail, userName, userIdentity);
-
-    console.log('Utente:', user);
-
     // Aggiungi informazioni utente alla richiesta che saranno disponibili per l'applicazione
     const requestHeaders = new Headers(req.headers);
-    requestHeaders.set('x-user-id', user.id);
     requestHeaders.set('x-user-email', userEmail);
+    requestHeaders.set('x-user-id', userIdentity);
     requestHeaders.set('x-user-name', userName || '');
 
-    console.log('Richiesta:', requestHeaders);
+    console.log('Richiesta con credenziali:', requestHeaders);
 
     // Continua con la richiesta
     return NextResponse.next({
@@ -97,32 +91,6 @@ export async function middleware(req: NextRequest) {
       { status: 401 }
     );
   }
-}
-
-// Questa funzione garantisce che l'utente esista nel database
-async function ensureUserExists(email: string, name: string, identity: string) {
-  let user = await db.user.findUnique({
-    where: { email },
-  });
-
-  console.log('Utente esistente:', user);
-
-  if (!user) {
-    // Crea un nuovo utente se non esiste
-    user = await db.user.create({
-      data: {
-        email,
-        name,
-        id: identity,
-        // Salva l'ID di Cloudflare come informazione aggiuntiva se necessario
-        // cfIdentity: identity,
-      },
-    });
-
-    console.log('Nuovo utente:', user);
-  }
-
-  return user;
 }
 
 // Configura il middleware per essere eseguito su tutte le route eccetto quelle specificate
