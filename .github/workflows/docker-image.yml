@@ -9,7 +9,10 @@ on:
 jobs:
 
   build:
-    runs-on: [ ubuntu-24.04-arm, ubuntu-22.04-arm]
+    strategy:
+      matrix:
+        runner: [ ubuntu-24.04-arm, ubuntu-22.04-arm]
+    runs-on: ${{ matrix.runner }}
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
@@ -60,7 +63,10 @@ jobs:
           tagging_message: 'v${{ env.VERSION }}'
   
   build-develop:
-    runs-on: [ ubuntu-24.04-arm, ubuntu-22.04-arm]
+    strategy:
+      matrix:
+        runner: [ ubuntu-24.04-arm, ubuntu-22.04-arm]
+    runs-on: ${{ matrix.runner }}
     if: github.ref == 'refs/heads/develop'
     permissions:
       contents: write
