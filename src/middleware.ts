@@ -16,11 +16,14 @@ export async function middleware(req: NextRequest) {
   // Permetti accesso alle risorse statiche
   if (req.nextUrl.pathname.startsWith('/_next') || 
       req.nextUrl.pathname.startsWith('/public')) {
+    console.log('Accesso a risorse statiche consentito');
     return NextResponse.next();
   }
 
   // Estrai il token JWT dal header
   const token = req.headers.get("cf-access-jwt-assertion");
+
+  console.log('Token JWT:', token);
 
   // Se il token è assente, restituisci un errore di autenticazione
   if (!token) {
