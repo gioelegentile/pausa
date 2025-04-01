@@ -1,98 +1,62 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
-import type { AdapterUser } from '@auth/core/adapters';
-import {adapter} from "~/server/auth/config"; // Tipo utile
 
-// --- Configurazione Cloudflare (come prima) ---
+// Il tuo dominio di autenticazione Cloudflare Access
+// Lo trovi nel dashboard Zero Trust -> Access -> Applications -> (la tua app) -> Overview -> App Launcher
+// Oppure è l'<team-name>.cloudflareaccess.com
 const CLOUDFLARE_AUTH_DOMAIN = 'https://gnagno.cloudflareaccess.com';
-const CLOUDFLARE_APP_AUD = 'pausa';
+
+// L'AUD tag della tua applicazione Access (dalle impostazioni JWT)
+const CLOUDFLARE_APP_AUD = process.env.NODE_ENV === 'production' ? 'pausa' : 'pausa-dev';
+
+// URL per ottenere le chiavi pubbliche di Cloudflare per la validazione
 const JWKS_URL = `${CLOUDFLARE_AUTH_DOMAIN}/cdn-cgi/access/certs`;
+
+// Crea un JWKSet remoto (jose gestirà il caching delle chiavi)
 const JWKSet = createRemoteJWKSet(new URL(JWKS_URL));
 
-
 export async function middleware(request: NextRequest) {
+  // 1. Estrai il token JWT dall'header
   const cfJwt = request.headers.get('CF_Authorization');
 
   if (!cfJwt) {
+    // Se non c'è il token, significa che Cloudflare non ha autenticato l'utente
+    // Teoricamente Cloudflare dovrebbe bloccare la richiesta prima che arrivi qui.
+    // Potresti restituire un errore 401/403 o redirigere a una pagina di errore generica.
+    // Nota: Cloudflare Access potrebbe non inviare il JWT per tutte le risorse (es. assets statici),
+    // quindi potresti voler limitare questa logica a specifici path se necessario.
     console.error('Missing CF_Authorization header');
+    // In un vero scenario protetto da Access, questo non dovrebbe accadere per le pagine protette.
+    // Potrebbe essere utile per lo sviluppo locale senza Cloudflare davanti.
     return new NextResponse('Authentication required', { status: 401 });
+    //return NextResponse.next(); // Prosegui se non è strettamente necessario bloccare qui
   }
 
   try {
-    // 1. Valida JWT Cloudflare
+    // 2. Valida il JWT
     const { payload } = await jwtVerify(cfJwt, JWKSet, {
+      // Specifica l'audience attesa (deve corrispondere all'AUD tag)
       audience: CLOUDFLARE_APP_AUD,
+      // Specifica l'issuer atteso (il tuo dominio Cloudflare Access)
       issuer: CLOUDFLARE_AUTH_DOMAIN,
     });
 
-    // 2. Estrai dati utente dal JWT
-    const email = payload.email as string;
-    const name = payload.name as string | undefined; // Il nome potrebbe non essere sempre presente
-    // Aggiungi altri campi se necessario/disponibili (es. payload.groups)
-
-    if (!email) {
-      console.error('JWT is valid but missing email claim');
-      return new NextResponse('Authentication data incomplete', { status: 403 });
-    }
-
-    // 3. Usa l'Adapter per trovare o creare l'utente nel DB
-    let userInDb: AdapterUser | null = null;
-
-    // Verifica se l'adapter è stato inizializzato correttamente (necessario per alcuni adapter)
-    if (adapter.getUserByEmail) {
-      userInDb = await adapter.getUserByEmail(email);
-    } else {
-      console.error("PrismaAdapter not correctly initialized or doesn't support getUserByEmail");
-      // Gestisci l'errore - forse l'adapter richiede un setup asincrono? Consulta la doc specifica.
-      return new NextResponse('Internal Server Error: Adapter initialization failed', { status: 500 });
-    }
-
-
-    if (!userInDb && adapter.createUser) {
-      // Utente non trovato, crealo
-      console.log(`Creating user for email: ${email}`);
-      // Nota: AdapterUser richiede emailVerified come Date o null
-      const newUserPayload: Omit<AdapterUser, 'id'> = {
-        email: email,
-        name: name,
-        emailVerified: new Date(), // Assumiamo verificato da Cloudflare/IdP
-        // Aggiungi altri campi se il tuo schema User li ha e sono nel JWT
-      };
-      userInDb = await adapter.createUser(newUserPayload as AdapterUser);
-      console.log(`User created with ID: ${userInDb.id}`);
-    } else if (userInDb && adapter.updateUser) {
-      // Utente trovato, potresti aggiornarlo se necessario (es. nome cambiato)
-      // Questo è opzionale, potresti voler aggiornare solo il lastLogin o nulla
-      console.log(`User found with ID: ${userInDb.id}. Checking for updates...`);
-      if (name && userInDb.name !== name) {
-        console.log(`Updating user name for ID: ${userInDb.id}`);
-        userInDb = await adapter.updateUser({ id: userInDb.id, name: name });
-      }
-    } else if (!userInDb && !adapter.createUser) {
-      console.error("Adapter cannot create user.");
-      return new NextResponse('Internal Server Error: Adapter configuration issue', { status: 500 });
-    }
-    // A questo punto, userInDb dovrebbe contenere i dati utente dal DB
-
-    if (!userInDb) {
-      // Se ancora non abbiamo userInDb, qualcosa è andato storto
-      console.error(`Failed to find or create user for email: ${email}`);
-      return new NextResponse('Failed to process user information', { status: 500 });
-    }
-
-    // 4. Prepara i dati da passare avanti
-    const finalUserData = {
-      id: userInDb.id, // ID dal database!
-      email: userInDb.email,
-      name: userInDb.name,
-      // Aggiungi altri campi dal record del DB se necessario
+    // 3. Estrai i dati utente (claims) dal payload del JWT
+    const userData = {
+      email: payload.email as string,
+      id: payload.sub as string, // 'sub' è solitamente l'identificativo univoco (spesso l'email)
+      // Aggiungi altri campi che ti aspetti dal tuo IdP, es:
+      name: payload.name as string,
+      // groups: payload.groups as string[],
     };
 
-    // 5. Passa i dati utente del DB tramite header
+    // 4. (Opzionale ma consigliato) Passa i dati utente alle pagine/route successive
+    // Puoi aggiungere header personalizzati alla richiesta inoltrata
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('X-User-Data', JSON.stringify(finalUserData));
+    requestHeaders.set('X-User-Data', JSON.stringify(userData)); // Passa come JSON stringato
 
+    // Inoltra la richiesta con i nuovi header
     return NextResponse.next({
       request: {
         headers: requestHeaders,
@@ -100,13 +64,24 @@ export async function middleware(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Middleware Error (JWT Validation or DB Interaction):', error);
-    // Gestisci l'errore (JWT non valido o problemi DB)
-    return new NextResponse('Authentication Error or Internal Issue', { status: 403 }); // O 500 se è un problema DB
+    console.error('JWT Validation Failed:', error);
+    // Il token non è valido (scaduto, firma errata, audience/issuer non corrispondenti)
+    // Restituisci un errore 403 (Forbidden)
+    return new NextResponse('Invalid authentication token', { status: 403 });
   }
 }
 
-// Configurazione matcher (come prima)
+// Configura il matcher per specificare su quali path eseguire il middleware
+// Esempio: esegui su tutte le rotte tranne quelle statiche e API interne di Next.js
 export const config = {
-  matcher: [ '/((?!api|_next/static|_next/image|favicon.ico).*)' ],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes) -> Potresti volerlo includere se le API richiedono auth
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 };
