@@ -19,24 +19,23 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN SKIP_ENV_VALIDATION=1 npm run build
 
 ##### RUNNER
-FROM --platform=linux/arm64 node:20-bookworm-slim AS runner
+FROM --platform=linux/arm64 node:20-bookworm AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
-
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
-COPY --from=builder /app/prisma ./prisma
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
+
+RUN npm install -g prisma
+RUN npm install @prisma/client
 
 EXPOSE 3001
 ENV PORT 3001
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npm run db:deploy && node server.js"]
