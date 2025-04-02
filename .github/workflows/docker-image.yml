@@ -57,11 +57,8 @@ jobs:
       - name: New Tag
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${env.VERSION}" \
-            --title="${env.VERSION}" \
-            --repo=${github.repository} \
-            --generate-notes
+        run: | # create a new tag and push it to the repository
+          gh api repos/${{ github.repository }}/git/refs/tags/v${{ env.VERSION }} -X PUT -f sha=${{ github.sha }} -f force=true
   
   build-develop:
     runs-on: ubuntu-24.04-arm
