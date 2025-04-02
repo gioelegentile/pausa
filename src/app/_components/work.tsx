@@ -4,11 +4,11 @@ import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import { type Movie } from "~/server/tmdb/tmdbapi";
 import { StarIcon } from "@heroicons/react/16/solid";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
+import { type Movie } from "../api/search/route";
 
 type WorkProps = {
   data: Movie;
@@ -43,7 +43,7 @@ export function Work({ data }: WorkProps) {
       ratingMutation.mutateAsync({ tmdbId: data.id, workId: work.id, rating: rate })
         .catch(error => console.error("Error rating movie:", error));
     }
-  }, []);
+  }, [data.id, ratingMutation, workMutation, workQuery.data]);
 
   useEffect(() => {
     if (workQuery.data) {

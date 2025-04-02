@@ -3,15 +3,10 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
-  protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
 
 export const workRouter = createTRPCRouter({
-
-  // POST /api/work/create
-  // payload: { tmdbId: number }
-  // response: { id: number, tmdbId: number, createdAt: string }
 
   create: publicProcedure
     .input(z.object({ tmdbId: z.number() }))

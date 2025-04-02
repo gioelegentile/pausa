@@ -75,6 +75,7 @@ export async function middleware(req: NextRequest) {
       },
     });
   } catch (error) {    
+    console.error("Errore durante la verifica del token JWT:", error);
     return NextResponse.json(
       { error: "Token di autenticazione non valido" },
       { status: 401 }

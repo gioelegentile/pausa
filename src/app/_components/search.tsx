@@ -1,64 +1,52 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import theMovieDb, { type Movie, type MoviesResponse } from "~/server/tmdb/tmdbapi";
-
+import { useCallback, useMemo, useState } from "react";
 import { Work } from "./work";
+import { type Movie, type MoviesResponse } from "../api/search/route";
 
 export function Search() {
-  // const [ratedWorks] = api.work.getAllRated.useSuspenseQuery([
-  //   {
-  //     orderBy: 'createdAt',
-  //     orderDirection: 'desc'
-  //   }
-  // ]);
-
-  // const utils = api.useUtils();
-  const searchInitialState = {
+  const searchInitialState = useMemo(() => ({
     page: 0,
     results: [],
     total_pages: 0,
     total_results: 0,
-  };
+  }), []);
 
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] =
-    useState<MoviesResponse>(searchInitialState);
+  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
 
-  // const createPost = api.work.create.useMutation({
-  //   onSuccess: async () => {
-  //     await utils.work.invalidate();
-  //     setName("");
-  //   },
-  // });
+  const handleSearch = useCallback(() => {
+    if (!searchText.trim()) return;
 
-  const handleClick = useCallback(() => {
     setIsSearching(true);
-    theMovieDb.search!.getMovie(
-      {
-        query: searchText,
-      },
-      (res: string) => {
-        const parsed: MoviesResponse = JSON.parse(res) as MoviesResponse;
-        parsed.results = parsed.results.slice(0, 18);
-        console.log(parsed);
-        setSearchResult(parsed);
-        setIsSearching(false);
-      },
-      () => {
+
+    fetch(`/api/search?query=${encodeURIComponent(searchText)}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to search movies');
+        }
+        return response.json();
+      })
+      .then((data: MoviesResponse) => {
+        console.log(data);
+        setSearchResult(data);
+      })
+      .catch((error) => {
+        console.error('Error searching movies:', error);
         setSearchResult(searchInitialState);
+      })
+      .finally(() => {
         setIsSearching(false);
-      },
-    );
-  }, [searchText, setIsSearching, setSearchResult]);
+      });
+  }, [searchText, setIsSearching, setSearchResult, searchInitialState]);
 
   return (
     <div className="relative mt-4 w-full p-10">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          // createPost.mutate({ name });
+          handleSearch();
         }}
         className="flex flex-row gap-2"
       >
@@ -73,7 +61,6 @@ export function Search() {
           type="submit"
           className="me-2 mb-2 rounded-full bg-gray-800 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-900 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
           disabled={searching}
-          onClick={handleClick}
         >
           {searching ? "Searching..." : "Search"}
         </button>
