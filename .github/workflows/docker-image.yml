@@ -55,10 +55,16 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: New Tag
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          tagging_message: "v${{ env.VERSION }}"
-          push_options: --tags
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: | 
+          TAG=${{ env.VERSION }}
+          gh auth status
+          gh release create $TAG \
+          --title "$TAG" \
+          --notes "Release $TAG" \
+          --target ${{ github.sha }} \
+          --generate-notes
   
   build-develop:
     runs-on: ubuntu-24.04-arm
