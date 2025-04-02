@@ -60,7 +60,11 @@ jobs:
         run: | 
           TAG=${{ env.VERSION }}
           gh auth status
-          gh tag create "$TAG" --push
+          gh release create $TAG \
+          --title "$TAG" \
+          --notes "Release $TAG" \
+          --target ${{ github.sha }} \
+          --generate-notes
   
   build-develop:
     runs-on: ubuntu-24.04-arm
