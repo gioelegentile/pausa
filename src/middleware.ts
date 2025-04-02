@@ -8,6 +8,7 @@ function testUser(req: NextRequest) {
   requestHeaders.set('x-user-email', 'test@gmail.com');
   requestHeaders.set('x-user-id', 'test-user');
   requestHeaders.set('x-user-name', 'test user');
+  requestHeaders.set('x-user-picture', 'https://lh3.googleusercontent.com/a/ACg8ocJvEF9xFEEMqKKMGitaQSAxCeuKn-cTbkcVv4XofzcY3QHfJ7sm=s96-c');
 
   return NextResponse.next({
     request: {

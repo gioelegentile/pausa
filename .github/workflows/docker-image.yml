@@ -3,8 +3,6 @@ name: Build and Push to GHCR
 on:
   push:
     branches: [ "main", "develop" ]
-    tags:
-      - 'v*.*.*'
 
 jobs:
 
@@ -92,7 +90,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=${{ env.VERSION }}
+            type=raw,value=${{ env.VERSION }}-{{date 'YYYYMMDDhhmm'}}
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -120,10 +118,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Set next snapshot version
         run: |
-          version=$(node -p "require('./package.json').version")
+          version=$(node -p "require('./package.json').version.replace('-snapshot', '')")
           IFS='.' read -r major minor patch <<< "$version"
           next_patch=$((patch+1))
           new_version="${major}.${minor}.${next_patch}-snapshot"
@@ -134,3 +134,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: bump version to ${{ env.NEW_VERSION }}"
+          branch: develop
