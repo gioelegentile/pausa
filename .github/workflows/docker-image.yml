@@ -57,10 +57,9 @@ jobs:
       - name: New Tag
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.meta.outputs.tags }}
         run: |
-          gh release create ${{ tag }} \
-            --title "${{ tag }}" \
+          gh release create ${{ steps.meta.outputs.tags }} \
+            --title "${{ steps.meta.outputs.tags }}" \
             --repo ${{ github.repository }} \
             --generate-notes
   
