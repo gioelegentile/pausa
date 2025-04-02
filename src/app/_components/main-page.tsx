@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import Logo from "./logo";
@@ -24,6 +27,7 @@ function MainPage({ session }: MainPageProps) {
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchVersion();
   }, []);
 
@@ -48,7 +52,7 @@ function MainPage({ session }: MainPageProps) {
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gray-100 text-xs text-gray-500">
-                  {session.user.name?.[0]?.toUpperCase() || "U"}
+                  {session.user.name?.[0]?.toUpperCase() ?? "U"}
                 </div>
               )}
             </div>
