@@ -8,6 +8,7 @@ function testUser(req: NextRequest) {
   requestHeaders.set('x-user-email', 'test@gmail.com');
   requestHeaders.set('x-user-id', 'test-user');
   requestHeaders.set('x-user-name', 'test user');
+  requestHeaders.set('x-user-picture', 'https://lh3.googleusercontent.com/a/ACg8ocJvEF9xFEEMqKKMGitaQSAxCeuKn-cTbkcVv4XofzcY3QHfJ7sm=s96-c');
 
   return NextResponse.next({
     request: {
@@ -59,7 +60,9 @@ export async function middleware(req: NextRequest) {
 
     // Estrai i dati dell'utente dal payload
     const userEmail = result.payload.email as string;
-    const userName = result.payload.name as string;
+    const customPayload = result.payload.custom as { name?: string, picture?: string } | undefined;
+    const userName = customPayload?.name ?? '';
+    const userPicture = customPayload?.picture ?? '';
     const userIdentity = result.payload.sub!;
 
     // Aggiungi informazioni utente alla richiesta che saranno disponibili per l'applicazione
@@ -67,6 +70,7 @@ export async function middleware(req: NextRequest) {
     requestHeaders.set('x-user-email', userEmail);
     requestHeaders.set('x-user-id', userIdentity);
     requestHeaders.set('x-user-name', userName || '');
+    requestHeaders.set('x-user-picture', userPicture || '');
 
     // Continua con la richiesta
     return NextResponse.next({
