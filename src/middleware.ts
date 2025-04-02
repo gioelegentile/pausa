@@ -60,8 +60,8 @@ export async function middleware(req: NextRequest) {
     // Estrai i dati dell'utente dal payload
     const userEmail = result.payload.email as string;
     const customPayload = result.payload.custom as { name?: string, picture?: string } | undefined;
-    const userName = customPayload?.name || '';
-    const userPicture = customPayload?.picture || '';
+    const userName = customPayload?.name ?? '';
+    const userPicture = customPayload?.picture ?? '';
     const userIdentity = result.payload.sub!;
 
     // Aggiungi informazioni utente alla richiesta che saranno disponibili per l'applicazione
