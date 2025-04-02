@@ -19,7 +19,7 @@ async function convertImageToBase64(imageUrl: string): Promise<string | null> {
     const buffer = Buffer.from(arrayBuffer);
     
     // Converti il Buffer in stringa base64
-    const base64String = `data:${response.headers.get('content-type') || 'image/jpeg'};base64,${buffer.toString('base64')}`;
+    const base64String = `data:${response.headers.get('content-type') ?? 'image/jpeg'};base64,${buffer.toString('base64')}`;
     
     return base64String;
   } catch (error) {
