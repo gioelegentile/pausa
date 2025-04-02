@@ -1,31 +1,67 @@
-# Create T3 App
+# Pausa
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Pausa è un'applicazione per votare opere audiovisive (film, serie TV, anime) e condividere i voti con una community ristretta di amici. Utilizza i dati di The Movie Database (TMDb) per reperire informazioni sulle opere e mostrare i voti globali, ma permette anche di esprimere voti personalizzati all'interno della sub-community di Pausa.
 
-## What's next? How do I make an app with this?
+## Funzionalità principali
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- **Votazione di film, serie TV e anime**: puoi votare qualsiasi opera e vedere i voti di TMDb e quelli degli altri utenti di Pausa.
+- **Condivisione con la community**: confronta i voti con quelli dei tuoi amici e scopri nuove opere consigliate.
+- **Classifiche personalizzate**: esplora le opere più votate dalla tua cerchia di amici.
+- **Autenticazione sicura**: l'accesso è gestito tramite Cloudflare.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Stack Tecnologico
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+L'applicazione utilizza la **T3 Stack**, che include:
+- [**Next.js**](https://nextjs.org)
+- [**Prisma**](https://prisma.io)
+- [**SQLite**](https://www.sqlite.org/)
+- [**Tailwind CSS**](https://tailwindcss.com)
+- [**tRPC**](https://trpc.io)
+- [**Cloudflare**](https://www.cloudflare.com/)
 
-## Learn More
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Hosting e Deploy
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Pausa è ospitata su un **Raspberry Pi** con **Minikube** per la gestione del cluster Kubernetes.
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+### Processo di deploy
+- Ad ogni commit su `main` e `develop`, una **GitHub Action** esegue la build dell'immagine Docker.
+- Le immagini vengono pubblicate su **GitHub Container Registry (GHCR)**.
+- Un webhook notifica il server per aggiornare il cluster Kubernetes con la nuova versione.
 
-## How do I deploy this?
+## Installazione locale
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Se vuoi eseguire Pausa in locale:
 
-# test ci 2
+1. Clona il repository:
+   ```sh
+   git clone https://github.com/gioelegentile/pausa.git
+   cd pausa
+   ```
+
+2. Installa le dipendenze:
+   ```sh
+   npm install
+   ```
+
+3. Avvia il server di sviluppo:
+   ```sh
+   npm run dev
+   ```
+
+L'app sarà disponibile su `http://localhost:3000`.
+
+## Contributi
+
+Se vuoi contribuire al progetto, sentiti libero di aprire una **Issue** o un **Pull Request** su GitHub!
+
+---
+
+### Contatti
+
+Per domande o suggerimenti, contattami su GitHub!
+
+---
+
+> Questo progetto è nato per condividere consigli tra amici. Se anche tu vuoi entrare nella community, unisciti a noi su Pausa! 🎬🍿
+
