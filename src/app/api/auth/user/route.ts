@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   const userEmail = req.headers.get('x-user-email');
   const userName = req.headers.get('x-user-name');
   const userId = req.headers.get('x-user-id');
+  const userImage = req.headers.get('x-user-picture');
   
   if (!userEmail || !userId) {
     return NextResponse.json({ error: 'Informazioni utente mancanti' }, { status: 400 });
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
           email: userEmail,
           name: userName ?? '',
           id: userId,
+          image: userImage ?? '',
         },
       });
     }
