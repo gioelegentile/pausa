@@ -218,7 +218,7 @@ export function Search() {
       {searchResult.results.length === 0 && searchText && !searching && (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            No results found for "{searchText}"
+            No results found for &#34;{searchText}&#34;
           </p>
         </div>
       )}
