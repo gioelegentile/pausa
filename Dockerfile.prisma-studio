@@ -1,0 +1,9 @@
+FROM --platform=linux/arm64 node:20-bookworm-slim
+WORKDIR /
+
+COPY prisma ./
+
+EXPOSE 5555
+ENV PORT 5555
+
+CMD ["npx", "prisma", "studio", "--port", "5555", "--browser", "none"]

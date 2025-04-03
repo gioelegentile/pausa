@@ -1,0 +1,150 @@
+name: Build and Push to GHCR
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+
+  build:
+    runs-on: ubuntu-24.04-arm
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract current version from package.json
+        id: get-version
+        run: |
+          version=$(node -p "require('./package.json').version.replace('-snapshot', '')")
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ env.VERSION }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          build-args: |
+            NEXT_PUBLIC_CLIENTVAR=clientvar
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Remove snapshot from version
+        run: |
+          jq ".version = \"${{ env.VERSION }}\"" package.json > tmp.$$.json && mv tmp.$$.json package.json
+
+      - name: Commit version change
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump version to ${{ env.VERSION }}"
+
+      - name: Create release and tag
+        env: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: | 
+          TAG=${{ env.VERSION }}
+          gh auth status
+          gh release create $TAG \
+          --title "$TAG" \
+          --notes "Release $TAG" \
+          --target ${{ github.sha }} \
+          --generate-notes
+  
+  bump-version-develop:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Set next snapshot version
+        run: |
+          version=$(node -p "require('./package.json').version.replace('-snapshot', '')")
+          IFS='.' read -r major minor patch <<< "$version"
+          next_patch=$((patch+1))
+          new_version="${major}.${minor}.${next_patch}-snapshot"
+          echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
+          jq ".version = \"$new_version\"" package.json > tmp.$$.json && mv tmp.$$.json package.json
+
+      - name: Bump version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: bump version to ${{ env.NEW_VERSION }}"
+          branch: develop
+
+  build-develop:
+    runs-on: ubuntu-24.04-arm
+    if: github.ref == 'refs/heads/develop'
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract current version from package.json
+        id: get-version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "VERSION=${version}" >> $GITHUB_ENV
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ env.VERSION }}-{{date 'YYYYMMDDhhmm'}}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          build-args: |
+            NEXT_PUBLIC_CLIENTVAR=clientvar
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

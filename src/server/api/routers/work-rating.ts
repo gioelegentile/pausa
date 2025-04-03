@@ -1,10 +1,8 @@
 import moment from "moment";
 import { z } from "zod";
-import { TRPCError } from "@trpc/server";
 
 import {
     createTRPCRouter,
-    protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 
@@ -17,19 +15,12 @@ export const workRatingRouter = createTRPCRouter({
             rating: z.number(),
         }))
         .mutation(async ({ ctx, input }) => {
-            if (!ctx.session?.user) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "Devi essere loggato per votare",
-                });
-            }
-
             return ctx.db.workRating.create({
                 data: {
                     tmdbId: input.tmdbId,
                     rating: input.rating,
                     workId: input.workId,
-                    userId: ctx.session.user.id,
+                    userId: ctx.session.user!.id,
                     updatedAt: moment().toISOString(),
                     createdAt: moment().toISOString()
                 },
@@ -43,13 +34,6 @@ export const workRatingRouter = createTRPCRouter({
             rating: z.number(),
         }))
         .mutation(async ({ ctx, input }) => {
-            if (!ctx.session?.user) {
-                throw new TRPCError({
-                    code: "UNAUTHORIZED",
-                    message: "Devi essere loggato per aggiornare un voto",
-                });
-            }
-
             return ctx.db.workRating.update({
                 where: {
                     id: input.id,
@@ -64,14 +48,10 @@ export const workRatingRouter = createTRPCRouter({
     getByTmdbId: publicProcedure
         .input(z.number())
         .query(async ({ ctx, input }) => {
-            if (!ctx.session?.user) {
-                return null; // Se l'utente non è loggato, restituisci null
-            }
-
             const rating = await ctx.db.workRating.findFirst({
                 where: {
                     tmdbId: input,
-                    userId: ctx.session.user.id
+                    userId: ctx.session.user!.id
                 }
             });
 

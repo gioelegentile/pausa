@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
-import theMovieDb, { MoviesResponse, Movie } from "~/server/tmdb/tmdbapi";
+import { useCallback, useMemo, useState } from "react";
 import { Work } from "./work";
+import { type Movie, type MoviesResponse } from "../api/search/route";
 import { MagnifyingGlassIcon, FilmIcon, TvIcon } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
 
@@ -26,231 +26,73 @@ const TOP_ANIME = [
 ];
 
 export function Search() {
-  const searchInitialState = {
+  const searchInitialState = useMemo(() => ({
     page: 0,
     results: [],
     total_pages: 0,
     total_results: 0,
-  };
+  }), []);
 
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
+  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [topRatedMedia, setTopRatedMedia] = useState<Movie[]>([]);
   const [isLoadingTopRated, setIsLoadingTopRated] = useState(true);
-  
+
   // Stato per il tipo di media selezionato
   const [mediaType, setMediaType] = useState<MediaType>("movie");
 
-  // Carica i contenuti con i voti più alti all'avvio in base al tipo di media selezionato
-  useEffect(() => {
-    setIsLoadingTopRated(true);
-    setSearchResult(searchInitialState);
-    
-    if (mediaType === "movie") {
-      theMovieDb.movies.getTopRated(
-        {},
-        (res: string) => {
-          const parsed: MoviesResponse = JSON.parse(res);
-          setTopRatedMedia(parsed.results.slice(0, 12));
-          setIsLoadingTopRated(false);
-        },
-        (err: any) => {
-          console.log(err);
-          setIsLoadingTopRated(false);
-        }
-      );
-    } else if (mediaType === "tv") {
-      theMovieDb.tv.getTopRated(
-        {},
-        (res: string) => {
-          const parsed: MoviesResponse = JSON.parse(res);
-          setTopRatedMedia(parsed.results.slice(0, 12));
-          setIsLoadingTopRated(false);
-        },
-        (err: any) => {
-          console.log(err);
-          setIsLoadingTopRated(false);
-        }
-      );
-    } else if (mediaType === "anime") {
-      // Per gli anime, utilizziamo una lista predefinita anziché l'API
-      const fetchSpecificAnime = async () => {
-        try {
-          // Creiamo un array per contenere i risultati delle ricerche
-          let animeResults: Movie[] = [];
-          
-          // Cerchiamo ogni anime individualmente
-          for (const animeTitle of TOP_ANIME) {
-            // Utilizziamo una Promise per wrappare la chiamata callback-based di TMDB
-            const result = await new Promise<any>((resolve, reject) => {
-              theMovieDb.search.getTv(
-                { query: animeTitle, include_adult: "false" },
-                (res: string) => {
-                  const parsed = JSON.parse(res);
-                  // Prendiamo solo il primo risultato per ogni anime
-                  if (parsed.results && parsed.results.length > 0) {
-                    resolve(parsed.results[0]);
-                  } else {
-                    resolve(null);
-                  }
-                },
-                (err: any) => {
-                  console.error(`Error fetching ${animeTitle}:`, err);
-                  resolve(null);
-                }
-              );
-            });
-            
-            if (result) {
-              animeResults.push(result);
-            }
-          }
-          
-          // Filtriamo eventuali risultati nulli
-          animeResults = animeResults.filter(Boolean);
-          
-          // Assegniamo i risultati agli anime top-rated
-          setTopRatedMedia(animeResults);
-          setIsLoadingTopRated(false);
-        } catch (error) {
-          console.error("Error fetching anime list:", error);
-          setIsLoadingTopRated(false);
-        }
-      };
-      
-      fetchSpecificAnime();
-    }
-  }, [mediaType]);
-
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
-    
+
     setIsSearching(true);
-    
-    if (mediaType === "movie") {
-      theMovieDb.search.getMovie(
-        { query: searchText },
-        (res: string) => {
-          const parsed: MoviesResponse = JSON.parse(res);
-          parsed.results = parsed.results.slice(0, 18);
-          setSearchResult(parsed);
-          setIsSearching(false);
-        },
-        (err: any) => {
-          console.log(err);
-          setSearchResult(searchInitialState);
-          setIsSearching(false);
-        }
-      );
-    } else if (mediaType === "tv") {
-      theMovieDb.search.getTv(
-        { query: searchText },
-        (res: string) => {
-          const parsed: MoviesResponse = JSON.parse(res);
-          // Filtriamo per escludere anime dai risultati delle serie TV
-          parsed.results = parsed.results
-            .filter(item => 
-              !(item.name?.toLowerCase().includes('anime') || 
-                item.original_name?.toLowerCase().includes('anime') ||
-                item.genre_ids?.includes(16)) // ID 16 è Animation
-            )
-            .slice(0, 18);
-          setSearchResult(parsed);
-          setIsSearching(false);
-        },
-        (err: any) => {
-          console.log(err);
-          setSearchResult(searchInitialState);
-          setIsSearching(false);
-        }
-      );
-    } else if (mediaType === "anime") {
-      // Utilizziamo la stessa modalità di ricerca che abbiamo usato per i top anime
-      const fetchAnimeSearch = async () => {
-        try {
-          // Prima, cerchiamo serie TV che corrispondono al termine di ricerca + "anime"
-          const animeResults = await new Promise<Movie[]>((resolve, reject) => {
-            theMovieDb.search.getTv(
-              { query: `${searchText} anime` },
-              (res: string) => {
-                const parsed = JSON.parse(res);
-                resolve(parsed.results || []);
-              },
-              (err: any) => {
-                console.error(`Error searching for anime:`, err);
-                resolve([]);
-              }
-            );
-          });
-          
-          // Poi, cerchiamo serie TV che corrispondono al termine di ricerca
-          const regularResults = await new Promise<Movie[]>((resolve, reject) => {
-            theMovieDb.search.getTv(
-              { query: searchText },
-              (res: string) => {
-                const parsed = JSON.parse(res);
-                // Filtriamo per includere solo potenziali anime
-                const filteredResults = (parsed.results || []).filter(item => 
-                  // Controllo per parole chiave legate ad anime nei titoli
-                  item.name?.toLowerCase().includes('anime') ||
-                  item.original_name?.toLowerCase().includes('anime') ||
-                  // O è un'animazione (ID genere 16)
-                  item.genre_ids?.includes(16) ||
-                  // O proviene dal Giappone
-                  item.origin_country?.includes('JP')
-                );
-                resolve(filteredResults);
-              },
-              (err: any) => {
-                console.error(`Error searching for anime:`, err);
-                resolve([]);
-              }
-            );
-          });
-          
-          // Combiniamo e rimuoviamo duplicati (basandoci sugli ID)
-          const allResults = [...animeResults];
-          regularResults.forEach(item => {
-            if (!allResults.some(existing => existing.id === item.id)) {
-              allResults.push(item);
-            }
-          });
-          
-          const parsed: MoviesResponse = {
-            ...searchInitialState,
-            results: allResults.slice(0, 18)
-          };
-          
-          setSearchResult(parsed);
-          setIsSearching(false);
-        } catch (error) {
-          console.error("Error fetching anime search:", error);
-          setSearchResult(searchInitialState);
-          setIsSearching(false);
-        }
-      };
-      
-      fetchAnimeSearch();
-    }
-  }, [searchText, mediaType]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSearch();
-    }
-  };
+      if (mediaType === "movie") {
+    fetch(`/api/search?query=${encodeURIComponent(searchText)}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to search movies');
+        }
+        return response.json();
+      })
+      .then((data: MoviesResponse) => {
+        console.log(data);
+        setSearchResult(data);
+      })
+      .catch((error) => {
+        console.error('Error searching movies:', error);
+        setSearchResult(searchInitialState);
+      })
+      .finally(() => {
+        setIsSearching(false);
+      });
 
-  // Funzione per ottenere il titolo in base al tipo di media
-  const getMediaTitle = (type: MediaType): string => {
-    switch (type) {
-      case "movie": return "Movies";
-      case "tv": return "TV Shows";
-      case "anime": return "Anime";
-      default: return "Movies";
-    }
-  };
+      } else if (mediaType === "tv") {
+          ///
+          setIsSearching(false);
+      } else if (mediaType === "anime") {
+          ///
+          setIsSearching(false);
+      }
+  }, [searchText, setIsSearching, setSearchResult, searchInitialState]);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
+        }
+    };
+
+    // Funzione per ottenere il titolo in base al tipo di media
+    const getMediaTitle = (type: MediaType): string => {
+        switch (type) {
+            case "movie": return "Movies";
+            case "tv": return "TV Shows";
+            case "anime": return "Anime";
+            default: return "Movies";
+        }
+    };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

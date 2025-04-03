@@ -13,7 +13,8 @@ const config = {
                 hostname: "image.tmdb.org",
             }
         ]
-    }
+    },
+    output: "standalone",
 };
 
 export default config;

@@ -1,7 +1,8 @@
 -- CreateTable
 CREATE TABLE "Work" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "tmdbId" INTEGER NOT NULL
+    "tmdbId" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL
 );
 
 -- CreateTable
@@ -11,6 +12,8 @@ CREATE TABLE "WorkRating" (
     "tmdbId" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
     "rating" REAL NOT NULL,
+    "createdAt" DATETIME NOT NULL,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "WorkRating_workId_fkey" FOREIGN KEY ("workId") REFERENCES "Work" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "WorkRating_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

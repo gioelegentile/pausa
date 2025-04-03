@@ -1,14 +1,14 @@
 // page.tsx (Server Component)
 import { HydrateClient } from "~/trpc/server";
-import { auth } from "~/server/auth";
-import LoginPage from "./_components/Login_page";
+import { auth } from "~/server/auth/cloudflare"; // Cambiato l'import
+import MainPage from "./_components/main-page";
 
 export default async function Home() {
   const session = await auth();
 
   return (
     <HydrateClient>
-      <LoginPage session={session} />
+      <MainPage session={session} />
     </HydrateClient>
   );
 }

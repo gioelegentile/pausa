@@ -1,31 +1,56 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePause } from "@fortawesome/free-solid-svg-icons";
+import { PauseCircleIcon } from "@heroicons/react/24/solid";
+import Link from "next/link";
 
-type LogoProps = {
+interface LogoProps {
+  size?: "small" | "medium" | "large";
   className?: string;
-  showText?: boolean;
-};
+  hideText?: boolean;
+  absolute?: boolean;
+}
 
-export default function Logo({ className = "", showText = true }: LogoProps) {
+export default function Logo({ 
+  size = "medium", 
+  className = "", 
+  hideText = false,
+  absolute = false 
+}: LogoProps) {
+  // Size configurations
+  const sizeConfig = {
+    small: {
+      container: "h-8 w-8",
+      icon: "h-6 w-6",
+      text: "text-lg"
+    },
+    medium: {
+      container: "h-12 w-12",
+      icon: "h-10 w-10",
+      text: "text-2xl"
+    },
+    large: {
+      container: "h-16 w-16",
+      icon: "h-14 w-14",
+      text: "text-3xl"
+    }
+  };
+
+  const positionClass = absolute ? "absolute top-4 left-4 z-10" : "";
+
   return (
-    <>
-      <div className={`flex items-center gap-2 ${className}`}>
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500">
-          <FontAwesomeIcon
-            icon={faCirclePause}
-            size="lg"
-            style={{ color: "#ffffff" }}
-          />
+    <div className={`${positionClass} ${className}`}>
+      <Link href="/" className="flex items-center gap-2">
+        <div className={`flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800 ${sizeConfig[size].container}`}>
+          <PauseCircleIcon className={`${sizeConfig[size].icon} text-white`} />
         </div>
 
-        {showText && (
-          <span className="bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-xl font-semibold text-transparent">
+        {!hideText && (
+          <span className={`bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text font-semibold text-transparent ${sizeConfig[size].text}`}>
             Pausa
           </span>
         )}
-      </div>
-    </>
+      </Link>
+    </div>
   );
 }
