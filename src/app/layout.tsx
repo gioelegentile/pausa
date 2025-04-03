@@ -7,8 +7,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { AuthProvider } from '~/contexts/AuthContext';
 
 export const metadata: Metadata = {
-  title: "Pausa",
-  description: "Un posto per votare i film, le serie TV e gli anime, e condividere le tue opinioni con gli altri.",
+  title: "Pausa - Scopri e vota film, serie TV e anime",
+  description: "Esplora, vota e commenta i tuoi film, serie TV e anime preferiti.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
