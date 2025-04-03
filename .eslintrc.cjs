@@ -37,9 +37,6 @@ const config = {
         }
       }
     ]
-  },
-  "ignorePatterns": [
-    "src/server/tmdb/tmdbapi.ts"
-  ]
+  }
 }
 module.exports = config;
