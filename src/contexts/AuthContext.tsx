@@ -9,6 +9,7 @@ type User = {
   id: string;
   email: string;
   name: string;
+  image?: string;
 } | null;
 
 type AuthContextType = {
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadUserData() {
+    const timeoutId = setTimeout(async () => {
       try {
         const response = await fetch('/api/auth/user');
         
@@ -42,10 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } finally {
         setLoading(false);
       }
-    }
+    }, 100);
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    loadUserData();
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

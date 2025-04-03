@@ -8,6 +8,7 @@ import { Search } from "./search";
 import { type CloudflareSession } from "~/server/auth/cloudflare";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useAuth } from "~/contexts/AuthContext";
 
 interface MainPageProps {
   session: CloudflareSession | null;
@@ -15,6 +16,9 @@ interface MainPageProps {
 
 function MainPage({ session }: MainPageProps) {
   const [version, setVersion] = useState<string>("N/A");
+  const { user, loading } = useAuth();
+
+  const userData = user || session?.user || null;
 
   useEffect(() => {
     const fetchVersion = async () => {
@@ -38,21 +42,21 @@ function MainPage({ session }: MainPageProps) {
           <Logo size="small" absolute={false} />
         </div>
         
-        {session?.user && (
+        {userData && !loading && (
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium">{session.user.name}</span>
+            <span className="text-sm font-medium">{userData.name}</span>
             <div className="h-8 w-8 overflow-hidden rounded-full border border-gray-200">
-              {session.user.image ? (
+              {userData.image ? (
                 <Image 
-                  src={session.user.image} 
-                  alt={`${session.user.name}'s profile`} 
+                  src={userData.image} 
+                  alt={`${userData.name}'s profile`} 
                   width={32}
                   height={32}
                   className="h-full w-full object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gray-100 text-xs text-gray-500">
-                  {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                  {userData.name?.[0]?.toUpperCase() ?? "U"}
                 </div>
               )}
             </div>
