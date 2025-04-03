@@ -21,6 +21,7 @@ export function Search() {
   const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [topRatedMedia, setTopRatedMedia] = useState<Movie[]>([]);
   const [isLoadingTopRated, setIsLoadingTopRated] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Stato per il tipo di media selezionato
   const [mediaType, setMediaType] = useState<MediaType>("movie");
@@ -28,6 +29,7 @@ export function Search() {
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
 
+    setHasSearched(true);
     setIsSearching(true);
 
     if (mediaType === "movie") {
@@ -215,7 +217,7 @@ export function Search() {
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {searchResult.results.length === 0 && searchText && !searching && (
+      {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
             No results found for &#34;{searchText}&#34;
