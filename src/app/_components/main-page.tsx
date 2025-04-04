@@ -32,20 +32,20 @@ function MainPage({ session }: MainPageProps) {
   }, []);
 
   return (
-    <main className="relative h-screen">
+    <main className="relative flex min-h-screen flex-col">
       <nav className="flex items-center justify-between p-4">
         <div className="flex items-center">
           <Logo size="small" absolute={false} />
         </div>
-        
+
         {session?.user && (
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium">{session.user.name}</span>
             <div className="h-8 w-8 overflow-hidden rounded-full border border-gray-200">
               {session.user.image ? (
-                <Image 
-                  src={session.user.image} 
-                  alt={`${session.user.name}'s profile`} 
+                <Image
+                  src={session.user.image}
+                  alt={`${session.user.name}'s profile`}
                   width={32}
                   height={32}
                   className="h-full w-full object-cover"
@@ -60,12 +60,15 @@ function MainPage({ session }: MainPageProps) {
         )}
       </nav>
 
-      <div className="relative">
-        <div className="flex flex-col items-center justify-center gap-4 pt-16">
-          <Search />
+      <div className="flex-1">
+        <div className="relative">
+          <div className="flex flex-col items-center justify-center gap-4 pt-16">
+            <Search />
+          </div>
         </div>
       </div>
-      <footer className="absolute bottom-0 left-0 right-0 flex items-center justify-center p-4 text-xs text-gray-500">
+
+      <footer className="flex items-center justify-center p-4 text-xs text-gray-500">
         <div>v{version}</div>
       </footer>
     </main>
