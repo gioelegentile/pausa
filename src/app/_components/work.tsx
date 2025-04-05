@@ -109,7 +109,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       case "movie":
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-blue-500 text-white mb-2 mr-1">
-            Movie
+            Film
           </span>
         );
       case "tvshow":
@@ -127,7 +127,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       case "game":
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2 mr-1">
-            Game
+            Gioco
           </span>
         );
       default:
@@ -169,12 +169,12 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             {/* Badge per contenuti nuovi o popolari */}
             {moment(data.release_date).isAfter(moment().subtract(3, 'months')) && (
               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2">
-                New
+                Nuovo
               </span>
             )}
             {data.vote_average > 7.5 && (
               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-500 text-white mb-2 ml-1">
-                Popular
+                Popolare
               </span>
             )}
           </div>
@@ -223,7 +223,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             ))}
           </div>
           <p className="text-white text-sm mt-3">
-            {rate ? `Your rating: ${rate}/5` : "Click to rate"}
+            {rate ? `Il tuo voto: ${rate}/5` : "Clicca per votare"}
           </p>
 
           {/* Pulsante per chiudere la UI di voto */}

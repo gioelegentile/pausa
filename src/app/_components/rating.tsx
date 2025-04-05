@@ -56,7 +56,7 @@ export function Rating({ value, votes, mine = false, className = "" }: RatingPro
       )}
       {mine && (
         <span className="ml-1 text-xs text-gray-300 italic">
-                    (yours)
+                    (tuo)
                 </span>
       )}
     </div>
