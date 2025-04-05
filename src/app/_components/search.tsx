@@ -70,11 +70,11 @@ export function Search() {
   // Funzione per ottenere il titolo in base al tipo di media
   const getMediaTitle = (type: MediaType): string => {
     switch (type) {
-      case "movie": return "Movies";
-      case "tvshow": return "TV Shows";
+      case "movie": return "Film";
+      case "tvshow": return "Serie TV";
       case "anime": return "Anime";
-      case "game": return "Games";
-      default: return "Movies";
+      case "game": return "Videogiochi";
+      default: return "Film";
     }
   };
 
@@ -88,7 +88,7 @@ export function Search() {
           </span>
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300">
-          Discover and rate your favorite entertainment
+          Scopri e valuta i tuoi preferiti
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export function Search() {
           >
             <div className="flex items-center">
               <FilmIcon className="h-5 w-5 mr-2" />
-              Movies
+              Film
             </div>
           </button>
           <button
@@ -120,7 +120,7 @@ export function Search() {
           >
             <div className="flex items-center">
               <TvIcon className="h-5 w-5 mr-2" />
-              TV Shows
+              Serie TV
             </div>
           </button>
           <button
@@ -148,7 +148,7 @@ export function Search() {
           > 
             <div className="flex items-center">
               <FireIcon className="h-5 w-5 mr-2" />
-              Games
+              Videogiochi
             </div>
           </button>
         </div>
@@ -163,7 +163,7 @@ export function Search() {
             </div>
             <input
               type="text"
-              placeholder={`Search ${getMediaTitle(mediaType).toLowerCase()}...`}
+              placeholder={`Cerca ${getMediaTitle(mediaType).toLowerCase()}...`}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -182,9 +182,9 @@ export function Search() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Searching...
+                Ricerca in corso...
               </div>
-            ) : "Search"}
+            ) : "Cerca"}
           </button>
         </div>
       </div>
@@ -193,7 +193,7 @@ export function Search() {
       {searchResult.results.length > 0 && (
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Search Results
+            Risultati della ricerca
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
             {searchResult.results.map((result: Movie) => (
@@ -212,7 +212,7 @@ export function Search() {
       {topRatedMedia.length > 0 && searchResult.results.length === 0 && (
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            {mediaType === "anime" ? "Top Anime" : `Top Rated ${getMediaTitle(mediaType)}`}
+            {mediaType === "anime" ? "Anime più popolari" : `${getMediaTitle(mediaType)} più votati`}
           </h2>
           {isLoadingTopRated ? (
             <div className="flex justify-center items-center h-64">
@@ -237,7 +237,7 @@ export function Search() {
       {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            No results found for &#34;{searchText}&#34;
+            Nessun risultato trovato per &#34;{searchText}&#34;
           </p>
         </div>
       )}
