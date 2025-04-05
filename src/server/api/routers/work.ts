@@ -3,12 +3,12 @@ import { z } from "zod";
 
 import {
   createTRPCRouter,
-  publicProcedure,
+  protectedProcedure,
 } from "~/server/api/trpc";
 
 export const workRouter = createTRPCRouter({
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(z.object({ externalId: z.number(), type: z.enum(["movie", "tvshow", "anime", "game"]) }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.work.create({
@@ -20,18 +20,19 @@ export const workRouter = createTRPCRouter({
       });
     }),
 
-  getAllRatedByType: publicProcedure
+  getAllRatedByType: protectedProcedure
     .input(
       z.object({
-       type: z.enum(["movie", "tvshow", "anime", "game"]),
-       sorting: z.array(
-        z.object(
-          {
-            orderBy: z.string(),
-            orderDirection: z.enum(["asc", "desc"])
-          }
+        type: z.enum(["movie", "tvshow", "anime", "game"]),
+        sorting: z.array(
+          z.object(
+            {
+              orderBy: z.string(),
+              orderDirection: z.enum(["asc", "desc"])
+            }
+          )
         )
-      )})
+      })
     )
     .query(async ({ ctx, input }) => {
       const works = await ctx.db.work.findMany({
@@ -46,7 +47,7 @@ export const workRouter = createTRPCRouter({
       return works ?? [];
     }),
 
-  getByExternalId: publicProcedure
+  getByExternalId: protectedProcedure
     .input(z.number())
     .query(async ({ ctx, input }) => {
       const work = await ctx.db.work.findFirst({
@@ -57,9 +58,5 @@ export const workRouter = createTRPCRouter({
 
       return work ?? null;
     }),
-
-  // getSecretMessage: protectedProcedure.query(() => {
-  //   return "you can now see this secret message!";
-  // }),
 
 });
