@@ -146,9 +146,15 @@ export function Search() {
           >
             <div className="flex items-center">
               <img
-                src="./naruto-119-svgrepo-com.svg"
+                src="/naruto-119-svgrepo-com.svg"
                 alt="Naruto Icon"
-                className="mr-2 h-5 w-5"
+                className="mr-2 h-5 w-5 brightness-0 invert filter"
+                style={{
+                  filter:
+                    mediaType === "anime"
+                      ? "brightness(0) invert(1)"
+                      : "brightness(0) opacity(0.6)",
+                }}
               />
               Anime
             </div>
@@ -162,7 +168,22 @@ export function Search() {
                 : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
             }`}
           >
-            <div className="flex items-center">Games</div>
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="mr-2 h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="6" y="11" width="12" height="10" rx="2" />
+                <path d="M12 17v-6M9 14h6M7 5h10M8 2h8" />
+              </svg>
+              Videogiochi
+            </div>
           </button>
         </div>
       </div>
