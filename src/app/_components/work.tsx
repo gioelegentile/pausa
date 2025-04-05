@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 
 type WorkProps = {
   data: Movie;
-  mediaType?: "movie" | "tv" | "anime";
+  mediaType?: "movie" | "tvshow" | "anime" | "game";
 };
 
 export function Work({ data, mediaType = "movie" }: WorkProps) {
@@ -24,8 +24,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
 
   const workMutation = api.work.create.useMutation();
   const ratingMutation = api.workRating.create.useMutation();
-  const workQuery = api.work.getByTmdbId.useQuery(data.id);
-  const rating = api.workRating.getByTmdbId.useQuery(data.id);
+  const workQuery = api.work.getByExternalId.useQuery(data.id);
+  const rating = api.workRating.getByExternalId.useQuery(data.id);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (!voting) {
@@ -56,7 +56,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         if (workQuery.data) {
           work = workQuery.data;
         } else if (workMutation.mutate) {
-          work = workMutation.mutate({ tmdbId: data.id })!;
+          work = workMutation.mutate({ externalId: data.id, type: mediaType })!;
         } else {
           console.error("workMutation.mutate is not available");
           return;
@@ -64,7 +64,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
 
         if (work && ratingMutation.mutateAsync) {
           ratingMutation.mutateAsync({
-            tmdbId: data.id,
+            externalId: data.id,
             workId: work.id,
             rating: rate
           }).catch(error => console.error("Error rating media:", error));
@@ -109,10 +109,10 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       case "movie":
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-blue-500 text-white mb-2 mr-1">
-            Movie
+            Film
           </span>
         );
-      case "tv":
+      case "tvshow":
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-purple-500 text-white mb-2 mr-1">
             TV
@@ -122,6 +122,12 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         return (
           <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-pink-500 text-white mb-2 mr-1">
             Anime
+          </span>
+        );
+      case "game":
+        return (
+          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2 mr-1">
+            Gioco
           </span>
         );
       default:
@@ -163,12 +169,12 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             {/* Badge per contenuti nuovi o popolari */}
             {moment(data.release_date).isAfter(moment().subtract(3, 'months')) && (
               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2">
-                New
+                Nuovo
               </span>
             )}
             {data.vote_average > 7.5 && (
               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-500 text-white mb-2 ml-1">
-                Popular
+                Popolare
               </span>
             )}
           </div>
@@ -217,7 +223,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             ))}
           </div>
           <p className="text-white text-sm mt-3">
-            {rate ? `Your rating: ${rate}/5` : "Click to rate"}
+            {rate ? `Il tuo voto: ${rate}/5` : "Clicca per votare"}
           </p>
 
           {/* Pulsante per chiudere la UI di voto */}
