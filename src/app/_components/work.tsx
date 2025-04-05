@@ -22,20 +22,31 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
   const [hoveredStar, setHoveredStar] = useState(0);
   const router = useRouter();
 
-  const workMutation = api.work.create.useMutation();
-  const ratingMutation = api.workRating.create.useMutation();
+  const utils = api.useUtils();
+  const workMutation = api.work.create.useMutation({
+    onSuccess: async () => {
+      await utils.work.getByExternalId.invalidate(data.id);
+    },
+  });
+  const createRatingMutation = api.workRating.create.useMutation({
+    onSuccess: async () => {
+      await utils.workRating.getByExternalId.invalidate(data.id);
+    },
+  });
+  const updateRatingMutation = api.workRating.update.useMutation({
+    onSuccess: async () => {
+      await utils.workRating.getByExternalId.invalidate(data.id);
+    },
+  });
   const workQuery = api.work.getByExternalId.useQuery(data.id);
   const rating = api.workRating.getByExternalId.useQuery(data.id);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       if (!voting) {
-        // Se non stiamo votando, mostriamo il pulsante di voto
         setVoting(true);
-        // Fermiamo la propagazione dell'evento per evitare la navigazione
         e.stopPropagation();
       } else {
-        // Se stiamo già votando, nascondiamo il pulsante di voto
         setVoting(false);
       }
     },
@@ -50,7 +61,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
   }, [voting, router, mediaType, data.id]);
 
   const handleSetRate = useCallback(
-    (rate: number) => {
+    async (rate: number) => {
       setRate(rate);
 
       if (rate > 0) {
@@ -59,24 +70,29 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
 
           if (workQuery.data) {
             work = workQuery.data;
-          } else if (workMutation.mutate) {
-            work = workMutation.mutate({
-              externalId: data.id,
-              type: mediaType,
-            })!;
           } else {
-            console.error("workMutation.mutate is not available");
-            return;
+            work = await workMutation.mutateAsync(
+              { externalId: data.id, type: mediaType }
+            );
           }
 
-          if (work && ratingMutation.mutateAsync) {
-            ratingMutation
-              .mutateAsync({
-                externalId: data.id,
-                workId: work.id,
-                rating: rate,
-              })
-              .catch((error) => console.error("Error rating media:", error));
+          if (work) {
+            if (rating.data) {
+              updateRatingMutation
+                .mutateAsync({
+                  id: rating.data.id,
+                  rating: rate,
+                })
+                .catch((error) => console.error("Error updating rating:", error));
+            } else {
+              createRatingMutation
+                .mutateAsync({
+                  externalId: data.id,
+                  workId: work.id,
+                  rating: rate,
+                })
+                .catch((error) => console.error("Error rating media:", error));
+            }
           } else {
             console.error(
               "ratingMutation.mutateAsync is not available or work is null",
@@ -87,7 +103,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         }
       }
     },
-    [data.id, workQuery.data, workMutation, ratingMutation],
+    [data.id, workQuery.data, workMutation, createRatingMutation, mediaType],
   );
 
   useEffect(() => {
@@ -229,11 +245,10 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             {[1, 2, 3, 4, 5].map((star) => (
               <StarIcon
                 key={star}
-                className={`h-10 w-10 cursor-pointer transition-all ${
-                  star <= (hoveredStar || rate)
-                    ? "scale-110 text-yellow-400"
-                    : "text-gray-400"
-                }`}
+                className={`h-10 w-10 cursor-pointer transition-all ${star <= (hoveredStar || rate)
+                  ? "scale-110 text-yellow-400"
+                  : "text-gray-400"
+                  }`}
                 onClick={() => handleSetRate(star)}
                 onMouseEnter={() => setHoveredStar(star)}
                 onMouseLeave={() => setHoveredStar(0)}

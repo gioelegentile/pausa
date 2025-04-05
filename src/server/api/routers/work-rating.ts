@@ -3,12 +3,13 @@ import { z } from "zod";
 
 import {
     createTRPCRouter,
+    protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
 
 export const workRatingRouter = createTRPCRouter({
 
-    create: publicProcedure
+    create: protectedProcedure
         .input(z.object({
             workId: z.number(),
             externalId: z.number(),
@@ -20,17 +21,16 @@ export const workRatingRouter = createTRPCRouter({
                     externalId: input.externalId,
                     rating: input.rating,
                     workId: input.workId,
-                    userId: ctx.session.user!.id,
+                    userId: ctx.session.user.id,
                     updatedAt: moment().toISOString(),
                     createdAt: moment().toISOString()
                 },
             });
         }),
 
-    update: publicProcedure
+    update: protectedProcedure
         .input(z.object({
             id: z.string(),
-            tmdbId: z.number(),
             rating: z.number(),
         }))
         .mutation(async ({ ctx, input }) => {
@@ -45,13 +45,13 @@ export const workRatingRouter = createTRPCRouter({
             });
         }),
 
-    getByExternalId: publicProcedure
+    getByExternalId: protectedProcedure
         .input(z.number())
         .query(async ({ ctx, input }) => {
             const rating = await ctx.db.workRating.findFirst({
                 where: {
                     externalId: input,
-                    userId: ctx.session.user!.id
+                    userId: ctx.session.user.id
                 }
             });
 

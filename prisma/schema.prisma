@@ -35,6 +35,8 @@ model WorkRating {
   updatedAt  DateTime
   work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workId, userId])
 }
 
 // Necessary for Next auth
