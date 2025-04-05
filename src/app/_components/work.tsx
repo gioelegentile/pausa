@@ -121,8 +121,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
     switch (mediaType) {
       case "movie":
         return (
-          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white">
-            Movie
+          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-blue-500 text-white mb-2 mr-1">
+            Film
           </span>
         );
       case "tvshow":
@@ -139,8 +139,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         );
       case "game":
         return (
-          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
-            Game
+          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2 mr-1">
+            Gioco
           </span>
         );
       default:
@@ -180,16 +180,14 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             {getMediaTypeBadge()}
 
             {/* Badge per contenuti nuovi o popolari */}
-            {moment(data.release_date).isAfter(
-              moment().subtract(3, "months"),
-            ) && (
-              <span className="mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
-                New
+            {moment(data.release_date).isAfter(moment().subtract(3, 'months')) && (
+              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2">
+                Nuovo
               </span>
             )}
             {data.vote_average > 7.5 && (
-              <span className="mb-2 ml-1 inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white">
-                Popular
+              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-500 text-white mb-2 ml-1">
+                Popolare
               </span>
             )}
           </div>
@@ -242,8 +240,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
               />
             ))}
           </div>
-          <p className="mt-3 text-sm text-white">
-            {rate ? `Your rating: ${rate}/5` : "Click to rate"}
+          <p className="text-white text-sm mt-3">
+            {rate ? `Il tuo voto: ${rate}/5` : "Clicca per votare"}
           </p>
 
           {/* Pulsante per chiudere la UI di voto */}

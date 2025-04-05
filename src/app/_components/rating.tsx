@@ -60,7 +60,9 @@ export function Rating({
         </span>
       )}
       {mine && (
-        <span className="ml-1 text-xs text-gray-300 italic">(yours)</span>
+        <span className="ml-1 text-xs text-gray-300 italic">
+           (tuo)
+        </span>
       )}
     </div>
   );
