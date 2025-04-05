@@ -6,7 +6,7 @@ import { type Movie, type MoviesResponse } from "../api/search/route";
 import { MagnifyingGlassIcon, FilmIcon, TvIcon } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
 
-type MediaType = "movie" | "tv" | "anime";
+type MediaType = "movie" | "tvshow" | "anime" | "game";
 
 export function Search() {
   const searchInitialState = useMemo(() => ({
@@ -21,6 +21,7 @@ export function Search() {
   const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [topRatedMedia, setTopRatedMedia] = useState<Movie[]>([]);
   const [isLoadingTopRated, setIsLoadingTopRated] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Stato per il tipo di media selezionato
   const [mediaType, setMediaType] = useState<MediaType>("movie");
@@ -28,6 +29,7 @@ export function Search() {
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) return;
 
+    setHasSearched(true);
     setIsSearching(true);
 
     if (mediaType === "movie") {
@@ -49,9 +51,11 @@ export function Search() {
       .finally(() => {
         setIsSearching(false);
       });
-    } else if (mediaType === "tv") {
+    } else if (mediaType === "tvshow") {
       setIsSearching(false);
     } else if (mediaType === "anime") {
+      setIsSearching(false);
+    } else if (mediaType === "game") {
       setIsSearching(false);
     }
   }, [searchText, mediaType, searchInitialState]);
@@ -67,8 +71,9 @@ export function Search() {
   const getMediaTitle = (type: MediaType): string => {
     switch (type) {
       case "movie": return "Movies";
-      case "tv": return "TV Shows";
+      case "tvshow": return "TV Shows";
       case "anime": return "Anime";
+      case "game": return "Games";
       default: return "Movies";
     }
   };
@@ -106,9 +111,9 @@ export function Search() {
           </button>
           <button
             type="button"
-            onClick={() => setMediaType("tv")}
+            onClick={() => setMediaType("tvshow")}
             className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mediaType === "tv"
+              mediaType === "tvshow"
                 ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
                 : "bg-white text-gray-700 border border-gray-300 hover:text-indigo-600 hover:border-indigo-400 hover:shadow"
             }`}
@@ -130,6 +135,20 @@ export function Search() {
             <div className="flex items-center">
               <FireIcon className="h-5 w-5 mr-2" />
               Anime
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMediaType("game")}
+            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              mediaType === "game"
+                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+                : "bg-white text-gray-700 border border-gray-300 hover:text-indigo-600 hover:border-indigo-400 hover:shadow"
+            }`}
+          > 
+            <div className="flex items-center">
+              <FireIcon className="h-5 w-5 mr-2" />
+              Games
             </div>
           </button>
         </div>
@@ -215,7 +234,7 @@ export function Search() {
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {searchResult.results.length === 0 && searchText && !searching && (
+      {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
         <div className="text-center py-12">
           <p className="text-xl text-gray-600 dark:text-gray-400">
             No results found for &#34;{searchText}&#34;

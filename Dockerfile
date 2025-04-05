@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY prisma ./
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN HUSKY=0 npm ci
 
 ##### BUILDER
 FROM --platform=linux/arm64 node:20-bookworm AS builder

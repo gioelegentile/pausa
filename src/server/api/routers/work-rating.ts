@@ -11,13 +11,13 @@ export const workRatingRouter = createTRPCRouter({
     create: publicProcedure
         .input(z.object({
             workId: z.number(),
-            tmdbId: z.number(),
+            externalId: z.number(),
             rating: z.number(),
         }))
         .mutation(async ({ ctx, input }) => {
             return ctx.db.workRating.create({
                 data: {
-                    tmdbId: input.tmdbId,
+                    externalId: input.externalId,
                     rating: input.rating,
                     workId: input.workId,
                     userId: ctx.session.user!.id,
@@ -45,12 +45,12 @@ export const workRatingRouter = createTRPCRouter({
             });
         }),
 
-    getByTmdbId: publicProcedure
+    getByExternalId: publicProcedure
         .input(z.number())
         .query(async ({ ctx, input }) => {
             const rating = await ctx.db.workRating.findFirst({
                 where: {
-                    tmdbId: input,
+                    externalId: input,
                     userId: ctx.session.user!.id
                 }
             });

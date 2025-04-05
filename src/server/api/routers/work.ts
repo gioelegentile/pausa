@@ -9,43 +9,49 @@ import {
 export const workRouter = createTRPCRouter({
 
   create: publicProcedure
-    .input(z.object({ tmdbId: z.number() }))
+    .input(z.object({ externalId: z.number(), type: z.enum(["movie", "tvshow", "anime", "game"]) }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.work.create({
         data: {
-          tmdbId: input.tmdbId,
+          externalId: input.externalId,
+          type: input.type,
           createdAt: moment().toISOString()
         },
       });
     }),
 
-  getAllRated: publicProcedure
+  getAllRatedByType: publicProcedure
     .input(
-      z.array(
+      z.object({
+       type: z.enum(["movie", "tvshow", "anime", "game"]),
+       sorting: z.array(
         z.object(
           {
             orderBy: z.string(),
             orderDirection: z.enum(["asc", "desc"])
           }
         )
-      )
+      )})
     )
     .query(async ({ ctx, input }) => {
       const works = await ctx.db.work.findMany({
-        orderBy: input.map(i => ({
+        orderBy: input.sorting.map(i => ({
           [i.orderBy]: i.orderDirection
-        }))
+        })),
+        where: {
+          type: input.type
+        },
       });
 
       return works ?? [];
     }),
 
-  getByTmdbId: publicProcedure
+  getByExternalId: publicProcedure
     .input(z.number())
     .query(async ({ ctx, input }) => {
       const work = await ctx.db.work.findFirst({
         where: {
-          tmdbId: input
+          externalId: input
         }
       });
 

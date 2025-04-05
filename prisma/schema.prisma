@@ -16,22 +16,25 @@ datasource db {
 }
 
 model Work {
-  id         Int          @id @default(autoincrement())
-  tmdbId     Int          @unique
-  WorkRating WorkRating[]
-  createdAt  DateTime
+  id          Int          @id @default(autoincrement())
+  externalId  Int
+  type        String       // Can be 'MOVIE', 'SERIES', 'ANIME', 'GAME'
+  WorkRating  WorkRating[]
+  createdAt   DateTime
+
+  @@unique([externalId, type])
 }
 
 model WorkRating {
-  id        String   @id @default(cuid())
-  workId    Int
-  tmdbId    Int
-  userId    String
-  rating    Float
-  createdAt DateTime
-  updatedAt DateTime
-  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  workId     Int
+  externalId Int
+  userId     String
+  rating     Float
+  createdAt  DateTime
+  updatedAt  DateTime
+  work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Necessary for Next auth
