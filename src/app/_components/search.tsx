@@ -9,6 +9,7 @@ import {
   TvIcon,
 } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
+import Reset from "./reset-search";
 
 type MediaType = "movie" | "tvshow" | "anime" | "game";
 
@@ -186,7 +187,11 @@ export function Search() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            />
+            <Reset
+              onClick={handleReset}
+              disabled={!searchText && !hasSearched}
             />
           </div>
           <button
@@ -222,14 +227,6 @@ export function Search() {
             ) : (
               "Search"
             )}
-          </button>
-          <button
-            type="button"
-            className="rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-800 shadow-md transition-all hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-            onClick={handleReset}
-            disabled={!searchText && !hasSearched}
-          >
-            Reset
           </button>
         </div>
       </div>

@@ -8,7 +8,12 @@ type RatingProps = {
   className?: string;
 };
 
-export function Rating({ value, votes, mine = false, className = "" }: RatingProps) {
+export function Rating({
+  value,
+  votes,
+  mine = false,
+  className = "",
+}: RatingProps) {
   // Funzione per generare le stelle piene e vuote
   const renderStars = () => {
     const totalStars = 5;
@@ -23,8 +28,8 @@ export function Rating({ value, votes, mine = false, className = "" }: RatingPro
       stars.push(
         <StarSolid
           key={`full-${i}`}
-          className={`h-4 w-4 ${mine ? 'text-emerald-400' : 'text-yellow-400'}`}
-        />
+          className={`h-4 w-4 ${mine ? "text-emerald-400" : "text-yellow-400"}`}
+        />,
       );
     }
 
@@ -33,8 +38,8 @@ export function Rating({ value, votes, mine = false, className = "" }: RatingPro
       stars.push(
         <StarOutline
           key={`empty-${i}`}
-          className={`h-4 w-4 ${mine ? 'text-emerald-400/50' : 'text-yellow-400/50'}`}
-        />
+          className={`h-4 w-4 ${mine ? "text-emerald-400/50" : "text-yellow-400/50"}`}
+        />,
       );
     }
 
@@ -43,21 +48,19 @@ export function Rating({ value, votes, mine = false, className = "" }: RatingPro
 
   return (
     <div className={`flex items-center ${className}`}>
-      <div className="flex mr-1">
-        {renderStars()}
-      </div>
-      <p className={`text-xs font-medium ${mine ? 'text-emerald-400' : 'text-yellow-400'}`}>
+      <div className="mr-1 flex">{renderStars()}</div>
+      <p
+        className={`text-xs font-medium ${mine ? "text-emerald-400" : "text-yellow-400"}`}
+      >
         {value.toFixed(1)}
       </p>
       {!mine && votes && votes > 0 && (
-        <span className="text-xs text-gray-300 ml-1">
-                    ({votes > 999 ? `${(votes/1000).toFixed(1)}k` : votes})
-                </span>
+        <span className="ml-1 text-xs text-gray-300">
+          ({votes > 999 ? `${(votes / 1000).toFixed(1)}k` : votes})
+        </span>
       )}
       {mine && (
-        <span className="ml-1 text-xs text-gray-300 italic">
-                    (yours)
-                </span>
+        <span className="ml-1 text-xs text-gray-300 italic">(yours)</span>
       )}
     </div>
   );
