@@ -114,7 +114,6 @@ export function Search() {
           return response.json();
         })
         .then((data: MoviesResponse) => {
-          console.log(data);
           setSearchResult(data);
         })
         .catch((error) => {
