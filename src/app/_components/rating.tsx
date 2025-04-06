@@ -1,5 +1,6 @@
-import { StarIcon as StarSolid } from "@heroicons/react/24/solid";
-import { StarIcon as StarOutline } from "@heroicons/react/24/outline";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar as faStartSolid } from "@fortawesome/free-solid-svg-icons";
+import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
 
 type RatingProps = {
   value: number;
@@ -26,7 +27,8 @@ export function Rating({
     // Stelle piene
     for (let i = 0; i < fullStars; i++) {
       stars.push(
-        <StarSolid
+        <FontAwesomeIcon 
+          icon={faStartSolid}
           key={`full-${i}`}
           className={`h-4 w-4 ${mine ? "text-emerald-400" : "text-yellow-400"}`}
         />,
@@ -36,7 +38,8 @@ export function Rating({
     // Stelle vuote
     for (let i = fullStars + (hasHalfStar ? 1 : 0); i < totalStars; i++) {
       stars.push(
-        <StarOutline
+        <FontAwesomeIcon 
+          icon={faStarRegular}
           key={`empty-${i}`}
           className={`h-4 w-4 ${mine ? "text-emerald-400/50" : "text-yellow-400/50"}`}
         />,

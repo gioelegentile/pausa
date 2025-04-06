@@ -3,11 +3,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { Work } from "./work";
 import { type Movie, type MoviesResponse } from "../api/search/route";
-import {
-  MagnifyingGlassIcon,
-  FilmIcon,
-  TvIcon,
-} from "@heroicons/react/24/outline";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilm, faTv, faGamepad, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 type MediaType = "movie" | "tvshow" | "anime" | "game";
 
@@ -78,15 +75,15 @@ export function Search() {
   const getMediaTitle = (type: MediaType): string => {
     switch (type) {
       case "movie":
-        return "Movies";
+        return "Film";
       case "tvshow":
-        return "TV Shows";
+        return "Serie TV";
       case "anime":
         return "Anime";
       case "game":
-        return "Games";
+        return "Videgiochi";
       default:
-        return "Movies";
+        return "Film";
     }
   };
 
@@ -100,7 +97,7 @@ export function Search() {
           </span>
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300">
-          Scopri e valuta i tuoi preferiti
+          Scopri e vota i tuoi preferiti
         </p>
       </div>
 
@@ -110,45 +107,43 @@ export function Search() {
           <button
             type="button"
             onClick={() => setMediaType("movie")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${
-              mediaType === "movie"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-            }`}
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "movie"
+              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
+              }`}
           >
-            <div className="flex items-center">
-              <FilmIcon className="h-5 w-5 mr-2" />
-              Film
+            <div className="flex flex-col items-center sm:flex-row">
+              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Film</span>
+              <FontAwesomeIcon icon={faFilm} className="h-5 w-5 order-1 sm:order-0" />
             </div>
           </button>
           <button
             type="button"
             onClick={() => setMediaType("tvshow")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${
-              mediaType === "tvshow"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-            }`}
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
+              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
+              }`}
           >
-            <div className="flex items-center">
-              <TvIcon className="h-5 w-5 mr-2" />
-              Serie TV
+            <div className="flex flex-col items-center sm:flex-row">
+              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Serie TV</span>
+              <FontAwesomeIcon icon={faTv} className="h-5 w-5 order-1 sm:order-0" />
             </div>
           </button>
           <button
             type="button"
             onClick={() => setMediaType("anime")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${
-              mediaType === "anime"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-            }`}
+            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
+              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
+              }`}
           >
-            <div className="flex items-center">
+            <div className="flex flex-col items-center sm:flex-row">
+              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Anime</span>
               <img
                 src="/naruto-119-svgrepo-com.svg"
                 alt="Naruto Icon"
-                className="mr-2 h-5 w-5 brightness-0 invert filter"
+                className="mr-2 h-5 w-5 brightness-0 invert filter order-1 sm:order-0"
                 style={{
                   filter:
                     mediaType === "anime"
@@ -156,33 +151,19 @@ export function Search() {
                       : "brightness(0) opacity(0.6)",
                 }}
               />
-              Anime
             </div>
           </button>
           <button
             type="button"
             onClick={() => setMediaType("game")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${
-              mediaType === "game"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-            }`}
+            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
+              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
+              }`}
           >
-            <div className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="mr-2 h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="6" y="11" width="12" height="10" rx="2" />
-                <path d="M12 17v-6M9 14h6M7 5h10M8 2h8" />
-              </svg>
-              Videogiochi
+            <div className="flex flex-col items-center sm:flex-row">
+              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Videogiochi</span>
+              <FontAwesomeIcon icon={faGamepad} className="h-5 w-5 order-1 sm:order-0" />
             </div>
           </button>
         </div>
@@ -193,7 +174,7 @@ export function Search() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-grow">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"

@@ -4,12 +4,13 @@ import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import { StarIcon } from "@heroicons/react/16/solid";
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Movie } from "../api/search/route";
 import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 
 type WorkProps = {
   data: Movie;
@@ -243,7 +244,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
           </h3>
           <div className="flex space-x-1">
             {[1, 2, 3, 4, 5].map((star) => (
-              <StarIcon
+              <FontAwesomeIcon
+                icon={faStar}
                 key={star}
                 className={`h-10 w-10 cursor-pointer transition-all ${star <= (hoveredStar || rate)
                   ? "scale-110 text-yellow-400"

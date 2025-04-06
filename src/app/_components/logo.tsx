@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
 
-import { PauseCircleIcon } from "@heroicons/react/24/solid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPause } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 
 interface LogoProps {
@@ -44,7 +45,7 @@ export default function Logo({
         <div
           className={`flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-800 ${sizeConfig[size].container}`}
         >
-          <PauseCircleIcon className={`${sizeConfig[size].icon} text-white`} />
+          <FontAwesomeIcon icon={faPause}  className={`${sizeConfig[size].icon} text-white`} />
         </div>
 
         {!hideText && (
