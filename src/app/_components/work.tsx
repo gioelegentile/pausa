@@ -9,8 +9,7 @@ import { api } from "~/trpc/react";
 import { type Movie } from "../api/search/route";
 import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import StarRatingSlider from "./star-rating-slider";
 
 type WorkProps = {
   data: Movie;
@@ -20,7 +19,6 @@ type WorkProps = {
 export function Work({ data, mediaType = "movie" }: WorkProps) {
   const [voting, setVoting] = useState(false);
   const [rate, setRate] = useState(0);
-  const [hoveredStar, setHoveredStar] = useState(0);
   const router = useRouter();
 
   const utils = api.useUtils();
@@ -104,7 +102,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         }
       }
     },
-    [data.id, workQuery.data, workMutation, createRatingMutation, mediaType],
+    [data.id, rating.data, workQuery.data, workMutation, createRatingMutation, updateRatingMutation, mediaType],
   );
 
   useEffect(() => {
@@ -114,24 +112,6 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       }
     }
   }, [workQuery.data, rating.data]);
-
-  // Helper per ottenere il titolo corretto in base al tipo di media
-  // const getTitle = () => {
-  //   if (mediaType === "movie") {
-  //     return data.title || "";
-  //   } else {
-  //     return data.name || data.title || "";
-  //   }
-  // };
-
-  // Helper per ottenere la data di rilascio/primo episodio
-  // const getReleaseDate = () => {
-  //   if (mediaType === "movie") {
-  //     return data.release_date;
-  //   } else {
-  //     return data.first_air_date || data.release_date;
-  //   }
-  // };
 
   // Determina il tipo di badge da mostrare
   const getMediaTypeBadge = () => {
@@ -242,23 +222,14 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
           <h3 className="mb-4 text-center text-lg font-medium text-white">
             {data.title}
           </h3>
-          <div className="flex space-x-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <FontAwesomeIcon
-                icon={faStar}
-                key={star}
-                className={`h-10 w-10 cursor-pointer transition-all ${star <= (hoveredStar || rate)
-                  ? "scale-110 text-yellow-400"
-                  : "text-gray-400"
-                  }`}
-                onClick={() => handleSetRate(star)}
-                onMouseEnter={() => setHoveredStar(star)}
-                onMouseLeave={() => setHoveredStar(0)}
-              />
-            ))}
+          <div className="flex">
+            <StarRatingSlider
+              onChange={(rating) => handleSetRate(rating)}
+              initialRating={rate}
+            />
           </div>
           <p className="text-white text-sm mt-3">
-            {rate ? `Il tuo voto: ${rate}/5` : "Clicca per votare"}
+            Scorri per votare
           </p>
 
           {/* Pulsante per chiudere la UI di voto */}

@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as faStartSolid } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarRegular } from "@fortawesome/free-regular-svg-icons";
+import { faStarHalfStroke } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
 
 type RatingProps = {
   value: number;
@@ -15,12 +17,14 @@ export function Rating({
   mine = false,
   className = "",
 }: RatingProps) {
+  const [starValue] = useState(value);
+
   // Funzione per generare le stelle piene e vuote
   const renderStars = () => {
     const totalStars = 5;
-    const starValue = Math.min(Math.max(value / 2, 0), 5); // Normalizza da 0-10 a 0-5
     const fullStars = Math.floor(starValue);
-    const hasHalfStar = starValue - fullStars >= 0.5;
+    const emptyStars = Math.floor(totalStars - starValue);
+    const hasHalfStar = fullStars + emptyStars < totalStars;
 
     const stars = [];
 
@@ -35,8 +39,19 @@ export function Rating({
       );
     }
 
+    // Stelle mezze
+    if (hasHalfStar) {
+      stars.push(
+        <FontAwesomeIcon 
+          icon={faStarHalfStroke} 
+          key={`half`}
+          className={`h-4 w-4 ${mine ? "text-emerald-400" : "text-yellow-400"}`}
+        />,
+      );
+    }
+
     // Stelle vuote
-    for (let i = fullStars + (hasHalfStar ? 1 : 0); i < totalStars; i++) {
+    for (let i = 0; i < emptyStars; i++) {
       stars.push(
         <FontAwesomeIcon 
           icon={faStarRegular}
@@ -55,7 +70,7 @@ export function Rating({
       <p
         className={`text-xs font-medium ${mine ? "text-emerald-400" : "text-yellow-400"}`}
       >
-        {value.toFixed(1)}
+        {starValue.toFixed(starValue % 1 === 0 ? 0 : 1)}
       </p>
       {!mine && votes && votes > 0 && (
         <span className="ml-1 text-xs text-gray-300">

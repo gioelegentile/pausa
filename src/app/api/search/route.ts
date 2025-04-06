@@ -48,7 +48,12 @@ export async function GET(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const data: MoviesResponse = await response.json();
     // Limita i risultati a 18 come nel codice originale
-    data.results = data.results.slice(0, 18);
+    data.results = data.results
+      .slice(0, 12)
+      .map((movie) => ({
+        ...movie,
+        vote_average: movie.vote_average / 2,
+      }));
     
     return NextResponse.json(data);
   } catch (error) {

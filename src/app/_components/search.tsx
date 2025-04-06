@@ -47,8 +47,6 @@ export function Search() {
   const [searching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] =
     useState<MoviesResponse>(searchInitialState);
-  const [topRatedMedia, setTopRatedMedia] = useState<Movie[]>([]);
-  const [isLoadingTopRated, setIsLoadingTopRated] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -330,33 +328,6 @@ export function Search() {
           ))}
         </div>
       )}
-
-      {/* Contenuti con i voti più alti - solo visibili quando la ricerca non è focalizzata */}
-      <div className={`transition-opacity duration-1000 ${isSearchFocused ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-        {topRatedMedia.length > 0 && searchResult.results.length === 0 && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-              {mediaType === "anime" ? "Anime più popolari" : `${getMediaTitle(mediaType)} più votati`}
-            </h2>
-            {isLoadingTopRated ? (
-              <div className="flex h-64 items-center justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500"></div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6 lg:grid-cols-6">
-                {topRatedMedia.map((media: Movie) => (
-                  <div
-                    className="transition ease-in-out hover:z-10 hover:scale-105"
-                    key={media.id}
-                  >
-                    <Work data={media} mediaType={mediaType} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* Messaggio quando non ci sono risultati */}
       {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
