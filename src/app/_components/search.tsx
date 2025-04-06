@@ -154,6 +154,18 @@ export function Search() {
     setSearchText(e.target.value);
   };
 
+  // Funzione per resettare la ricerca
+  const handleReset = useCallback(() => {
+    setSearchText("");
+    setSearchResult(searchInitialState);
+    setHasSearched(false);
+  }, [searchInitialState]);
+
+  const handleMediaTypeChange = (type: MediaType) => {
+    setMediaType(type);
+    handleReset(); // resetta la ricerca quando cambi tipo
+  };
+
   // Funzione per ottenere il titolo in base al tipo di media
   const getMediaTitle = (type: MediaType): string => {
     switch (type) {
@@ -189,7 +201,7 @@ export function Search() {
         <div className="flex space-x-2">
           <button
             type="button"
-            onClick={() => setMediaType("movie")}
+            onClick={() => handleMediaTypeChange("movie")}
             className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "movie"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
@@ -203,7 +215,7 @@ export function Search() {
           <button
             disabled
             type="button"
-            onClick={() => setMediaType("tvshow")}
+            onClick={() => handleMediaTypeChange("tvshow")}
             className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
@@ -220,7 +232,7 @@ export function Search() {
           <button
             disabled
             type="button"
-            onClick={() => setMediaType("anime")}
+            onClick={() => handleMediaTypeChange("anime")}
             className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
@@ -249,7 +261,7 @@ export function Search() {
           <button
             disabled
             type="button"
-            onClick={() => setMediaType("game")}
+            onClick={() => handleMediaTypeChange("game")}
             className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
