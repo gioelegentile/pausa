@@ -6,6 +6,7 @@ import { type Movie, type MoviesResponse } from "../api/search/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faTv, faGamepad, faMagnifyingGlass, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
+import Reset from "./reset-search";
 
 type MediaType = "movie" | "tvshow" | "anime" | "game";
 
@@ -102,7 +103,7 @@ export function Search() {
       setSearchResult(searchInitialState);
       return;
     }
-
+  
     setHasSearched(true);
     setIsSearching(true);
 
@@ -311,6 +312,7 @@ export function Search() {
               onFocus={handleSearchFocus}
               className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
+            {searchText.length > 0 && <Reset onClick={handleReset}  disabled={false} /> }
           </div>
         </div>
       </div>
