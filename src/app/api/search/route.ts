@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   const query = searchParams.get('query');
   
   if (!query) {
-    return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
+    return NextResponse.json({ error: 'Il parametro di ricerca è obbligatorio' }, { status: 400 });
   }
 
   try {
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     );
     
     if (!response.ok) {
-      throw new Error('Failed to fetch from TMDb API');
+      throw new Error('Impossibile connettersi all\'API TMDb');
     }
     
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching movies:', error);
-    return NextResponse.json({ error: 'Failed to fetch movies' }, { status: 500 });
+    console.error('Errore nel recupero dei film:', error);
+    return NextResponse.json({ error: 'Impossibile recuperare i film' }, { status: 500 });
   }
 }
