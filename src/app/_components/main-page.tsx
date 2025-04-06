@@ -62,7 +62,7 @@ function MainPage({ session }: MainPageProps) {
 
       <div className="flex-1">
         <div className="relative">
-          <div className="flex flex-col items-center justify-center gap-4 pt-16">
+          <div className="flex flex-col items-center justify-center gap-4">
             <Search />
           </div>
         </div>
