@@ -5,6 +5,7 @@ import { Work } from "./work";
 import { type Movie, type MoviesResponse } from "../api/search/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faTv, faGamepad, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import Image from "next/image";
 
 type MediaType = "movie" | "tvshow" | "anime" | "game";
 
@@ -118,9 +119,10 @@ export function Search() {
             </div>
           </button>
           <button
+            disabled
             type="button"
             onClick={() => setMediaType("tvshow")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
+            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
@@ -128,35 +130,45 @@ export function Search() {
             <div className="flex flex-col items-center sm:flex-row">
               <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0 whitespace-nowrap">Serie TV</span>
               <FontAwesomeIcon icon={faTv} className="h-5 w-5 order-1 sm:order-0" />
+              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
+                coming soon
+              </span>
             </div>
           </button>
           <button
+            disabled
             type="button"
             onClick={() => setMediaType("anime")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
+            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
           >
             <div className="flex flex-col items-center sm:flex-row">
               <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Anime</span>
-              <img
+              <Image
                 src="/naruto-119-svgrepo-com.svg"
                 alt="Naruto Icon"
-                className="xl:mr-2 h-3.75 w-3.75 brightness-0 invert filter order-1 sm:order-0"
+                width={15}
+                height={15}
+                className="xl:mr-2 brightness-0 invert filter order-1 sm:order-0"
                 style={{
                   filter:
                     mediaType === "anime"
                       ? "brightness(0) invert(1)"
-                      : "brightness(0) opacity(0.6)",
+                      : "brightness(0) opacity(0.1)", // TODO change to opacity(0.6) when issue #13 is done
                 }}
               />
+              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
+                coming soon
+              </span>
             </div>
           </button>
           <button
+            disabled
             type="button"
             onClick={() => setMediaType("game")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
+            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
@@ -164,6 +176,9 @@ export function Search() {
             <div className="flex flex-col items-center sm:flex-row">
               <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Videogiochi</span>
               <FontAwesomeIcon icon={faGamepad} className="h-5 w-5 order-1 sm:order-0" />
+              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
+                coming soon
+              </span>
             </div>
           </button>
         </div>
