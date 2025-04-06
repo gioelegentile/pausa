@@ -81,7 +81,7 @@ export function Search() {
       case "anime":
         return "Anime";
       case "game":
-        return "Videgiochi";
+        return "Videogiochi";
       default:
         return "Film";
     }
@@ -103,7 +103,7 @@ export function Search() {
 
       {/* Pulsanti di selezione del tipo di media */}
       <div className="mb-8 flex justify-center">
-        <div className="flex space-x-4">
+        <div className="flex space-x-2">
           <button
             type="button"
             onClick={() => setMediaType("movie")}
@@ -126,14 +126,14 @@ export function Search() {
               }`}
           >
             <div className="flex flex-col items-center sm:flex-row">
-              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Serie TV</span>
+              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0 whitespace-nowrap">Serie TV</span>
               <FontAwesomeIcon icon={faTv} className="h-5 w-5 order-1 sm:order-0" />
             </div>
           </button>
           <button
             type="button"
             onClick={() => setMediaType("anime")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
@@ -143,7 +143,7 @@ export function Search() {
               <img
                 src="/naruto-119-svgrepo-com.svg"
                 alt="Naruto Icon"
-                className="mr-2 h-5 w-5 brightness-0 invert filter order-1 sm:order-0"
+                className="xl:mr-2 h-3.75 w-3.75 brightness-0 invert filter order-1 sm:order-0"
                 style={{
                   filter:
                     mediaType === "anime"
@@ -156,7 +156,7 @@ export function Search() {
           <button
             type="button"
             onClick={() => setMediaType("game")}
-            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
