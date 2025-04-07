@@ -184,7 +184,7 @@ const StarRatingSlider = ({ onChange, initialRating = 0 }: StarRatingSliderProps
       stars.push(
         <div
           key={i}
-          className="cursor-pointer px-1"
+          className={`cursor-pointer px-1 transition-all ${tempRating > i - 1 ? 'scale-130' : 'opacity-50'}`}
           onClick={() => handleStarClick(i)}
           onMouseEnter={() => handleStarHover(i)}
         >
