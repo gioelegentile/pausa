@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { Work } from "./work";
-import { type Movie, type MoviesResponse } from "../api/search/route";
+import { type Movie, type MoviesResponse } from "../api/movies/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faTv, faGamepad, faMagnifyingGlass, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
@@ -106,7 +106,7 @@ export function Search() {
     setIsSearching(true);
 
     if (mediaType === "movie") {
-      fetch(`/api/search?query=${encodeURIComponent(searchText)}`)
+      fetch(`/api/movies?query=${encodeURIComponent(searchText)}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to search movies");
@@ -123,10 +123,24 @@ export function Search() {
         .finally(() => {
           setIsSearching(false);
         });
-    } else if (mediaType === "tvshow") {
-      setIsSearching(false);
-    } else if (mediaType === "anime") {
-      setIsSearching(false);
+    } else if (mediaType === "tvshow" || mediaType === "anime") {
+      fetch(`/api/tvshow?query=${encodeURIComponent(searchText)}&type=${mediaType}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to search serie TV");
+        }
+        return response.json();
+      })
+      .then((data: MoviesResponse) => {
+        setSearchResult(data);
+      })
+      .catch((error) => {
+        console.error("Error searching serie TV:", error);
+        setSearchResult(searchInitialState);
+      })
+      .finally(() => {
+        setIsSearching(false);
+      });
     } else if (mediaType === "game") {
       setIsSearching(false);
     }
@@ -211,10 +225,9 @@ export function Search() {
             </div>
           </button>
           <button
-            disabled
             type="button"
             onClick={() => handleMediaTypeChange("tvshow")}
-            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
+            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
@@ -222,16 +235,12 @@ export function Search() {
             <div className="flex flex-col items-center sm:flex-row">
               <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0 whitespace-nowrap">Serie TV</span>
               <FontAwesomeIcon icon={faTv} className="h-5 w-5 order-1 sm:order-0" />
-              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
-                coming soon
-              </span>
             </div>
           </button>
           <button
-            disabled
             type="button"
             onClick={() => handleMediaTypeChange("anime")}
-            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
+            className={` rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
               ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
               : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
               }`}
@@ -251,9 +260,6 @@ export function Search() {
                       : "brightness(0) opacity(0.1)", // TODO change to opacity(0.6) when issue #13 is done
                 }}
               />
-              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
-                coming soon
-              </span>
             </div>
           </button>
           <button
