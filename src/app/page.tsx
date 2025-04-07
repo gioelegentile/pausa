@@ -1,14 +1,16 @@
-// page.tsx (Server Component)
 import { HydrateClient } from "~/trpc/server";
-import { auth } from "~/server/auth/cloudflare";
-import MainPage from "./_components/main-page";
+import { Search } from "./_components/search";
 
 export default async function Home() {
-  const session = await auth();
-
   return (
     <HydrateClient>
-      <MainPage session={session} />
+      <div className="flex-1">
+        <div className="relative">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Search />
+          </div>
+        </div>
+      </div>
     </HydrateClient>
   );
 }

@@ -183,7 +183,7 @@ export function Search() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Header con titolo */}
-      <div className={`mb-8 text-center  ${isSearchFocused ? 'hidden' : 'block'}`}>
+      <div className={`mt-20 mb-8 text-center  ${isSearchFocused ? 'hidden' : 'block'}`}>
         <h1 className="mb-2 text-4xl font-extrabold text-gray-900 dark:text-white">
           <span className="bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-transparent">
             {getMediaTitle(mediaType)}
