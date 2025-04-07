@@ -19,6 +19,7 @@ type WorkProps = {
 export function Work({ data, mediaType = "movie" }: WorkProps) {
   const [voting, setVoting] = useState(false);
   const [rate, setRate] = useState(0);
+  const [showPing, setShowPing] = useState(false);
   const router = useRouter();
 
   const utils = api.useUtils();
@@ -62,6 +63,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
   const handleSetRate = useCallback(
     async (rate: number) => {
       setRate(rate);
+      setShowPing(true);
 
       if (rate > 0) {
         try {
@@ -100,6 +102,8 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         } catch (error) {
           console.error("Error in handleSetRate:", error);
         }
+
+        setVoting(false);
       }
     },
     [data.id, rating.data, workQuery.data, workMutation, createRatingMutation, updateRatingMutation, mediaType],
@@ -112,6 +116,16 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       }
     }
   }, [workQuery.data, rating.data]);
+
+  useEffect(() => {
+    if (showPing) {
+      const timer = setTimeout(() => {
+        setShowPing(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showPing]);
 
   // Determina il tipo di badge da mostrare
   const getMediaTypeBadge = () => {
@@ -240,6 +254,12 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
             Chiudi
           </button>
         </div>
+      )}
+
+      {showPing && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span className="animate-ping absolute h-full w-full bg-yellow-400"></span>
+        </span>
       )}
     </div>
   );
