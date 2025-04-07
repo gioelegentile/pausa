@@ -64,6 +64,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
     async (rate: number) => {
       setRate(rate);
       setShowPing(true);
+      setVoting(false);
 
       if (rate > 0) {
         try {
@@ -103,7 +104,6 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
           console.error("Error in handleSetRate:", error);
         }
 
-        setVoting(false);
       }
     },
     [data.id, rating.data, workQuery.data, workMutation, createRatingMutation, updateRatingMutation, mediaType],
