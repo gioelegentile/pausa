@@ -19,6 +19,8 @@ function testUser(req: NextRequest) {
 
 export async function middleware(req: NextRequest) {
 
+  console.log("middleware")
+
   if (env.NODE_ENV === 'development') {
     // In development mode, allow access to all routes without authentication
     return testUser(req);
