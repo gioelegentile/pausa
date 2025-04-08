@@ -1,4 +1,5 @@
 import moment from "moment";
+import { title } from "process";
 import { z } from "zod";
 
 import {
@@ -9,12 +10,18 @@ import {
 export const workRouter = createTRPCRouter({
 
   create: protectedProcedure
-    .input(z.object({ externalId: z.number(), type: z.enum(["movie", "tvshow", "anime", "game"]) }))
+    .input(z.object({ 
+      externalId: z.number(), 
+      type: z.enum(["movie", "tvshow", "anime", "game"]),
+      title: z.string().optional(),
+      year: z.number().optional(),
+      director: z.string().optional(),
+      posterPath: z.string().optional(),
+    }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.work.create({
         data: {
-          externalId: input.externalId,
-          type: input.type,
+          ...input,
           createdAt: moment().toISOString()
         },
       });
@@ -35,16 +42,37 @@ export const workRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const works = await ctx.db.work.findMany({
-        orderBy: input.sorting.map(i => ({
-          [i.orderBy]: i.orderDirection
-        })),
+      return await ctx.db.work.findMany({
         where: {
-          type: input.type
+          type: input.type,
         },
+        include: {
+          WorkRating: {
+            select: {
+              rating: true,
+              userId: true,
+            },
+          },
+        },
+        orderBy: input.sorting.map(sort => ({
+          [sort.orderBy]: sort.orderDirection,
+        })),
+      }).then(works => {
+        // Calculate average rating for each work
+        return works.map(work => {
+          const ratings = work.WorkRating.map(r => r.rating);
+          const averageRating = ratings.length > 0 
+            ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
+            : null;
+          
+          return {
+            ...work,
+            averageRating,
+            ratingsCount: ratings.length,
+            myRating: work.WorkRating.find(r => r.userId === ctx.session.user.id)?.rating ?? null,
+          };
+        });
       });
-
-      return works ?? [];
     }),
 
   getByExternalId: protectedProcedure

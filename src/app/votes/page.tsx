@@ -1,15 +1,10 @@
 import { HydrateClient } from "~/trpc/server";
+import { VotesContent } from "~/app/_components/votes-content";
 
-export default async function Votes() {
-    return (
-        <HydrateClient>
-            <div className="flex-1">
-                <div className="relative">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                        <div className="text-gray-800 text-2xl">tabella dei voti</div>
-                    </div>
-                </div>
-            </div>
-        </HydrateClient>
-    );
+export default function Votes() {
+  return (
+    <HydrateClient>
+      <VotesContent />
+    </HydrateClient>
+  );
 }

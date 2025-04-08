@@ -19,8 +19,12 @@ model Work {
   id          Int          @id @default(autoincrement())
   externalId  Int
   type        String       // Can be 'MOVIE', 'SERIES', 'ANIME', 'GAME'
-  WorkRating  WorkRating[]
   createdAt   DateTime
+  title       String?
+  year        Int?
+  director    String?
+  posterPath  String?
+  WorkRating  WorkRating[]
 
   @@unique([externalId, type])
 }

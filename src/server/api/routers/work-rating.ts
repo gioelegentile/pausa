@@ -57,4 +57,39 @@ export const workRatingRouter = createTRPCRouter({
             return rating ?? null;
         }),
 
+    getUserRatings: protectedProcedure
+        .input(z.object({
+            type: z.enum(["movie", "tvshow", "anime", "game"])
+        }))
+        .query(async ({ ctx }) => {
+            const ratings = await ctx.db.workRating.findMany({
+                where: {
+                    userId: ctx.session.user.id,
+                    work: {
+                        type: "movie"
+                    }
+                },
+                include: {
+                    work: true
+                }
+            });
+
+            
+
+            return ratings.map(async (rating) => ({
+                ...rating,
+                work: {
+                    ...rating.work,
+                    averageRating: await ctx.db.workRating.aggregate({
+                        _avg: {
+                            rating: true
+                        },
+                        where: {
+                            workId: rating.workId
+                        }
+                    }),
+                }
+            }));
+        }),
+
 });

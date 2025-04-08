@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Work" ADD COLUMN "director" TEXT;
+ALTER TABLE "Work" ADD COLUMN "posterPath" TEXT;
+ALTER TABLE "Work" ADD COLUMN "title" TEXT;
+ALTER TABLE "Work" ADD COLUMN "year" INTEGER;

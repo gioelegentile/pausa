@@ -73,8 +73,24 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
           if (workQuery.data) {
             work = workQuery.data;
           } else {
+            const fetchDirectorName = await fetch(`api/get-director?id=${data.id}`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            const response = await fetchDirectorName.json();
+            const directorName = response.directorName;
+
             work = await workMutation.mutateAsync(
-              { externalId: data.id, type: mediaType }
+              { 
+                externalId: data.id, 
+                type: mediaType,
+                title: data.title,
+                year: moment(data.release_date).year(),
+                director: directorName,
+                posterPath: data.poster_path || undefined,
+              }
             );
           }
 
