@@ -15,12 +15,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Genre {
+  id         Int    @id @default(autoincrement())
+  type       String
+  externalId Int
+  name       String
+  works      Work[]
+
+  @@unique([externalId, type])
+}
+
 model Work {
   id          Int          @id @default(autoincrement())
   externalId  Int
-  type        String       // Can be 'MOVIE', 'SERIES', 'ANIME', 'GAME'
-  WorkRating  WorkRating[]
   createdAt   DateTime
+  type        String
+  title       String?
+  director    String?
+  description String?
+  imageUrl    String?
+  releaseDate DateTime?
+  country     String?
+  genres      Genre[]
+  ratings     WorkRating[]
 
   @@unique([externalId, type])
 }
@@ -39,49 +56,10 @@ model WorkRating {
   @@unique([workId, userId])
 }
 
-// Necessary for Next auth
-model Account {
-  id                       String  @id @default(cuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String? // @db.Text
-  access_token             String? // @db.Text
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String? // @db.Text
-  session_state            String?
-  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refresh_token_expires_in Int?
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String?      @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  ratings       WorkRating[]
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  id      String       @id @default(cuid())
+  name    String?
+  email   String?      @unique
+  image   String?
+  ratings WorkRating[]
 }
