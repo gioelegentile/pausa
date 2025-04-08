@@ -15,6 +15,9 @@ const config = {
         ]
     },
     output: "standalone",
+    experimental: {
+      reactCompiler: true,
+    },
 };
 
 export default config;
