@@ -9,7 +9,7 @@ import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
-import { type Movie } from "../api/search/route";
+import { type Movie } from "../api/movies/route";
 import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import StarRatingSlider from "./star-rating-slider";
