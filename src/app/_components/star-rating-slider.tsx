@@ -28,13 +28,13 @@ const StarRatingSlider = ({ onChange, initialRating = 0 }: StarRatingSliderProps
     // Calcola la posizione relativa (0 a 1)
     const relativePosition = leftPosition / width;
     // Moltiplica per il numero massimo di stelle (5)
-    let rawRating = relativePosition * 5;
+    let rawRating = relativePosition * 10;
 
     // Arrotonda al 0.5 più vicino
     rawRating = Math.round(rawRating * 2) / 2;
 
     // Limita il rating tra 0.5 e 5
-    return Math.max(0.5, Math.min(5, rawRating));
+    return Math.max(0.5, Math.min(10, rawRating));
   };
 
   // Gestisce l'inizio dell'azione di drag
@@ -170,7 +170,7 @@ const StarRatingSlider = ({ onChange, initialRating = 0 }: StarRatingSliderProps
     const stars = [];
     const displayRating = isDragging ? tempRating : hoverRating || rating;
 
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 10; i++) {
       let starIcon;
       // Scegli l'icona in base al rating attuale
       if (displayRating >= i) {
@@ -225,9 +225,6 @@ const StarRatingSlider = ({ onChange, initialRating = 0 }: StarRatingSliderProps
         onTouchCancel={handleTouchEnd}
       >
         {renderStars()}
-      </div>
-      <div className="mt-2 text-lg font-semibold text-white">
-        {isDragging ? tempRating : rating} / 5
       </div>
     </div>
   );

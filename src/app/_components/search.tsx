@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faTv, faGamepad, faMagnifyingGlass, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import Reset from "./reset-search";
+import { Work as WorkModel } from "@prisma/client";
+import { Rating } from "./rating";
+import RatingDialog from "./rating-dialog";
 
 type MediaType = "movie" | "tvshow" | "anime" | "game";
 
@@ -50,6 +53,13 @@ export function Search() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [voting, setVoting] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<Movie | null>(null);
+
+  const handleVoting = (work: Movie) => {
+    setVoting(true);
+    setSelectedWork(work);
+  }
 
   // Stato per il tipo di media selezionato
   const [mediaType, setMediaType] = useState<MediaType>("movie");
@@ -101,7 +111,7 @@ export function Search() {
       setSearchResult(searchInitialState);
       return;
     }
-  
+
     setHasSearched(true);
     setIsSearching(true);
 
@@ -125,22 +135,22 @@ export function Search() {
         });
     } else if (mediaType === "tvshow" || mediaType === "anime") {
       fetch(`/api/tvshow?query=${encodeURIComponent(searchText)}&type=${mediaType}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to search serie TV");
-        }
-        return response.json();
-      })
-      .then((data: MoviesResponse) => {
-        setSearchResult(data);
-      })
-      .catch((error) => {
-        console.error("Error searching serie TV:", error);
-        setSearchResult(searchInitialState);
-      })
-      .finally(() => {
-        setIsSearching(false);
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to search serie TV");
+          }
+          return response.json();
+        })
+        .then((data: MoviesResponse) => {
+          setSearchResult(data);
+        })
+        .catch((error) => {
+          console.error("Error searching serie TV:", error);
+          setSearchResult(searchInitialState);
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
     } else if (mediaType === "game") {
       setIsSearching(false);
     }
@@ -153,13 +163,6 @@ export function Search() {
   useEffect(() => {
     debouncedSearch();
   }, [searchText, debouncedSearch]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSearch(); // Trigger immediate search on Enter key
-    }
-  };
 
   // Handle text input change
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,11 +314,10 @@ export function Search() {
               placeholder={`Cerca ${getMediaTitle(mediaType).toLowerCase()}...`}
               value={searchText}
               onChange={handleTextChange}
-              onKeyDown={handleKeyDown}
               onFocus={handleSearchFocus}
               className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
-            {searchText.length > 0 && <Reset onClick={handleReset}  disabled={false} /> }
+            {searchText.length > 0 && <Reset onClick={handleReset} disabled={false} />}
           </div>
         </div>
       </div>
@@ -328,7 +330,7 @@ export function Search() {
               className="transition ease-in-out hover:z-10 hover:scale-105"
               key={result.id}
             >
-              <Work data={result} mediaType={mediaType} />
+              <Work data={result} onClickVoting={() => handleVoting(result)} mediaType={mediaType} />
             </div>
           ))}
         </div>
@@ -341,6 +343,14 @@ export function Search() {
             Nessun risultato trovato per &#34;{searchText}&#34;
           </p>
         </div>
+      )}
+
+      {voting && selectedWork && (
+        <RatingDialog
+          onClose={() => setVoting(false)}
+          data={selectedWork}
+          mediaType={mediaType}
+        />
       )}
     </div>
   );
