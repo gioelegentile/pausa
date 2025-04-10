@@ -15,9 +15,9 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import Reset from "./reset-search";
-import RatingDialog from "./rating-dialog";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
+import RatingDialog from "~/app/_components/rating-dialog";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -246,27 +246,34 @@ export function Search({
               className="transition ease-in-out hover:z-10 hover:scale-105"
               key={result.id}
             >
-              <Work data={result} onClickVoting={() => handleVoting(result)} mediaType={mediaType} />
+              <Work
+                data={result}
+                mediaType={mediaType}
+                onClickVoting={() => handleVoting(result)}
+              />
             </div>
           ))}
         </div>
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600 dark:text-gray-400">
-            Nessun risultato trovato per &#34;{searchText}&#34;
-          </p>
-        </div>
-      )}
+      {hasSearched &&
+        searchResult.results.length === 0 &&
+        searchText &&
+        !searching && (
+          <div className="py-12 text-center">
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              Nessun risultato trovato per &#34;{searchText}&#34;
+            </p>
+          </div>
+        )}
 
       {voting && selectedWork && (
-        <RatingDialog
-          onClose={() => setVoting(false)}
-          data={selectedWork}
-          mediaType={mediaType}
-        />
+          <RatingDialog
+              onClose={() => setVoting(false)}
+              data={selectedWork}
+              mediaType={mediaType}
+          />
       )}
     </>
   );
