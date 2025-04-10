@@ -1,6 +1,6 @@
 "use client";
 
-import {
+import React, {
   type ReactNode,
   useCallback,
   useEffect,
@@ -18,6 +18,7 @@ import Reset from "./reset-search";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
 import RatingDialog from "~/app/_components/rating-dialog";
+import {getRate, setRate} from "~/server/actions/rating";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -48,20 +49,21 @@ export function Search({
 
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] =
-    useState<MoviesResponse>(searchInitialState);
+  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [hasSearched, setHasSearched] = useState(false);
-  // Usa lo stato esterno se fornito, altrimenti gestisci internamente
   const [internalIsSearchFocused, setInternalIsSearchFocused] = useState(false);
   const isSearchFocused = externalIsSearchFocused ?? internalIsSearchFocused;
   const [isMobile, setIsMobile] = useState(false);
   const [voting, setVoting] = useState(false);
   const [selectedWork, setSelectedWork] = useState<Movie | null>(null);
+  const [selectedWorkCurrentRate, setSelectedWorkCurrentRate] = useState<number>(0);
 
-  const handleVoting = (work: Movie) => {
+  const handleVoting = async (work: Movie) => {
+    const currentRate = await getRate(work);
     setVoting(true);
     setSelectedWork(work);
-  }
+    setSelectedWorkCurrentRate(currentRate)
+  };
 
   // Check if we're on mobile
   useEffect(() => {
@@ -269,11 +271,13 @@ export function Search({
         )}
 
       {voting && selectedWork && (
-          <RatingDialog
-              onClose={() => setVoting(false)}
-              data={selectedWork}
-              mediaType={mediaType}
-          />
+        <RatingDialog
+          currentRate={selectedWorkCurrentRate}
+          onConfirm={(rate) => setRate(selectedWork, rate, mediaType)}
+          onClose={() => setVoting(false)}
+          data={selectedWork}
+          mediaType={mediaType}
+        />
       )}
     </>
   );

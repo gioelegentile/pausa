@@ -19,25 +19,8 @@ type WorkProps = {
 
 export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
   const [rate, setRate] = useState(0);
-  const [showPing, setShowPing] = useState(false);
   const router = useRouter();
 
-  const utils = api.useUtils();
-  const workMutation = api.work.create.useMutation({
-    onSuccess: async () => {
-      await utils.work.getByExternalId.invalidate(data.id);
-    },
-  });
-  const createRatingMutation = api.workRating.create.useMutation({
-    onSuccess: async () => {
-      await utils.workRating.getByExternalId.invalidate(data.id);
-    },
-  });
-  const updateRatingMutation = api.workRating.update.useMutation({
-    onSuccess: async () => {
-      await utils.workRating.getByExternalId.invalidate(data.id);
-    },
-  });
   const workQuery = api.work.getByExternalId.useQuery(data.id);
   const rating = api.workRating.getByExternalId.useQuery(data.id);
 
@@ -151,15 +134,6 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
           </button>
         </div>
       </div>
-
-      {/* UI per votare */}
-
-
-      {showPing && (
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="animate-ping absolute h-full w-full bg-yellow-400"></span>
-        </span>
-      )}
 
     </div>
   );
