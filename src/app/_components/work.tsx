@@ -6,7 +6,7 @@ import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
-import { type Movie } from "../api/movies/route";
+import { type Movie } from "../api/movie/route";
 import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import StarRatingSlider from "./star-rating-slider";
@@ -56,7 +56,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
   const handleNavigateToDetails = useCallback(() => {
     if (!voting) {
       // Se non stiamo votando, navighiamo alla pagina di dettaglio
-      // router.push(`/details/${mediaType}/${data.id}`);
+      router.push(`/details/${mediaType}/${data.id}`);
     }
   }, [voting, router, mediaType, data.id]);
 

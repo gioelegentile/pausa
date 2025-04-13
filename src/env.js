@@ -16,6 +16,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     APP_VERSION: z.string(),
+    URL: z.string()
   },
 
   /**
@@ -38,6 +39,7 @@ export const env = createEnv({
     TMDB_API_KEY: process.env.TMDB_API_KEY,
     NODE_ENV: process.env.NODE_ENV,
     APP_VERSION: process.env.APP_VERSION,
+    URL: process.env.URL
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { Work } from "./work";
-import { type Movie, type MoviesResponse } from "../api/movies/route";
+import { type Movie, type MoviesResponse } from "../api/movie/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -117,7 +117,7 @@ export function Search({
     setIsSearching(true);
 
     if (mediaType === "movie") {
-      fetch(`/api/movies?query=${encodeURIComponent(searchText)}`)
+      fetch(`/api/movie?query=${encodeURIComponent(searchText)}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to search movies");
