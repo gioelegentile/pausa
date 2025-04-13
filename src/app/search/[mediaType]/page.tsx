@@ -4,8 +4,8 @@ import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import Link from "next/link";
 import { type MediaType } from "~/app/models/types";
-import SearchWrapper from "~/app/_components/search-wrapper";
 import React from "react";
+import { Search } from "~/app/_components/search";
 
 async function getMediaTitle(type: MediaType): Promise<string> {
   switch (type) {
@@ -143,7 +143,7 @@ export default async function SearchPage({
         <div className="relative">
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-              <SearchWrapper
+              <Search
                 mediaType={mediaType}
                 mediaTypeTitle={mediaTypeTitle}
                 headerContent={<Header mediaType={mediaType} />}

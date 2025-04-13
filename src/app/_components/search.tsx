@@ -18,6 +18,7 @@ import Reset from "./reset-search";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
 import RatingDialog from "~/app/_components/rating-dialog";
+import { set } from "zod";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -25,7 +26,6 @@ type SearchProps = {
   mediaType: MediaType;
   mediaTypeTitle: string;
   headerContent?: ReactNode;
-  isSearchFocused?: boolean; // Nuova prop per controllare lo stato dall'esterno
 };
 
 export function Search({
@@ -34,7 +34,6 @@ export function Search({
   mediaType,
   mediaTypeTitle,
   headerContent,
-  isSearchFocused: externalIsSearchFocused,
 }: SearchProps) {
   const searchInitialState = useMemo(
     () => ({
@@ -46,12 +45,11 @@ export function Search({
     [],
   );
 
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [hasSearched, setHasSearched] = useState(false);
-  const [internalIsSearchFocused, setInternalIsSearchFocused] = useState(false);
-  const isSearchFocused = externalIsSearchFocused ?? internalIsSearchFocused;
   const [isMobile, setIsMobile] = useState(false);
   const [voting, setVoting] = useState(false);
   const [selectedWork, setSelectedWork] = useState<Movie | null>(null);
@@ -75,12 +73,7 @@ export function Search({
 
     // Handle back button press
     const handlePopState = () => {
-      if (isSearchFocused) {
-        if (externalIsSearchFocused === undefined) {
-          setInternalIsSearchFocused(false);
-        }
-        onSearchBlurAction?.();
-      }
+      setIsSearchFocused(false);
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -89,28 +82,22 @@ export function Search({
       window.removeEventListener("resize", checkIfMobile);
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isSearchFocused, onSearchBlurAction, externalIsSearchFocused]);
+  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
 
   const handleSearchFocus = useCallback(() => {
     if (isMobile) {
-      if (externalIsSearchFocused === undefined) {
-        setInternalIsSearchFocused(true);
-      }
-      onSearchFocusAction?.();
+      setIsSearchFocused(true);
       // Add history entry to handle back button
       window.history.pushState({ searchFocused: true }, "");
     }
-  }, [isMobile, onSearchFocusAction, externalIsSearchFocused]);
+  }, [isMobile, onSearchFocusAction, isSearchFocused]);
 
   const handleExitSearchFocus = useCallback(() => {
     if (isSearchFocused) {
-      if (externalIsSearchFocused === undefined) {
-        setInternalIsSearchFocused(false);
-      }
-      onSearchBlurAction?.();
+      setIsSearchFocused(false)
       window.history.back(); // This will trigger the popstate event handler
     }
-  }, [isSearchFocused, onSearchBlurAction, externalIsSearchFocused]);
+  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
 
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) {

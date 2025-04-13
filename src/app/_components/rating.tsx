@@ -24,7 +24,7 @@ export function Rating({
           className={`h-4 w-4 ${mine ? "text-emerald-400" : "text-yellow-400"}`}
         />
       </div>
-      <p
+      <div
         className={`text-xs font-medium ${mine ? "text-emerald-400" : "text-yellow-400"}`}
       >
         {isLoading ? (
@@ -32,7 +32,7 @@ export function Rating({
         ) : (
           value.toFixed(value % 1 === 0 ? 0 : 1)
         )}
-      </p>
+      </div>
       {!mine && votes && votes > 0 && (
         <span className="ml-1 text-xs text-gray-300">
           ({votes > 999 ? `${(votes / 1000).toFixed(1)}k` : votes})

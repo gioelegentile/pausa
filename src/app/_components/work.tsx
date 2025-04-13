@@ -119,7 +119,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
           {/* Pulsante per votare */}
           <button
-            className="mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 h-6"
+            className="cursor-pointer mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 h-6"
             onClick={onClickVoting}
           >
             {rating.isLoading && <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>}
