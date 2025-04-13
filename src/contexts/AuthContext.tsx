@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Errore durante il caricamento dei dati utente');
+          throw new Error(errorData.error ?? 'Errore durante il caricamento dei dati utente');
         }
         
         const data = await response.json();

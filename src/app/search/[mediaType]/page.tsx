@@ -1,0 +1,157 @@
+import { HydrateClient } from "~/trpc/server";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
+import Image from "next/image";
+import Link from "next/link";
+import { type MediaType } from "~/app/models/types";
+import React from "react";
+import { Search } from "~/app/_components/search";
+
+async function getMediaTitle(type: MediaType): Promise<string> {
+  switch (type) {
+    case "movie":
+      return "Film";
+    case "tvshow":
+      return "Serie TV";
+    case "anime":
+      return "Anime";
+    case "game":
+      return "Videogiochi";
+  }
+}
+
+async function MediaTypeButton({
+  active,
+  mediaTypeTitle,
+  href,
+  icon,
+}: {
+  active: boolean;
+  mediaTypeTitle: string;
+  href: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+        active
+          ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
+          : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow dark:border-gray-400 dark:bg-gray-600 dark:text-gray-100"
+      }`}
+    >
+      <div className="flex flex-col items-center sm:flex-row">
+        <span className="order-2 mt-1 sm:order-1 sm:mt-0 sm:ml-2">
+          {mediaTypeTitle}
+        </span>
+        {icon}
+      </div>
+    </Link>
+  );
+}
+
+async function Header({ mediaType }: { mediaType: MediaType }) {
+  const mediaTypeTitle = await getMediaTitle(mediaType);
+
+  return (
+    <>
+      {/* Header con titolo */}
+      <div className="mt-20 mb-8 text-center">
+        <h1 className="mb-2 text-4xl font-extrabold text-gray-900 dark:text-white">
+          <span className="bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-transparent dark:from-blue-300 dark:to-indigo-500">
+            {mediaTypeTitle}
+          </span>
+        </h1>
+        <p className="text-xl text-gray-600 dark:text-gray-300">
+          Scopri e vota i tuoi preferiti
+        </p>
+      </div>
+
+      {/* Pulsanti di selezione del tipo di media */}
+      <div className="mb-8 flex justify-center">
+        <div className="flex space-x-2">
+          <MediaTypeButton
+            mediaTypeTitle={"Film"}
+            href="/search/movie"
+            active={mediaType === "movie"}
+            icon={
+              <FontAwesomeIcon
+                icon={faFilm}
+                className="order-1 h-5 w-5 sm:order-0"
+              />
+            }
+          />
+          <MediaTypeButton
+            mediaTypeTitle={"Serie TV"}
+            href="/search/tvshow"
+            active={mediaType === "tvshow"}
+            icon={
+              <FontAwesomeIcon
+                icon={faTv}
+                className="order-1 h-5 w-5 sm:order-0"
+              />
+            }
+          />
+          <MediaTypeButton
+            mediaTypeTitle={"Anime"}
+            href="/search/anime"
+            active={mediaType === "anime"}
+            icon={
+              <Image
+                src="/naruto-119-svgrepo-com.svg"
+                alt="Naruto Icon"
+                width={15}
+                height={15}
+                className="order-1 brightness-0 invert filter sm:order-0 xl:mr-2"
+                style={{
+                  filter:
+                    mediaType === "anime"
+                      ? "brightness(0) invert(1)"
+                      : "brightness(0) opacity(0.1)",
+                }}
+              />
+            }
+          />
+          <MediaTypeButton
+            mediaTypeTitle={"Videogiochi"}
+            href="/search/game"
+            active={mediaType === "game"}
+            icon={
+              <FontAwesomeIcon
+                icon={faGamepad}
+                className="order-1 h-5 w-5 sm:order-0"
+              />
+            }
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default async function SearchPage({
+  params,
+}: {
+  params: Promise<{ mediaType: MediaType }>;
+}) {
+  const { mediaType } = await params;
+  const mediaTypeTitle = await getMediaTitle(mediaType);
+
+  return (
+    <HydrateClient>
+      <div className="flex-1">
+        <div className="relative">
+          <div className="flex flex-col items-center justify-center gap-4">
+            <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+              <Search
+                mediaType={mediaType}
+                mediaTypeTitle={mediaTypeTitle}
+                headerContent={<Header mediaType={mediaType} />}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </HydrateClient>
+  );
+}

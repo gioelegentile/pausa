@@ -50,11 +50,7 @@ export async function GET(request: NextRequest) {
     // Limita i risultati a 18 come nel codice originale
     data.results = data.results
       .slice(0, 12)
-      .sort((a, b) => b.popularity - a.popularity)
-      .map((movie) => ({
-        ...movie,
-        vote_average: movie.vote_average / 2,
-      }));
+      .sort((a, b) => b.popularity - a.popularity);
     
     return NextResponse.json(data);
   } catch (error) {

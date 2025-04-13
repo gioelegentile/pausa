@@ -44,6 +44,45 @@ export const workRatingRouter = createTRPCRouter({
             });
         }),
 
+    createOrUpdate: protectedProcedure
+        .input(z.object({
+            externalId: z.number(),
+            rating: z.number(),
+            workId: z.number(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const existingRating = await ctx.db.workRating.findFirst({
+                where: {
+                    externalId: input.externalId,
+                    userId: ctx.session.user.id
+                }
+            });
+
+            if (existingRating) {
+                return ctx.db.workRating.update({
+                    where: {
+                        id: existingRating.id,
+                    },
+                    data: {
+                        rating: input.rating,
+                        updatedAt: moment().toISOString()
+                    },
+                });
+            } else {
+                return ctx.db.workRating.create({
+                    data: {
+                        externalId: input.externalId,
+                        rating: input.rating,
+                        workId: input.workId,
+                        userId: ctx.session.user.id,
+                        updatedAt: moment().toISOString(),
+                        createdAt: moment().toISOString()
+                    },
+                });
+            }
+        }
+    ),
+
     getByExternalId: protectedProcedure
         .input(z.number())
         .query(async ({ ctx, input }) => {
@@ -57,39 +96,21 @@ export const workRatingRouter = createTRPCRouter({
             return rating ?? null;
         }),
 
-    getUserRatings: protectedProcedure
+    getByExternalIds: protectedProcedure
         .input(z.object({
-            type: z.enum(["movie", "tvshow", "anime", "game"])
+            ids: z.array(z.number()),
         }))
-        .query(async ({ ctx }) => {
+        .query(async ({ ctx, input }) => {
             const ratings = await ctx.db.workRating.findMany({
                 where: {
-                    userId: ctx.session.user.id,
-                    work: {
-                        type: "movie"
-                    }
-                },
-                include: {
-                    work: true
+                    externalId: {
+                        in: input.ids,
+                    },
+                    userId: ctx.session.user.id
                 }
             });
 
-            
-
-            return ratings.map(async (rating) => ({
-                ...rating,
-                work: {
-                    ...rating.work,
-                    averageRating: await ctx.db.workRating.aggregate({
-                        _avg: {
-                            rating: true
-                        },
-                        where: {
-                            workId: rating.workId
-                        }
-                    }),
-                }
-            }));
+            return ratings ?? null;
         }),
 
 });

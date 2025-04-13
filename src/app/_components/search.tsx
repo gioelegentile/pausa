@@ -1,38 +1,40 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Work } from "./work";
 import { type Movie, type MoviesResponse } from "../api/movies/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilm, faTv, faGamepad, faMagnifyingGlass, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
+import {
+  faArrowLeft,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import Reset from "./reset-search";
+import { type MediaType } from "~/app/models/types";
+import { useDebounce } from "~/app/_hooks/debouce";
+import RatingDialog from "~/app/_components/rating-dialog";
+import { set } from "zod";
 
-type MediaType = "movie" | "tvshow" | "anime" | "game";
+type SearchProps = {
+  onSearchFocusAction?: () => void;
+  onSearchBlurAction?: () => void;
+  mediaType: MediaType;
+  mediaTypeTitle: string;
+  headerContent?: ReactNode;
+};
 
-// Debounce utility function
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  return useCallback(
-    (...args: Parameters<T>) => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-
-      timerRef.current = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    },
-    [callback, delay]
-  );
-}
-
-export function Search() {
+export function Search({
+  onSearchFocusAction,
+  onSearchBlurAction,
+  mediaType,
+  mediaTypeTitle,
+  headerContent,
+}: SearchProps) {
   const searchInitialState = useMemo(
     () => ({
       page: 0,
@@ -43,16 +45,19 @@ export function Search() {
     [],
   );
 
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] =
-    useState<MoviesResponse>(searchInitialState);
+  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
   const [hasSearched, setHasSearched] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [voting, setVoting] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<Movie | null>(null);
 
-  // Stato per il tipo di media selezionato
-  const [mediaType, setMediaType] = useState<MediaType>("movie");
+  const handleVoting = async (work: Movie) => {
+    setVoting(true);
+    setSelectedWork(work);
+  };
 
   // Check if we're on mobile
   useEffect(() => {
@@ -64,36 +69,35 @@ export function Search() {
     checkIfMobile();
 
     // Set up listener for resize
-    window.addEventListener('resize', checkIfMobile);
+    window.addEventListener("resize", checkIfMobile);
 
     // Handle back button press
     const handlePopState = () => {
-      if (isSearchFocused) {
-        setIsSearchFocused(false);
-      }
+      setIsSearchFocused(false);
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
-      window.removeEventListener('resize', checkIfMobile);
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("resize", checkIfMobile);
+      window.removeEventListener("popstate", handlePopState);
     };
-  }, [isSearchFocused]);
+  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
 
   const handleSearchFocus = useCallback(() => {
     if (isMobile) {
       setIsSearchFocused(true);
       // Add history entry to handle back button
-      window.history.pushState({ searchFocused: true }, '');
+      window.history.pushState({ searchFocused: true }, "");
     }
-  }, [isMobile]);
+  }, [isMobile, onSearchFocusAction, isSearchFocused]);
 
   const handleExitSearchFocus = useCallback(() => {
     if (isSearchFocused) {
+      setIsSearchFocused(false)
       window.history.back(); // This will trigger the popstate event handler
     }
-  }, [isSearchFocused]);
+  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
 
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) {
@@ -101,7 +105,7 @@ export function Search() {
       setSearchResult(searchInitialState);
       return;
     }
-  
+
     setHasSearched(true);
     setIsSearching(true);
 
@@ -124,23 +128,25 @@ export function Search() {
           setIsSearching(false);
         });
     } else if (mediaType === "tvshow" || mediaType === "anime") {
-      fetch(`/api/tvshow?query=${encodeURIComponent(searchText)}&type=${mediaType}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to search serie TV");
-        }
-        return response.json();
-      })
-      .then((data: MoviesResponse) => {
-        setSearchResult(data);
-      })
-      .catch((error) => {
-        console.error("Error searching serie TV:", error);
-        setSearchResult(searchInitialState);
-      })
-      .finally(() => {
-        setIsSearching(false);
-      });
+      fetch(
+        `/api/tvshow?query=${encodeURIComponent(searchText)}&type=${mediaType}`,
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to search serie TV");
+          }
+          return response.json();
+        })
+        .then((data: MoviesResponse) => {
+          setSearchResult(data);
+        })
+        .catch((error) => {
+          console.error("Error searching serie TV:", error);
+          setSearchResult(searchInitialState);
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
     } else if (mediaType === "game") {
       setIsSearching(false);
     }
@@ -154,13 +160,6 @@ export function Search() {
     debouncedSearch();
   }, [searchText, debouncedSearch]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSearch(); // Trigger immediate search on Enter key
-    }
-  };
-
   // Handle text input change
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -173,133 +172,37 @@ export function Search() {
     setHasSearched(false);
   }, [searchInitialState]);
 
-  const handleMediaTypeChange = (type: MediaType) => {
-    setMediaType(type);
-    handleReset(); // resetta la ricerca quando cambi tipo
-  };
-
-  // Funzione per ottenere il titolo in base al tipo di media
-  const getMediaTitle = (type: MediaType): string => {
-    switch (type) {
-      case "movie":
-        return "Film";
-      case "tvshow":
-        return "Serie TV";
-      case "anime":
-        return "Anime";
-      case "game":
-        return "Videogiochi";
-      default:
-        return "Film";
-    }
-  };
-
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header con titolo */}
-      <div className={`mt-20 mb-8 text-center  ${isSearchFocused ? 'hidden' : 'block'}`}>
-        <h1 className="mb-2 text-4xl font-extrabold text-gray-900 dark:text-white">
-          <span className="bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-transparent">
-            {getMediaTitle(mediaType)}
-          </span>
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Scopri e vota i tuoi preferiti
-        </p>
-      </div>
-
-      {/* Pulsanti di selezione del tipo di media */}
-      <div className={`mb-8 flex justify-center  ${isSearchFocused ? 'hidden' : 'block'}`}>
-        <div className="flex space-x-2">
-          <button
-            type="button"
-            onClick={() => handleMediaTypeChange("movie")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "movie"
-              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-              }`}
-          >
-            <div className="flex flex-col items-center sm:flex-row">
-              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Film</span>
-              <FontAwesomeIcon icon={faFilm} className="h-5 w-5 order-1 sm:order-0" />
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleMediaTypeChange("tvshow")}
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "tvshow"
-              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-              }`}
-          >
-            <div className="flex flex-col items-center sm:flex-row">
-              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0 whitespace-nowrap">Serie TV</span>
-              <FontAwesomeIcon icon={faTv} className="h-5 w-5 order-1 sm:order-0" />
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleMediaTypeChange("anime")}
-            className={` rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "anime"
-              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-              }`}
-          >
-            <div className="flex flex-col items-center sm:flex-row">
-              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Anime</span>
-              <Image
-                src="/naruto-119-svgrepo-com.svg"
-                alt="Naruto Icon"
-                width={15}
-                height={15}
-                className="xl:mr-2 brightness-0 invert filter order-1 sm:order-0"
-                style={{
-                  filter:
-                    mediaType === "anime"
-                      ? "brightness(0) invert(1)"
-                      : "brightness(0) opacity(0.1)", // TODO change to opacity(0.6) when issue #13 is done
-                }}
-              />
-            </div>
-          </button>
-          <button
-            disabled
-            type="button"
-            onClick={() => handleMediaTypeChange("game")}
-            className={`disabled:text-gray-200 disabled:border-gray-100 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${mediaType === "game"
-              ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-              : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow"
-              }`}
-          >
-            <div className="flex flex-col items-center sm:flex-row">
-              <span className="sm:order-1 order-2 sm:ml-2 mt-1 sm:mt-0">Videogiochi</span>
-              <FontAwesomeIcon icon={faGamepad} className="h-5 w-5 order-1 sm:order-0" />
-              <span className="order-3 [font-variant:small-caps] text-[8px] text-red-500 dark:text-gray-400 whitespace-nowrap lg:ml-2">
-                coming soon
-              </span>
-            </div>
-          </button>
-        </div>
-      </div>
+    <>
+      {/* Header content che viene mostrato solo quando non c'è il focus sulla ricerca */}
+      {headerContent && !isSearchFocused && (
+        <div className="header-content">{headerContent}</div>
+      )}
 
       {/* Barra di ricerca */}
-      <div className={` ${isSearchFocused
-        ? 'fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 py-3 px-4'
-        : 'mx-auto mb-12 max-w-3xl'
-        }`}>
+      <div
+        className={`${
+          isSearchFocused
+            ? "fixed top-0 right-0 left-0 z-50 bg-white px-4 py-3 dark:bg-gray-900"
+            : "mx-auto mb-12 max-w-3xl"
+        }`}
+      >
         <div className="flex items-center">
           {isSearchFocused && (
             <button
               type="button"
               onClick={handleExitSearchFocus}
-              className="flex items-center text-gray-600 mr-2 p-2"
+              className="mr-2 flex items-center p-2 text-gray-600"
             >
               <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
             </button>
           )}
           <div className="relative flex-grow">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <FontAwesomeIcon icon={faMagnifyingGlass} className="h-5 w-5 text-gray-400" />
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                className="h-5 w-5 text-gray-400"
+              />
             </div>
             {searching && (
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
@@ -308,14 +211,14 @@ export function Search() {
             )}
             <input
               type="text"
-              placeholder={`Cerca ${getMediaTitle(mediaType).toLowerCase()}...`}
+              placeholder={`Cerca ${mediaTypeTitle}...`}
               value={searchText}
               onChange={handleTextChange}
-              onKeyDown={handleKeyDown}
               onFocus={handleSearchFocus}
+              onBlur={onSearchBlurAction}
               className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
-            {searchText.length > 0 && <Reset onClick={handleReset}  disabled={false} /> }
+            {searchText.length > 0 && <Reset onClick={handleReset} />}
           </div>
         </div>
       </div>
@@ -328,20 +231,35 @@ export function Search() {
               className="transition ease-in-out hover:z-10 hover:scale-105"
               key={result.id}
             >
-              <Work data={result} mediaType={mediaType} />
+              <Work
+                data={result}
+                mediaType={mediaType}
+                onClickVoting={() => handleVoting(result)}
+              />
             </div>
           ))}
         </div>
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {hasSearched && searchResult.results.length === 0 && searchText && !searching && (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600 dark:text-gray-400">
-            Nessun risultato trovato per &#34;{searchText}&#34;
-          </p>
-        </div>
+      {hasSearched &&
+        searchResult.results.length === 0 &&
+        searchText &&
+        !searching && (
+          <div className="py-12 text-center">
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              Nessun risultato trovato per &#34;{searchText}&#34;
+            </p>
+          </div>
+        )}
+
+      {voting && selectedWork && (
+        <RatingDialog
+          mediaType={mediaType}
+          onClose={() => setVoting(false)}
+          data={selectedWork}
+        />
       )}
-    </div>
+    </>
   );
 }
