@@ -18,7 +18,6 @@ import Reset from "./reset-search";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
 import RatingDialog from "~/app/_components/rating-dialog";
-import {getRate, setRate} from "~/server/actions/rating";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -56,13 +55,10 @@ export function Search({
   const [isMobile, setIsMobile] = useState(false);
   const [voting, setVoting] = useState(false);
   const [selectedWork, setSelectedWork] = useState<Movie | null>(null);
-  const [selectedWorkCurrentRate, setSelectedWorkCurrentRate] = useState<number>(0);
 
   const handleVoting = async (work: Movie) => {
-    const currentRate = await getRate(work);
     setVoting(true);
     setSelectedWork(work);
-    setSelectedWorkCurrentRate(currentRate)
   };
 
   // Check if we're on mobile
@@ -272,11 +268,9 @@ export function Search({
 
       {voting && selectedWork && (
         <RatingDialog
-          currentRate={selectedWorkCurrentRate}
-          onConfirm={(rate) => setRate(selectedWork, rate, mediaType)}
+          mediaType={mediaType}
           onClose={() => setVoting(false)}
           data={selectedWork}
-          mediaType={mediaType}
         />
       )}
     </>

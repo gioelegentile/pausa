@@ -4,38 +4,26 @@ import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
 import { type Movie } from "../api/movies/route";
-import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import StarRatingSlider from "./star-rating-slider";
 
 type WorkProps = {
   data: Movie;
   mediaType?: "movie" | "tvshow" | "anime" | "game";
   onClickVoting: () => void;
+  currentRating?: number;
 };
 
 export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
-  const [rate, setRate] = useState(0);
   const router = useRouter();
-
-  const workQuery = api.work.getByExternalId.useQuery(data.id);
   const rating = api.workRating.getByExternalId.useQuery(data.id);
 
   const handleNavigateToDetails = useCallback(() => {
     // Se non stiamo votando, navighiamo alla pagina di dettaglio
     // router.push(`/details/${mediaType}/${data.id}`);
   }, [router, mediaType, data.id]);
-
-  useEffect(() => {
-    if (workQuery.data) {
-      if (rating.data) {
-        setRate(rating.data.rating);
-      }
-    }
-  }, [workQuery.data, rating.data]);
 
   // Determina il tipo di badge da mostrare
   const getMediaTypeBadge = () => {
@@ -120,17 +108,22 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
             </p>
           )}
 
-          {!!rate && <Rating value={rate} mine className="mt-1" />}
+          {/* Valutazione media */}
+          {rating.isLoading && <div className="h-3 w-3 mx-0.5 my-1 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div>}
+          {!rating.isLoading && rating.data && rating.data.rating !== 0 && (
+            <Rating value={rating.data.rating} isLoading={rating.isRefetching} mine className="mt-1" />
+          )}
           {!!data.vote_average && (
             <Rating value={data.vote_average} votes={data.vote_count} />
           )}
 
           {/* Pulsante per votare */}
           <button
-            className="mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700"
+            className="mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 h-6"
             onClick={onClickVoting}
           >
-            {rate > 0 ? "Modifica voto" : "Vota"}
+            {rating.isLoading && <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>}
+            {!rating.isLoading && (<>{rating.data ? "Modifica voto" : "Vota"}</>)}
           </button>
         </div>
       </div>

@@ -44,6 +44,45 @@ export const workRatingRouter = createTRPCRouter({
             });
         }),
 
+    createOrUpdate: protectedProcedure
+        .input(z.object({
+            externalId: z.number(),
+            rating: z.number(),
+            workId: z.number(),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const existingRating = await ctx.db.workRating.findFirst({
+                where: {
+                    externalId: input.externalId,
+                    userId: ctx.session.user.id
+                }
+            });
+
+            if (existingRating) {
+                return ctx.db.workRating.update({
+                    where: {
+                        id: existingRating.id,
+                    },
+                    data: {
+                        rating: input.rating,
+                        updatedAt: moment().toISOString()
+                    },
+                });
+            } else {
+                return ctx.db.workRating.create({
+                    data: {
+                        externalId: input.externalId,
+                        rating: input.rating,
+                        workId: input.workId,
+                        userId: ctx.session.user.id,
+                        updatedAt: moment().toISOString(),
+                        createdAt: moment().toISOString()
+                    },
+                });
+            }
+        }
+    ),
+
     getByExternalId: protectedProcedure
         .input(z.number())
         .query(async ({ ctx, input }) => {
@@ -55,6 +94,23 @@ export const workRatingRouter = createTRPCRouter({
             });
 
             return rating ?? null;
+        }),
+
+    getByExternalIds: protectedProcedure
+        .input(z.object({
+            ids: z.array(z.number()),
+        }))
+        .query(async ({ ctx, input }) => {
+            const ratings = await ctx.db.workRating.findMany({
+                where: {
+                    externalId: {
+                        in: input.ids,
+                    },
+                    userId: ctx.session.user.id
+                }
+            });
+
+            return ratings ?? null;
         }),
 
 });

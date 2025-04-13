@@ -52,11 +52,7 @@ export async function GET(request: NextRequest) {
     data.results = data.results
       .filter(tvshow => type == 'anime' ? tvshow.genre_ids.includes(16) : !tvshow.genre_ids.includes(16))
       .slice(0, 12)
-      .sort((a, b) => b.popularity - a.popularity)
-      .map((tvshow) => ({
-        ...tvshow,
-        vote_average: tvshow.vote_average / 2,
-      }));
+      .sort((a, b) => b.popularity - a.popularity);
     
     return NextResponse.json(data);
   } catch (error) {
