@@ -1,6 +1,9 @@
 import { api } from "~/trpc/server";
-import { MediaType } from "../models/types";
+import { type MediaType } from "../models/types";
 import Link from "next/link";
+import Image from "next/image";
+import {NoPoster} from "~/app/_components/no-poster";
+import React from "react";
 
 type RatedWorksProps = {
   mediaType: MediaType;
@@ -18,16 +21,30 @@ export default async function RatedWorks({ mediaType }: RatedWorksProps) {
               <span className="absolute top-0 left-0 bg-black/60 text-white px-1 text-xs font-medium">
                 {index + 1}.
               </span>
-              <img 
-                src={work.imageUrl ? `https://image.tmdb.org/t/p/w92${work.imageUrl}` : "/placeholder.png"} 
-                alt={work.title ?? ""}
-                className="w-16 h-24 object-cover rounded"
-              />
+              {work.imageUrl ? (
+                  <Image
+                      src={`https://image.tmdb.org/t/p/w92${work.imageUrl}`}
+                      alt={work.title ?? ""}
+                      layout="fill"
+                      objectFit="cover"
+                      className="w-16 h-24 object-cover rounded"
+                      loading="lazy"
+                  />
+              ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 p-4">
+                    <NoPoster />
+                  </div>
+              )}
+              {/*<Image */}
+              {/*  src={work.imageUrl ? `https://image.tmdb.org/t/p/w92${work.imageUrl}` : "/placeholder.png"} */}
+              {/*  alt={work.title ?? ""}*/}
+              {/*  className="w-16 h-24 object-cover rounded"*/}
+              {/*/>*/}
             </div>
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-medium text-white">
+                  <h2 className="font-medium text-gray-800 dark:text-white">
                     {work.title}
                   </h2>
                   <div className="text-sm text-gray-400 flex flex-wrap gap-2 items-center">
