@@ -1,3 +1,4 @@
+import { count } from "console";
 import moment from "moment";
 import { title } from "process";
 import { z } from "zod";
@@ -14,14 +15,16 @@ export const workRouter = createTRPCRouter({
       externalId: z.number(), 
       type: z.enum(["movie", "tvshow", "anime", "game"]),
       title: z.string().optional(),
-      year: z.number().optional(),
       director: z.string().optional(),
-      posterPath: z.string().optional(),
+      description: z.string().optional(),
+      imageUrl: z.string().optional(),
+      releaseDate: z.date().optional(),
+      country: z.string().optional(),
     }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => { 
       return ctx.db.work.create({
         data: {
-          ...input,
+          ...input, //  TODO add genres
           createdAt: moment().toISOString()
         },
       });
@@ -47,7 +50,7 @@ export const workRouter = createTRPCRouter({
           type: input.type,
         },
         include: {
-          WorkRating: {
+          ratings: {
             select: {
               rating: true,
               userId: true,
@@ -60,7 +63,7 @@ export const workRouter = createTRPCRouter({
       }).then(works => {
         // Calculate average rating for each work
         return works.map(work => {
-          const ratings = work.WorkRating.map(r => r.rating);
+          const ratings = work.ratings.map(r => r.rating);
           const averageRating = ratings.length > 0 
             ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length 
             : null;
@@ -69,7 +72,7 @@ export const workRouter = createTRPCRouter({
             ...work,
             averageRating,
             ratingsCount: ratings.length,
-            myRating: work.WorkRating.find(r => r.userId === ctx.session.user.id)?.rating ?? null,
+            myRating: work.ratings.find(r => r.userId === ctx.session.user.id)?.rating ?? null,
           };
         });
       });

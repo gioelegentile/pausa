@@ -33,7 +33,7 @@ export default async function RootLayout({
                     <Link href="/" className="ml-4 lg:ml-8">
                       <span className="text-gray-800">Cerca</span>
                     </Link>
-                    <Link href="/votes" className="ml-4">
+                    <Link href="/votes/movie" className="ml-4">
                       <span className="text-gray-800">Voti</span>
                     </Link>
                   </div>

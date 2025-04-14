@@ -56,9 +56,16 @@ export default function RatingDialog({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-            work = await workMutation.mutateAsync(
-              { externalId: data.id, type: mediaType }
-            );
+            const director = await fetch("/api/get-director?id=" + data.id).then(r => r.json() as Promise<{directorName: string}>);
+            work = await workMutation.mutateAsync({
+              externalId: data.id,
+              type: mediaType,
+              title: data.title,
+              director: director.directorName,
+              description: data.overview,
+              imageUrl: data.poster_path ?? undefined,
+              releaseDate: data.release_date ? new Date(data.release_date) : undefined,
+            });
           }
 
           if (work) {

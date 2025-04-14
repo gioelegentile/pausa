@@ -117,7 +117,7 @@ export function TabellaVoti({ mediaType }: TabellaVotiProps) {
           {votiUtente.map((voto) => (
             <tr key={voto.id} className="hover:bg-gray-50">
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {voto.year}
+                {voto.releaseDate ? moment(voto.releaseDate).format("YYYY") : "-"}
               </td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900">
                 {voto.title}
