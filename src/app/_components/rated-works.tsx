@@ -58,7 +58,7 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
     <div>
 
       <div className="flex justify-end p-4">
-        {!directors.isLoading && <Filters directors={directors.data} />}
+        <Filters directors={directors.data} />
       </div>
 
       <div className="flex flex-col rounded-lg border-2 border-gray-700 bg-gray-800/20">
@@ -72,12 +72,18 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
           />
         ))}
 
+        {data?.pages.flatMap(p => p.works).length === 0 && (
+          <div className="flex h-32 items-center justify-center text-gray-400">
+            Nessuna opera è stata ancora votata.
+          </div>
+        )}
+
       </div>
 
       <div ref={observerTarget} className="flex justify-center p-4">
         {isFetchingNextPage ? <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div> : null}
       </div>
-        
+
     </div>
   );
 }
