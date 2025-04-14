@@ -56,7 +56,7 @@ export default function RatingDialog({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-            const director = await fetch("/api/get-director?id=" + data.id).then(r => r.json() as Promise<{directorName: string}>);
+            const director = await fetch("/api/get-director?id=" + data.id).then(r => r.json() as Promise<{ directorName: string }>);
             work = await workMutation.mutateAsync({
               externalId: data.id,
               type: mediaType,
@@ -89,7 +89,17 @@ export default function RatingDialog({
 
       setIsLoading(false);
     },
-    [data.id, workQuery.data, workMutation, createOrUpdateMutation, mediaType],
+    [
+      data.id,
+      data.overview,
+      data.poster_path,
+      data.release_date,
+      data.title,
+      mediaType,
+      workQuery.data,
+      workMutation,
+      createOrUpdateMutation
+    ],
   );
 
   const handleBackdropClick = (e: React.MouseEvent) => {

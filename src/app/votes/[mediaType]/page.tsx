@@ -2,7 +2,7 @@ import { HydrateClient } from "~/trpc/server";
 import { MediaTypeButton } from "../../_components/media-type-button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
-import { MediaType } from "~/app/models/types";
+import { type MediaType } from "~/app/models/types";
 import RatedWorks from "~/app/_components/rated-works";
 import { Suspense } from "react";
 import Loading from "./loading";

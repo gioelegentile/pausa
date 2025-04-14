@@ -21,16 +21,12 @@ import RatingDialog from "~/app/_components/rating-dialog";
 import { LoadingSearch } from "~/app/_components/loading-search";
 
 type SearchProps = {
-  onSearchFocusAction?: () => void;
-  onSearchBlurAction?: () => void;
   mediaType: MediaType;
   mediaTypeTitle: string;
   headerContent?: ReactNode;
 };
 
 export function Search({
-  onSearchFocusAction,
-  onSearchBlurAction,
   mediaType,
   mediaTypeTitle,
   headerContent,
@@ -83,7 +79,7 @@ export function Search({
       window.removeEventListener("resize", checkIfMobile);
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
+  }, [isSearchFocused, isSearchFocused]);
 
   const handleSearchFocus = useCallback(() => {
     if (isMobile) {
@@ -216,7 +212,6 @@ export function Search({
               value={searchText}
               onChange={handleTextChange}
               onFocus={handleSearchFocus}
-              onBlur={onSearchBlurAction}
               className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
             {searchText.length > 0 && <Reset onClick={handleReset} />}

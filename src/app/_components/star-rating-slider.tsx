@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 type StarRatingSliderProps = {
   stars?: number;
@@ -28,21 +28,21 @@ export default function StarRatingSlider({
   const calculateRating = (n: number) => ((n + 1) / 2) * 10;
 
   // Helper function to find which rect is being touched based on coordinates
-  const findRectIndexFromCoordinates = (clientX: number) => {
+  const findRectIndexFromCoordinates = useCallback((clientX: number) => {
     if (!svgRef.current) return 0;
-    
+
     const svgRect = svgRef.current.getBoundingClientRect();
     const relativeX = clientX - svgRect.left;
     const svgWidth = svgRect.width;
-    
+
     // Calculate the relative position within the SVG (0 to 1)
     const relativePosition = Math.max(0, Math.min(1, relativeX / svgWidth));
-    
+
     // Convert to the rectangle index (0 to stars*2-1)
     const rectIndex = Math.floor(relativePosition * stars * 2);
-    
+
     return Math.max(0, Math.min(stars * 2 - 1, rectIndex));
-  };
+  }, [stars, svgRef]);
 
   // EVENTI DI INIZIO SLIDE
   const handleMouseDown = (n: number) => {
@@ -117,7 +117,7 @@ export default function StarRatingSlider({
         document.removeEventListener('touchcancel', handleGlobalTouchEnd);
       };
     }
-  }, [isDragging, selectedRating, tempRating]);
+  }, [isDragging, selectedRating, tempRating, findRectIndexFromCoordinates]);
 
   useEffect(() => {
     onRatingChange?.((selectedRating ?? 0) / 10);
@@ -157,9 +157,9 @@ export default function StarRatingSlider({
   );
 
   return (
-    <svg 
+    <svg
       ref={svgRef}
-      viewBox={`0 0 ${stars * 100} 100`} 
+      viewBox={`0 0 ${stars * 100} 100`}
       style={{ cursor: "pointer", width: "300px" }}
       onTouchMove={handleTouchMove}
     >
