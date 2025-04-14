@@ -18,8 +18,7 @@ import Reset from "./reset-search";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
 import RatingDialog from "~/app/_components/rating-dialog";
-import { set } from "zod";
-import {LoadingSearch} from "~/app/_components/loading-search";
+import { LoadingSearch } from "~/app/_components/loading-search";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -49,7 +48,8 @@ export function Search({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
+  const [searchResult, setSearchResult] =
+    useState<MoviesResponse>(searchInitialState);
   const [hasSearched, setHasSearched] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [voting, setVoting] = useState(false);
@@ -91,14 +91,14 @@ export function Search({
       // Add history entry to handle back button
       window.history.pushState({ searchFocused: true }, "");
     }
-  }, [isMobile, onSearchFocusAction, isSearchFocused]);
+  }, [isMobile]);
 
   const handleExitSearchFocus = useCallback(() => {
     if (isSearchFocused) {
-      setIsSearchFocused(false)
+      setIsSearchFocused(false);
       window.history.back(); // This will trigger the popstate event handler
     }
-  }, [isSearchFocused, onSearchBlurAction, isSearchFocused]);
+  }, [isSearchFocused]);
 
   const handleSearch = useCallback(() => {
     if (!searchText.trim()) {
@@ -224,7 +224,7 @@ export function Search({
         </div>
       </div>
 
-      {searching && (<LoadingSearch />)}
+      {searching && <LoadingSearch />}
 
       {/* Risultati della ricerca */}
       {searchResult.results.length > 0 && (
