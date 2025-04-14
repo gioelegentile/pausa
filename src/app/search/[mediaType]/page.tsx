@@ -1,11 +1,11 @@
 import { HydrateClient } from "~/trpc/server";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 import Link from "next/link";
 import { type MediaType } from "~/app/models/types";
 import React from "react";
 import { Search } from "~/app/_components/search";
+import {narutoIcon} from "~/app/_icons/naruto";
 
 async function getMediaTitle(type: MediaType): Promise<string> {
   switch (type) {
@@ -37,7 +37,7 @@ async function MediaTypeButton({
       className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
         active
           ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-          : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow dark:border-gray-400 dark:bg-gray-600 dark:text-gray-100"
+          : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:shadow dark:border-gray-400 dark:bg-gray-600 dark:text-gray-100"
       }`}
     >
       <div className="flex flex-col items-center sm:flex-row">
@@ -97,18 +97,9 @@ async function Header({ mediaType }: { mediaType: MediaType }) {
             href="/search/anime"
             active={mediaType === "anime"}
             icon={
-              <Image
-                src="/naruto-119-svgrepo-com.svg"
-                alt="Naruto Icon"
-                width={15}
-                height={15}
-                className="order-1 brightness-0 invert filter sm:order-0 xl:mr-2"
-                style={{
-                  filter:
-                    mediaType === "anime"
-                      ? "brightness(0) invert(1)"
-                      : "brightness(0) opacity(0.1)",
-                }}
+              <FontAwesomeIcon
+                  icon={narutoIcon}
+                  className="order-1 h-5 w-5 sm:order-0"
               />
             }
           />

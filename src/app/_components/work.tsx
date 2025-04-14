@@ -59,7 +59,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
   return (
     <div
-      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300"
+      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl transition-all duration-300 shadow-gray-300 dark:shadow-none shadow-md"
       onClick={handleNavigateToDetails}
     >
       {/* Poster */}

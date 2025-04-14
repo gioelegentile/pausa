@@ -19,6 +19,7 @@ import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
 import RatingDialog from "~/app/_components/rating-dialog";
 import { set } from "zod";
+import {LoadingSearch} from "~/app/_components/loading-search";
 
 type SearchProps = {
   onSearchFocusAction?: () => void;
@@ -205,7 +206,7 @@ export function Search({
               />
             </div>
             {searching && (
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+              <div className="pointer-events-none absolute inset-y-0 right-8 flex items-center pr-3">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
               </div>
             )}
@@ -222,6 +223,8 @@ export function Search({
           </div>
         </div>
       </div>
+
+      {searching && (<LoadingSearch />)}
 
       {/* Risultati della ricerca */}
       {searchResult.results.length > 0 && (
