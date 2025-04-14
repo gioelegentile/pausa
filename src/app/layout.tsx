@@ -24,17 +24,17 @@ export default async function RootLayout({
     <TRPCReactProvider>
       <AuthProvider>
         <html lang="it" className={`${GeistSans.variable}`}>
-          <body className="relative flex min-h-screen flex-col">
+          <body className="relative flex min-h-screen flex-col bg-gray-100 dark:bg-gray-900">
             <header>
               <nav className="flex items-center justify-between p-4">
                 <div className="flex items-center">
                   <Logo />
                   <div className="ml-2 text-lg font-bold text-gray-800">
                     <Link href="/" className="ml-4 lg:ml-8">
-                      <span className="text-gray-800">Cerca</span>
+                      <span className="text-gray-800 dark:text-gray-200">Cerca</span>
                     </Link>
                     <Link href="/votes/movie" className="ml-4">
-                      <span className="text-gray-800">Voti</span>
+                      <span className="text-gray-800 dark:text-gray-200">Voti</span>
                     </Link>
                   </div>
                 </div>

@@ -1,10 +1,10 @@
 import { HydrateClient } from "~/trpc/server";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 import { type MediaType } from "~/app/models/types";
 import React from "react";
 import { Search } from "~/app/_components/search";
+import { narutoIcon } from "~/app/_icons/naruto";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { getMediaTitle } from "~/app/_utils/media-type";
 
@@ -55,18 +55,9 @@ async function Header({ mediaType }: { mediaType: MediaType }) {
             href="/search/anime"
             active={mediaType === "anime"}
             icon={
-              <Image
-                src="/naruto-119-svgrepo-com.svg"
-                alt="Naruto Icon"
-                width={15}
-                height={15}
-                className="order-1 brightness-0 invert filter sm:order-0 xl:mr-2"
-                style={{
-                  filter:
-                    mediaType === "anime"
-                      ? "brightness(0) invert(1)"
-                      : "brightness(0) opacity(0.1)",
-                }}
+              <FontAwesomeIcon
+                  icon={narutoIcon}
+                  className="order-1 h-5 w-5 sm:order-0"
               />
             }
           />
