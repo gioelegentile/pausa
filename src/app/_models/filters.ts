@@ -1,5 +1,3 @@
-export type MediaType = "movie" | "tvshow" | "anime" | "game";
-
 export type Filters = {
   director?: string;
   minYear: number;

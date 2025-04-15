@@ -1,31 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env";
-
-// Rappresenta un singolo film
-export interface Movie {
-  adult: boolean;
-  backdrop_path: string | null;
-  genre_ids: number[];
-  id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string | null;
-  release_date: string;
-  title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
-
-// Rappresenta la risposta dell'API contenente i film
-export interface MoviesResponse {
-  page: number;
-  results: Movie[];
-  total_pages: number;
-  total_results: number;
-}
+import { type Movie, type TmdbResponse } from "~/app/_models/works";
+import { mapMovie } from "~/app/_mappers/works-mapper";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -49,13 +25,14 @@ export async function GET(request: NextRequest) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data: MoviesResponse = await response.json();
-    // Limita i risultati a 18 come nel codice originale
-    data.results = data.results
-      .slice(0, 12)
-      .sort((a, b) => b.popularity - a.popularity);
+    const data: TmdbResponse<Movie> = await response.json();
 
-    return NextResponse.json(data);
+    return NextResponse.json(
+      data.results
+        .slice(0, 12)
+        .sort((a, b) => b.popularity - a.popularity)
+        .map((m) => mapMovie(m)),
+    );
   } catch (error) {
     console.error("Errore nel recupero dei film:", error);
     return NextResponse.json(

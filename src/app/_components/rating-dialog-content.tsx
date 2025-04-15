@@ -1,17 +1,16 @@
 import StarRatingSlider from "./star-rating-slider";
-import { type Movie } from "../api/movies/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
-import { type MediaType } from "../models/types";
 import { useQuery } from "@tanstack/react-query";
 import { getGenresFromTmdb } from "~/app/_utils/tmdb";
 import LoadingSpinner from "~/app/_components/ui/loading-spinner";
+import { type MediaType, type WorkModel } from "~/app/_models/works";
 
 type RatingDialogProps = {
-  data: Movie;
+  data: WorkModel;
   mediaType: MediaType;
   onClose: () => void;
 };
@@ -70,7 +69,7 @@ export default function RatingDialogContent({
                 }>,
             );
 
-            const genreNames = data.genre_ids
+            const genreNames = data.genreIds
               .map((id) => {
                 const genre = genres?.find((genre) => genre.id === id);
                 return genre ? genre.name : null;
@@ -83,10 +82,8 @@ export default function RatingDialogContent({
               title: data.title,
               director: director.directorName,
               description: data.overview,
-              imageUrl: data.poster_path ?? undefined,
-              releaseDate: data.release_date
-                ? new Date(data.release_date)
-                : undefined,
+              imageUrl: data.posterPath ?? undefined,
+              releaseDate: data.date ? new Date(data.date) : undefined,
               genres: genreNames.join(","),
             });
           }
@@ -116,14 +113,14 @@ export default function RatingDialogContent({
     [
       data.id,
       data.overview,
-      data.poster_path,
-      data.release_date,
+      data.posterPath,
+      data.date,
       data.title,
       mediaType,
       workQuery.data,
       workMutation,
       createOrUpdateMutation,
-      data.genre_ids,
+      data.genreIds,
       genres,
     ],
   );

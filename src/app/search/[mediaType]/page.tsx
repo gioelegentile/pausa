@@ -1,7 +1,7 @@
 import { HydrateClient } from "~/trpc/server";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
-import { type MediaType } from "~/app/models/types";
+import { type MediaType } from "~/app/_models/works";
 import React from "react";
 import { Search } from "~/app/_components/search";
 import { narutoIcon } from "~/app/_icons/naruto";

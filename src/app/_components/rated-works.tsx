@@ -4,12 +4,12 @@ import { api } from "~/trpc/react";
 import {
   type Filters as FiltersType,
   filtersInitialState,
-  type MediaType,
-} from "../models/types";
+} from "../_models/filters";
 import React, { useEffect, useRef, useState } from "react";
 import RatedWork from "~/app/_components/rated-work";
 import { Filters } from "~/app/_components/filters";
 import { LoadingRatingList } from "~/app/_components/loading-rating-list";
+import { type MediaType } from "~/app/_models/works";
 
 type RatedWorksProps = {
   mediaType: MediaType;

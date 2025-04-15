@@ -9,11 +9,11 @@ import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
 import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
-import { type Movie } from "../api/movies/route";
 import { useRouter } from "next/navigation";
+import { type WorkModel } from "~/app/_models/works";
 
 type WorkProps = {
-  data: Movie;
+  data: WorkModel;
   mediaType?: "movie" | "tvshow" | "anime" | "game";
   onClickVoting: () => void;
   currentRating?: number;
@@ -66,9 +66,9 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
       onClick={handleNavigateToDetails}
     >
       {/* Poster */}
-      {data.poster_path ? (
+      {data.posterPath ? (
         <Image
-          src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
+          src={`https://image.tmdb.org/t/p/w500${data.posterPath}`}
           alt={data.title}
           layout="fill"
           objectFit="cover"
@@ -90,15 +90,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
           {/* Badge per il tipo di media */}
           {getMediaTypeBadge()}
 
-          {/* Badge per contenuti nuovi o popolari */}
-          {moment(data.release_date).isAfter(
-            moment().subtract(3, "months"),
-          ) && (
-            <span className="mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
-              Nuovo
-            </span>
-          )}
-          {data.vote_average > 7.5 && (
+          {data.voteAverage > 7.5 && (
             <span className="mb-2 ml-1 inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white">
               Popolare
             </span>
@@ -107,9 +99,9 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
         <div>
           <h2 className="line-clamp-2 text-lg font-bold">{data.title}</h2>
-          {data.release_date && (
+          {data.date && (
             <p className="mb-1 text-sm text-gray-300">
-              {moment(data.release_date, "YYYY-MM-DD").year()}
+              {moment(data.date, "YYYY-MM-DD").year()}
             </p>
           )}
 
@@ -125,8 +117,8 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
               className="mt-1"
             />
           )}
-          {!!data.vote_average && (
-            <Rating value={data.vote_average} votes={data.vote_count} />
+          {!!data.voteAverage && (
+            <Rating value={data.voteAverage} votes={data.voteCount} />
           )}
 
           {/* Pulsante per votare */}

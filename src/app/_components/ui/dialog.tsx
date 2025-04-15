@@ -9,7 +9,12 @@ type DialogProps = {
   children?: React.ReactNode;
 };
 
-export default function Dialog({ bgClassName = "bg-gray-600", isOpen, onClose, children }: DialogProps) {
+export default function Dialog({
+  bgClassName = "bg-gray-600",
+  isOpen,
+  onClose,
+  children,
+}: DialogProps) {
   "use no memo";
 
   return (
@@ -28,9 +33,7 @@ export default function Dialog({ bgClassName = "bg-gray-600", isOpen, onClose, c
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className={`
-                animate-scale-in w-80 scale-100 transform rounded-2xl ${bgClassName} p-6 text-start opacity-100 shadow-xl transition duration-300
-              `}
+              className={`animate-scale-in w-80 scale-100 transform rounded-2xl ${bgClassName} p-6 text-start opacity-100 shadow-xl transition duration-300`}
             >
               <button
                 onClick={onClose}

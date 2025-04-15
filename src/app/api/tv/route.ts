@@ -1,31 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env";
-
-// Rappresenta un singolo film
-export interface TvShow {
-  adult: boolean;
-  backdrop_path: string | null;
-  genre_ids: number[];
-  id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string | null;
-  release_date: string;
-  title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
-
-// Rappresenta la risposta dell'API contenente i film
-export interface TvShowResponse {
-  page: number;
-  results: TvShow[];
-  total_pages: number;
-  total_results: number;
-}
+import { type TmdbResponse, type TvShow } from "~/app/_models/works";
+import { mapTvShow } from "~/app/_mappers/works-mapper";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -50,18 +26,19 @@ export async function GET(request: NextRequest) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data: TvShowResponse = await response.json();
-    // Limita i risultati a 18 come nel codice originale
-    data.results = data.results
-      .filter((tvshow) =>
-        type == "anime"
-          ? tvshow.genre_ids.includes(16)
-          : !tvshow.genre_ids.includes(16),
-      )
-      .slice(0, 12)
-      .sort((a, b) => b.popularity - a.popularity);
+    const data: TmdbResponse<TvShow> = await response.json();
 
-    return NextResponse.json(data);
+    return NextResponse.json(
+      data.results
+        .filter((show) =>
+          type == "anime"
+            ? show.genre_ids.includes(16)
+            : !show.genre_ids.includes(16),
+        )
+        .slice(0, 12)
+        .sort((a, b) => b.popularity - a.popularity)
+        .map((s) => mapTvShow(s)),
+    );
   } catch (error) {
     console.error("Errore nel recupero dei film:", error);
     return NextResponse.json(

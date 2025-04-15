@@ -2,7 +2,7 @@ import { faFilm, faGamepad, faTv } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { narutoIcon } from "~/app/_icons/naruto";
-import { type MediaType } from "~/app/models/types";
+import { type MediaType } from "~/app/_models/works";
 import React from "react";
 
 export default async function VotesPageLayout({

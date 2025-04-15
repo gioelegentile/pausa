@@ -1,4 +1,4 @@
-import { type MediaType } from "../models/types";
+import { type MediaType } from "~/app/_models/works";
 
 export async function getMediaTitle(type: MediaType): Promise<string> {
   switch (type) {

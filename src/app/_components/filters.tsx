@@ -5,14 +5,11 @@ import {
   faFilterCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  type Filters,
-  filtersInitialState,
-  type MediaType,
-} from "~/app/models/types";
+import React, { useEffect, useState } from "react";
+import { type Filters, filtersInitialState } from "~/app/_models/filters";
 import { api } from "~/trpc/react";
 import Dialog from "~/app/_components/ui/dialog";
+import { type MediaType } from "~/app/_models/works";
 
 type FiltersProps = {
   mediaType: MediaType;

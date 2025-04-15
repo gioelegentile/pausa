@@ -1,5 +1,5 @@
 import { api, HydrateClient } from "~/trpc/server";
-import { type MediaType } from "~/app/models/types";
+import { type MediaType } from "~/app/_models/works";
 import RatedWorks from "~/app/_components/rated-works";
 
 export default async function Votes({

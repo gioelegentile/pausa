@@ -1,5 +1,5 @@
 import { type Work } from "@prisma/client";
-import { type MediaType } from "~/app/models/types";
+import { type MediaType } from "~/app/_models/works";
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
