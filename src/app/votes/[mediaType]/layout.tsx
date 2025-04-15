@@ -3,12 +3,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { narutoIcon } from "~/app/_icons/naruto";
 import { type MediaType } from "~/app/models/types";
+import React from "react";
 
 export default async function VotesPageLayout({
   children,
   params,
-}: Readonly<{ children: React.ReactNode, params: { mediaType: MediaType } }>) {
-  const { mediaType } = params;
+}: {
+  children: React.ReactNode
+  params: Promise<{ mediaType: MediaType }>
+}) {
+  const { mediaType } = await params;
 
   return (
     <div className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
