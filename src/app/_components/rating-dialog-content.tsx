@@ -1,13 +1,14 @@
 import StarRatingSlider from "./star-rating-slider";
 import { type Movie } from "../api/movies/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faTimes } from "@fortawesome/free-solid-svg-icons";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
 import { type MediaType } from "../models/types";
 import { useQuery } from "@tanstack/react-query";
 import { getGenresFromTmdb } from "~/app/_utils/tmdb";
+import LoadingSpinner from "~/app/_components/ui/loading-spinner";
 
 type RatingDialogProps = {
   data: Movie;
@@ -15,7 +16,7 @@ type RatingDialogProps = {
   onClose: () => void;
 };
 
-export default function RatingDialog({
+export default function RatingDialogContent({
   data,
   onClose,
   mediaType,
@@ -23,9 +24,8 @@ export default function RatingDialog({
   const [currentRating, setCurrentRating] = useState(0);
   const [rate, setRate] = useState(0);
   const [tempRate, setTempRate] = useState(0);
-  const [resetKey, setResetKey] = useState(0); // Add a key to force re-render
+  const [resetKey, setResetKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
   const utils = api.useUtils();
 
   const workMutation = api.work.create.useMutation({
@@ -128,12 +128,6 @@ export default function RatingDialog({
     ],
   );
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
-      onClose();
-    }
-  };
-
   const handleConfirm = async () => {
     await handleSetRate(rate);
     onClose();
@@ -155,65 +149,44 @@ export default function RatingDialog({
   };
 
   return (
-    <div
-      className="bg-opacity-0 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
-      onClick={handleBackdropClick}
-    >
+    <div className={`${isLoading ? "pointer-events-none" : ""}`}>
       <div
-        ref={dialogRef}
-        className="relative w-96 rounded-lg bg-gray-800 p-6 shadow-lg shadow-gray-600"
+        className="relative mb-4 flex w-full items-center justify-center text-center"
+        style={{ minHeight: "120px" }}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-gray-400 hover:text-white focus:outline-none"
-          aria-label="Chiudi"
-        >
-          {!isLoading && <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />}
-          {isLoading && (
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
-          )}
-        </button>
+        <FontAwesomeIcon
+          icon={faStar}
+          className={`relative text-yellow-500 transition-all`}
+          style={{ height: `${((rate === 0 ? tempRate : rate) + 20) * 4}px` }}
+        />
 
-        <div
-          className="relative mb-4 flex w-full items-center justify-center text-center"
-          style={{ minHeight: "120px" }}
-        >
-          <FontAwesomeIcon
-            icon={faStar}
-            className={`relative text-yellow-500 transition-all`}
-            style={{ height: `${((rate === 0 ? tempRate : rate) + 20) * 4}px` }}
-          />
-
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-semibold text-white text-shadow-lg/20">
-            {getRate()}
-          </div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-semibold text-white text-shadow-lg/20">
+          {getRate()}
         </div>
-        <h2 className="mb-4 text-center text-lg font-semibold text-white">
-          {data.title}
-        </h2>
-        <div className="mb-4 flex items-center justify-center">
-          <StarRatingSlider
-            key={resetKey} // Use resetKey to force re-render
-            currentRating={currentRating}
-            onTempRateChange={setTempRate}
-            onRatingChange={setRate}
-          />
-        </div>
-        <button
-          disabled={isLoading || rate === 0}
-          className="w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-center text-white shadow-md hover:bg-gradient-to-bl disabled:pointer-events-none disabled:bg-gray-500"
-          onClick={handleConfirm}
-        >
-          Conferma
-        </button>
-        <button
-          disabled={isLoading || rate === 0}
-          className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-center text-white hover:bg-red-400 disabled:pointer-events-none disabled:bg-gray-500"
-          onClick={handleReset}
-        >
-          Reset
-        </button>
       </div>
+      <h2 className="mb-4 text-center text-lg font-semibold text-white">
+        {data.title}
+      </h2>
+      <div className="mb-4 flex items-center justify-center">
+        <StarRatingSlider
+          key={resetKey} // Use resetKey to force re-render
+          currentRating={currentRating}
+          onTempRateChange={setTempRate}
+          onRatingChange={setRate}
+        />
+      </div>
+      <button
+        className="w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-center text-white shadow-md hover:bg-gradient-to-bl"
+        onClick={handleConfirm}
+      >
+        {isLoading ? <LoadingSpinner /> : "Conferma"}
+      </button>
+      <button
+        className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-center text-white hover:bg-red-400"
+        onClick={handleReset}
+      >
+        Reset
+      </button>
     </div>
   );
 }

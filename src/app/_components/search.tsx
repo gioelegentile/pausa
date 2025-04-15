@@ -17,8 +17,9 @@ import {
 import Reset from "./reset-search";
 import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
-import RatingDialog from "~/app/_components/rating-dialog";
 import { LoadingSearch } from "~/app/_components/loading-search";
+import RatingDialogContent from "~/app/_components/rating-dialog-content";
+import Dialog from "~/app/_components/ui/dialog";
 
 type SearchProps = {
   mediaType: MediaType;
@@ -100,11 +101,12 @@ export function Search({
     if (!searchText.trim()) {
       // Clear results if search text is empty
       setSearchResult(searchInitialState);
+      setHasSearched(false);
       return;
     }
 
-    setHasSearched(true);
     setIsSearching(true);
+    setHasSearched(true);
 
     if (mediaType === "movie") {
       fetch(`/api/movies?query=${encodeURIComponent(searchText)}`)
@@ -160,6 +162,9 @@ export function Search({
   // Handle text input change
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
+    if (searchText.trim() === "") {
+      setHasSearched(false);
+    }
   };
 
   // Funzione per resettare la ricerca
@@ -222,7 +227,7 @@ export function Search({
       {searching && <LoadingSearch />}
 
       {/* Risultati della ricerca */}
-      {searchResult.results.length > 0 && (
+      {!searching && searchResult.results.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6 lg:grid-cols-6">
           {searchResult.results.map((result: Movie) => (
             <div
@@ -240,9 +245,8 @@ export function Search({
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {hasSearched &&
+      { hasSearched &&
         searchResult.results.length === 0 &&
-        searchText &&
         !searching && (
           <div className="py-12 text-center">
             <p className="text-xl text-gray-600 dark:text-gray-400">
@@ -251,13 +255,19 @@ export function Search({
           </div>
         )}
 
-      {voting && selectedWork && (
-        <RatingDialog
-          mediaType={mediaType}
-          onClose={() => setVoting(false)}
-          data={selectedWork}
-        />
-      )}
+      <Dialog
+        bgClassName="bg-gray-800"
+        isOpen={voting && !!selectedWork}
+        onClose={() => setVoting(false)}
+      >
+        {selectedWork && (
+          <RatingDialogContent
+            mediaType={mediaType}
+            onClose={() => setVoting(false)}
+            data={selectedWork}
+          />
+        )}
+      </Dialog>
     </>
   );
 }
