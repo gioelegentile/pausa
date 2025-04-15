@@ -10,10 +10,9 @@ export default async function Votes({
   const { mediaType } = await params;
 
   await api.work.getAllUniqueDirectors.prefetch(mediaType);
-  await api.work.getAllRatedByType.prefetchInfinite({
+  await api.work.getInfiniteWorks.prefetchInfinite({
     limit: 10,
     type: mediaType,
-    sorting: [{ orderBy: "createdAt", orderDirection: "desc" }],
   });
 
   return (

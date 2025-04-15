@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const workRouter = createTRPCRouter({
+
   create: protectedProcedure
     .input(
       z.object({
@@ -48,78 +49,6 @@ export const workRouter = createTRPCRouter({
       );
     }),
 
-  /**
-   * Infinite query to get a chunk of works. It allows to infinite scroll.
-   */
-  getAllRatedByType: protectedProcedure
-    .input(
-      z.object({
-        limit: z.number(),
-        cursor: z.number().nullish(),
-        skip: z.number().optional(),
-        type: z.enum(["movie", "tvshow", "anime", "game"]),
-        sorting: z.array(
-          z.object({
-            orderBy: z.string(),
-            orderDirection: z.enum(["asc", "desc"]),
-          }),
-        ),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { limit, cursor, skip, type, sorting } = input;
-
-      const works = await ctx.db.work
-        .findMany({
-          take: limit + 1,
-          skip: skip,
-          cursor: cursor ? { id: cursor } : undefined,
-          where: {
-            type: type,
-          },
-          include: {
-            ratings: {
-              select: {
-                rating: true,
-                userId: true,
-              },
-            },
-          },
-          orderBy: sorting.map((sort) => ({
-            [sort.orderBy]: sort.orderDirection,
-          })),
-        })
-        .then((works) => works.map((work) => {
-          const ratings = work.ratings.map((r) => r.rating);
-          const averageRating =
-            ratings.length > 0
-              ? ratings.reduce((sum, rating) => sum + rating, 0) /
-              ratings.length
-              : null;
-
-          return {
-            ...work,
-            averageRating,
-            ratingsCount: ratings.length,
-            myRating:
-              work.ratings.find((r) => r.userId === ctx.session.user.id)
-                ?.rating ?? null,
-          };
-        })
-      )
-
-      let nextCursor: typeof cursor | undefined = undefined;
-      if (works.length > limit) {
-        const nextItem = works.pop();
-        nextCursor = nextItem?.id;
-      }
-
-      return {
-        works,
-        nextCursor,
-      };
-    }),
-
   getByExternalId: protectedProcedure
     .input(z.number())
     .query(async ({ ctx, input }) => {
@@ -130,5 +59,87 @@ export const workRouter = createTRPCRouter({
       });
 
       return work ?? null;
+    }),
+
+  /**
+   * Infinite query to get a chunk of works. It allows to infinite scroll.
+   */
+  getInfiniteWorks: protectedProcedure
+    .input(z.object({
+      cursor: z.number().optional(), // id dell'ultimo work
+      limit: z.number().min(1).max(50).default(10),
+      type: z.enum(["movie", "tvshow", "anime", "game"]),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { cursor, limit, type } = input;
+
+      // 1. Ottieni lavori con media rating, ordinati per media discendente
+      const worksWithAvg = await ctx.db.workRating.groupBy({
+        by: ['workId'],
+        _avg: {
+          rating: true,
+        },
+        _count: {
+          rating: true,
+        },
+        where: {
+          work: {
+            type: type,
+          },
+        },
+        orderBy: {
+          _avg: {
+            rating: 'desc',
+          },
+        },
+      });
+
+      // 3. Paginazione
+      const startIndex = cursor
+        ? worksWithAvg.findIndex(w => w.workId === cursor) + 1
+        : 0;
+
+      const paginatedIds = worksWithAvg
+        .map(w => w.workId)
+        .slice(startIndex, startIndex + limit + 1);
+
+      const works = await ctx.db.work.findMany({
+        where: {
+          id: {
+            in: paginatedIds,
+          },
+        },
+        include: {
+          ratings: true,
+        },
+      });
+
+      // Manteniamo l'ordinamento originale (altrimenti `findMany` restituisce i risultati disordinati)
+      const worksOrdered = paginatedIds
+        .map(id => works.find(w => w.id === id))
+        .map(w => {
+          if (!w) return null;
+
+          const workRating = worksWithAvg.find(wr => wr.workId === w.id);
+
+          return {
+            ...w,
+            averageRating: workRating?._avg.rating ?? null,
+            ratingsCount: workRating?._count.rating ?? null,
+            myRating: ctx.session.user
+              ? w.ratings.find(r => r.userId === ctx.session.user.id)?.rating ?? null
+              : null,
+          };
+        })
+        .filter(Boolean);
+
+      const hasMore = worksOrdered.length > limit;
+      const items = worksOrdered.slice(0, limit);
+      const nextCursor = hasMore ? items[items.length - 1]!.id : undefined;
+
+      return {
+        works: items,
+        nextCursor,
+      };
     }),
 });
