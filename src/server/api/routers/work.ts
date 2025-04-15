@@ -89,26 +89,24 @@ export const workRouter = createTRPCRouter({
             [sort.orderBy]: sort.orderDirection,
           })),
         })
-        .then((works) => {
-          // Calculate average rating for each work
-          return works.map((work) => {
-            const ratings = work.ratings.map((r) => r.rating);
-            const averageRating =
-              ratings.length > 0
-                ? ratings.reduce((sum, rating) => sum + rating, 0) /
-                  ratings.length
-                : null;
+        .then((works) => works.map((work) => {
+          const ratings = work.ratings.map((r) => r.rating);
+          const averageRating =
+            ratings.length > 0
+              ? ratings.reduce((sum, rating) => sum + rating, 0) /
+              ratings.length
+              : null;
 
-            return {
-              ...work,
-              averageRating,
-              ratingsCount: ratings.length,
-              myRating:
-                work.ratings.find((r) => r.userId === ctx.session.user.id)
-                  ?.rating ?? null,
-            };
-          });
-        });
+          return {
+            ...work,
+            averageRating,
+            ratingsCount: ratings.length,
+            myRating:
+              work.ratings.find((r) => r.userId === ctx.session.user.id)
+                ?.rating ?? null,
+          };
+        })
+      )
 
       let nextCursor: typeof cursor | undefined = undefined;
       if (works.length > limit) {
