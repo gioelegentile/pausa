@@ -2,13 +2,14 @@ import moment from "moment";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {mediaTypes} from "~/app/_models/works";
 
 export const workRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
         externalId: z.number(),
-        type: z.enum(["movie", "tvshow", "anime", "game"]),
+        type: z.enum(mediaTypes),
         title: z.string().optional(),
         director: z.string().optional(),
         description: z.string().optional(),
@@ -28,7 +29,7 @@ export const workRouter = createTRPCRouter({
     }),
 
   getAllUniqueDirectors: protectedProcedure
-    .input(z.enum(["movie", "tvshow", "anime", "game"]))
+    .input(z.enum(mediaTypes))
     .query(async ({ ctx, input }) => {
       const works = await ctx.db.work.findMany({
         where: {
@@ -50,7 +51,7 @@ export const workRouter = createTRPCRouter({
     }),
 
   getAllUniqueGenres: protectedProcedure
-    .input(z.enum(["movie", "tvshow", "anime", "game"]))
+    .input(z.enum(mediaTypes))
     .query(async ({ ctx, input }) => {
       const works = await ctx.db.work.findMany({
         where: {
@@ -92,7 +93,7 @@ export const workRouter = createTRPCRouter({
       z.object({
         cursor: z.number().optional(), // id dell'ultimo work
         limit: z.number().min(1).max(50).default(10),
-        type: z.enum(["movie", "tvshow", "anime", "game"]),
+        type: z.enum(mediaTypes),
         director: z.string().optional(),
         genre: z.string().optional(),
         minYear: z.number(),

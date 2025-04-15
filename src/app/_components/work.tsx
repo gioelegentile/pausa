@@ -10,11 +10,11 @@ import { Rating } from "./rating";
 import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
-import { type WorkModel } from "~/app/_models/works";
+import { type MediaType, type WorkModel } from "~/app/_models/works";
 
 type WorkProps = {
   data: WorkModel;
-  mediaType?: "movie" | "tvshow" | "anime" | "game";
+  mediaType?: MediaType;
   onClickVoting: () => void;
   currentRating?: number;
 };

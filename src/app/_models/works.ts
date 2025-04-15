@@ -1,4 +1,6 @@
-export type MediaType = "movie" | "tvshow" | "anime" | "game";
+export const mediaTypes = ["movie", "tvshow", "anime", "game"] as const;
+
+export type MediaType = typeof mediaTypes[number];
 
 export type WorkModel = {
   type: MediaType;
