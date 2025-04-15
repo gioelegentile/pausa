@@ -1,10 +1,15 @@
 import { type Work } from "@prisma/client";
-import { type MediaType } from "~/app/_models/works";
-import Link from "next/link";
+import { type WorkModel, type MediaType } from "~/app/_models/works";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { Rating } from "~/app/_components/rating";
+import RatingButton from "./rating-button";
+import Dialog from "./ui/dialog";
+import RatingDialogContent from "./rating-dialog-content";
+import { useState } from "react";
+import { api } from "~/trpc/react";
+import { useQuery } from "@tanstack/react-query";
 
 type EnrichedWork = Work & {
   imageUrl: string | null;
@@ -22,39 +27,62 @@ type RatedWorkProps = {
 };
 
 export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
+  const [voting, setVoting] = useState(false);
+
+  const { isLoading: trpcLoading, data } = api.workRating.getByExternalId.useQuery(work.externalId);
+
+  const { isLoading: fetchLoading, data: workModel } = useQuery<WorkModel>({
+    queryKey: ["work", work.id],
+    queryFn: () => fetch(`/api/details/${mediaType}?id=${work.externalId}`).then((res) => res.json()),
+  });
+
+  const isLoading = trpcLoading || fetchLoading;
+
   return (
-    <Link href={`/work/${work.id}`} key={work.id}>
-      <div className="flex border-b border-gray-700 p-4 transition-colors hover:bg-gray-800/30">
-        <div className="relative mr-4 flex-shrink-0">
-          <span className="absolute top-0 left-0 bg-black/60 px-1 text-xs font-medium text-white">
-            {index + 1}.
-          </span>
-          {work.imageUrl ? (
-            <Image
-              src={mediaType === "game" ? work.imageUrl : `https://image.tmdb.org/t/p/w500${work.imageUrl}`}
-              alt={work.title ?? ""}
-              className="h-24 w-16 rounded object-cover"
-              width={200}
-              height={200}
-            />
-          ) : (
-            <div className="inset-0 flex h-24 w-16 flex-col items-center justify-center rounded bg-gray-300">
-              <FontAwesomeIcon icon={faFilm} className="p-2 text-gray-500" />
+    <div className="flex border-b border-gray-700 p-4 transition-colors hover:bg-gray-800/30">
+      <div className="relative mr-4 flex-shrink-0">
+        <span className="absolute top-0 left-0 bg-black/60 px-1 text-xs font-medium text-white">
+          {index + 1}.
+        </span>
+        {work.imageUrl ? (
+          <Image
+            src={mediaType === "game" ? work.imageUrl : `https://image.tmdb.org/t/p/w500${work.imageUrl}`}
+            alt={work.title ?? ""}
+            className="h-24 w-16 rounded object-cover"
+            width={200}
+            height={200}
+          />
+        ) : (
+          <div className="inset-0 flex h-24 w-16 flex-col items-center justify-center rounded bg-gray-300">
+            <FontAwesomeIcon icon={faFilm} className="p-2 text-gray-500" />
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 relative">
+        <div className="flex items-start justify-between h-full">
+
+          <div>
+            <h2 className="font-medium text-gray-800 dark:text-white">
+              {work.title}
+            </h2>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+              {work.releaseDate && (
+                <span>{work.releaseDate.getFullYear()}</span>
+              )}
             </div>
-          )}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="font-medium text-gray-800 dark:text-white">
-                {work.title}
-              </h2>
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-400">
-                {work.releaseDate && (
-                  <span>{work.releaseDate.getFullYear()}</span>
-                )}
+            <div className="mt-1 line-clamp-2 text-xs text-gray-400">
+              {work.description}
+            </div>
+
+            {work.director && (
+              <div className="mt-1 text-xs text-gray-500">
+                {work.director && <span>Regia: {work.director}</span>}
               </div>
-            </div>
+            )}
+          </div>
+
+          <div className="flex flex-col justify-between h-full items-end">
             <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-0">
               {work.myRating && (
                 <div className="flex items-center rounded bg-green-600/20 px-2 py-1 sm:mr-2">
@@ -70,19 +98,26 @@ export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
                 </div>
               )}
             </div>
-          </div>
 
-          <div className="mt-1 line-clamp-2 text-xs text-gray-400">
-            {work.description}
+            <RatingButton onClickVoting={() => setVoting(true)} isLoading={isLoading} alreadyRated={!!data} />
           </div>
-
-          {work.director && (
-            <div className="mt-1 text-xs text-gray-500">
-              {work.director && <span>Regia: {work.director}</span>}
-            </div>
-          )}
         </div>
       </div>
-    </Link>
+
+      {workModel && (
+        <Dialog
+          bgClassName="bg-gray-800"
+          isOpen={voting}
+          onClose={() => setVoting(false)}
+        >
+          <RatingDialogContent
+            mediaType={mediaType}
+            onClose={() => setVoting(false)}
+            data={workModel}
+          />
+        </Dialog>
+      )}
+
+    </div>
   );
 }

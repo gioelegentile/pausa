@@ -11,6 +11,7 @@ import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
+import RatingButton from "./rating-button";
 
 type WorkProps = {
   data: WorkModel;
@@ -121,16 +122,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
             <Rating value={data.voteAverage} votes={data.voteCount} />
           )}
 
-          {/* Pulsante per votare */}
-          <button
-            className="mt-2 h-6 cursor-pointer rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700"
-            onClick={onClickVoting}
-          >
-            {rating.isLoading && (
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
-            )}
-            {!rating.isLoading && <>{rating.data ? "Modifica voto" : "Vota"}</>}
-          </button>
+          <RatingButton onClickVoting={onClickVoting} isLoading={rating.isLoading} alreadyRated={!!rating.data} />
         </div>
       </div>
     </div>

@@ -35,6 +35,7 @@ export default function RatingDialogContent({
   const createOrUpdateMutation = api.workRating.createOrUpdate.useMutation({
     onSuccess: async () => {
       await utils.workRating.getByExternalId.invalidate(data.id);
+      await utils.work.getInfiniteWorks.invalidate();
     },
   });
   const workQuery = api.work.getByExternalId.useQuery(data.id);
