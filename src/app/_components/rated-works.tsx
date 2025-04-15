@@ -1,30 +1,47 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { type MediaType } from "../models/types";
-import React, { useEffect, useRef } from "react";
-import { Filters } from "~/app/_components/filters";
+import {
+  type Filters as FiltersType,
+  filtersInitialState,
+  type MediaType,
+} from "../models/types";
+import React, { useEffect, useRef, useState } from "react";
 import RatedWork from "~/app/_components/rated-work";
+import { Filters } from "~/app/_components/filters";
+import { LoadingRatingList } from "~/app/_components/loading-rating-list";
 
 type RatedWorksProps = {
   mediaType: MediaType;
 };
 
 export default function RatedWorks({ mediaType }: RatedWorksProps) {
+  const [filters, setFilters] = useState<FiltersType>(filtersInitialState);
   const observerTarget = useRef(null);
 
-  const directors = api.work.getAllUniqueDirectors.useQuery(mediaType);
+  const handleConfirm = (filters: FiltersType) => {
+    setFilters(filters);
+  };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, refetch } =
     api.work.getInfiniteWorks.useInfiniteQuery(
       {
         limit: 10,
         type: mediaType,
+        director: filters.director,
+        genre: filters.genre,
+        minYear: filters.minYear,
+        maxYear: filters.maxYear,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
       },
     );
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    refetch();
+  }, [filters, refetch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -49,30 +66,36 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const works = data?.pages.flatMap((p) => p.works) ?? [];
+
   return (
     <div className="w-full">
       <div className="flex justify-end p-4">
-        <Filters directors={directors.data} />
+        <Filters mediaType={mediaType} onConfirm={handleConfirm} />
       </div>
 
-      <div className="flex flex-col rounded-lg border-2 border-gray-700 bg-gray-800/20">
-        {(data?.pages.flatMap((p) => p.works) ?? [])
-          .filter((w) => !!w)
-          .map((work, index) => (
-            <RatedWork
-              key={work.id}
-              mediaType={mediaType}
-              work={work}
-              index={index}
-            />
-          ))}
+      {isFetching && <LoadingRatingList />}
 
-        {data?.pages.flatMap((p) => p.works).length === 0 && (
-          <div className="flex h-32 items-center justify-center text-gray-400">
-            Nessuna opera è stata ancora votata.
-          </div>
-        )}
-      </div>
+      {!isFetching && works.length !== 0 && (
+        <div className="flex flex-col rounded-lg border-2 border-gray-700 bg-gray-800/20">
+          {works
+            .filter((w) => !!w)
+            .map((work, index) => (
+              <RatedWork
+                key={work.id}
+                mediaType={mediaType}
+                work={work}
+                index={index}
+              />
+            ))}
+        </div>
+      )}
+
+      {!isFetching && works.length === 0 && (
+        <div className="flex h-32 items-center justify-center text-gray-400">
+          Nessuna opera è stata ancora votata.
+        </div>
+      )}
 
       <div ref={observerTarget} className="flex justify-center p-4">
         {isFetchingNextPage ? (

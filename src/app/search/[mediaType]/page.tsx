@@ -7,6 +7,8 @@ import { Search } from "~/app/_components/search";
 import { narutoIcon } from "~/app/_icons/naruto";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { getMediaTitle } from "~/app/_utils/media-type";
+import { QueryClient } from "@tanstack/react-query";
+import { getGenresFromTmdb } from "~/app/_utils/tmdb";
 
 async function Header({ mediaType }: { mediaType: MediaType }) {
   const mediaTypeTitle = await getMediaTitle(mediaType);
@@ -56,8 +58,8 @@ async function Header({ mediaType }: { mediaType: MediaType }) {
             active={mediaType === "anime"}
             icon={
               <FontAwesomeIcon
-                  icon={narutoIcon}
-                  className="order-1 h-5 w-5 sm:order-0"
+                icon={narutoIcon}
+                className="order-1 h-5 w-5 sm:order-0"
               />
             }
           />
@@ -85,6 +87,13 @@ export default async function SearchPage({
 }) {
   const { mediaType } = await params;
   const mediaTypeTitle = await getMediaTitle(mediaType);
+
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["genres", mediaType],
+    queryFn: () => getGenresFromTmdb(mediaType),
+  });
 
   return (
     <HydrateClient>

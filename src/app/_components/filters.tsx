@@ -3,43 +3,104 @@
 import {
   faFilter,
   faFilterCircleXmark,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  type Filters,
+  filtersInitialState,
+  type MediaType,
+} from "~/app/models/types";
+import { api } from "~/trpc/react";
 
 type FiltersProps = {
-  directors?: string[];
+  mediaType: MediaType;
+  onConfirm: (filters: Filters) => void;
 };
 
-export function Filters({ directors }: FiltersProps) {
+export function Filters({ mediaType, onConfirm }: FiltersProps) {
   const [filtering, setFiltering] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState({
-    genres: [],
-    releaseDate: null,
-    rating: null,
-  });
+  const [filters, setFilters] = useState<Filters>(filtersInitialState);
+  const [animatingOut, setAnimatingOut] = useState(false);
+
+  const { data: directors, isLoading: directorsLoading } =
+    api.work.getAllUniqueDirectors.useQuery(mediaType);
+  const { data: genres, isLoading: genresLoading } =
+    api.work.getAllUniqueGenres.useQuery(mediaType);
+
+  const handleOpen = () => {
+    setFiltersOpen(true);
+    setAnimatingOut(false);
+  };
+
+  const handleConfirm = () => {
+    onConfirm(filters);
+    setAnimatingOut(true);
+    setTimeout(() => {
+      setFiltersOpen(false);
+      setAnimatingOut(false);
+    }, 300);
+  };
+
+  const handleReset = () => {
+    setFilters(filtersInitialState);
+  };
+
+  useEffect(() => {
+    if (
+      filters.director !== filtersInitialState.director ||
+      filters.genre !== filtersInitialState.genre ||
+      filters.minYear !== filtersInitialState.minYear ||
+      filters.maxYear !== filtersInitialState.maxYear
+    ) {
+      setFiltering(true);
+    } else {
+      setFiltering(false);
+    }
+  }, [filters]);
 
   return (
     <div
       className="flex cursor-pointer items-center justify-between rounded-lg p-2 hover:bg-gray-600"
-      onClick={() => setFiltersOpen(true)}
+      onClick={handleOpen}
     >
       <FontAwesomeIcon
         icon={filtering ? faFilterCircleXmark : faFilter}
         className="text-gray-200"
       />
       <div className="ml-3 text-sm text-gray-200">Filtri</div>
+
+      {/* Filters Popup */}
       {filtersOpen && (
-        <div className="absolute inset-0 flex items-center justify-center p-4">
-          <div className="rounded-lg bg-gray-900 p-4">
+        <div
+          className={`fixed inset-0 flex items-center justify-center p-4 ${animatingOut ? "scale-75 opacity-0" : "scale-100 opacity-100"}`}
+        >
+          <div
+            className="relative rounded-lg bg-gray-700 p-4"
+            onClick={(e) => e.stopPropagation()} // Impedisce la propagazione del clic
+          >
+            <button
+              onClick={() => setFiltersOpen(false)}
+              className="absolute top-2 right-2 cursor-pointer text-gray-400 hover:text-white focus:outline-none"
+              aria-label="Chiudi"
+            >
+              <FontAwesomeIcon icon={faTimes} className="h-5 w-5" />
+            </button>
             <h2 className="text-lg font-bold text-white">Filtri</h2>
-            {directors && (
+            {directors && !directorsLoading && (
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-200">
+                <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
                   Regista
                 </label>
-                <select className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-200 focus:border-indigo-500 focus:ring-indigo-500">
+                <select
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  value={filters.director ?? ""}
+                  onChange={(e) =>
+                    setFilters({ ...filters, director: e.target.value ? e.target.value : undefined })
+                  }
+                >
                   <option value="">Seleziona un regista</option>
                   {directors.map((director) => (
                     <option key={director} value={director}>
@@ -49,12 +110,82 @@ export function Filters({ directors }: FiltersProps) {
                 </select>
               </div>
             )}
-            <button
-              className="mt-4 rounded-md bg-red-600 px-4 py-2 text-white"
-              onClick={() => setFiltersOpen(false)}
-            >
-              Chiudi
-            </button>
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+                Range anno di uscita
+              </label>
+              <div className="flex items-center space-x-4">
+                <select
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  value={filters.minYear}
+                  onChange={(e) =>
+                    setFilters({ ...filters, minYear: Number(e.target.value) })
+                  }
+                >
+                  <option value="">Anno minimo</option>
+                  {Array.from(
+                    { length: new Date().getFullYear() - 1899 },
+                    (_, i) => 1900 + i,
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  value={filters.maxYear}
+                  onChange={(e) =>
+                    setFilters({ ...filters, maxYear: Number(e.target.value) })
+                  }
+                >
+                  <option value="">Anno massimo</option>
+                  {Array.from(
+                    { length: new Date().getFullYear() - 1899 },
+                    (_, i) => 1900 + i,
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {genres && !genresLoading && (
+              <div className="mt-4">
+                <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
+                  Genere
+                </label>
+                <select
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  value={filters.genre ?? ""}
+                  onChange={(e) =>
+                    setFilters({ ...filters, genre: e.target.value ? e.target.value : undefined })
+                  }
+                >
+                  <option value="">Seleziona un genere</option>
+                  {genres.map((genre) => (
+                    <option key={genre} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                className="cursor-pointer rounded-md bg-gray-500 hover:bg-gray-400 px-4 py-2 text-white"
+                onClick={handleReset}
+              >
+                Reset
+              </button>
+              <button
+                className="cursor-pointer rounded-md bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl px-4 py-2 text-white"
+                onClick={handleConfirm} // Usa handleConfirm per chiudere il popup
+              >
+                Conferma
+              </button>
+            </div>
           </div>
         </div>
       )}

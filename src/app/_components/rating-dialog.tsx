@@ -6,6 +6,8 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
 import { type MediaType } from "../models/types";
+import {useQuery} from "@tanstack/react-query";
+import {getGenresFromTmdb} from "~/app/_utils/tmdb";
 
 type RatingDialogProps = {
   data: Movie;
@@ -39,6 +41,11 @@ export default function RatingDialog({
   const workQuery = api.work.getByExternalId.useQuery(data.id);
   const rating = api.workRating.getByExternalId.useQuery(data.id);
 
+  const { data: genres } = useQuery({
+    queryKey: ["genres", mediaType],
+    queryFn: () => getGenresFromTmdb(mediaType),
+  })
+
   useEffect(() => {
     setCurrentRating(rating.data ? rating.data.rating : 0);
     setResetKey(prev => prev + 1); // Increment key to force re-render
@@ -56,7 +63,13 @@ export default function RatingDialog({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-            const director = await fetch("/api/get-director?id=" + data.id).then(r => r.json() as Promise<{ directorName: string }>);
+            const director = await fetch("/api/director?id=" + data.id).then(r => r.json() as Promise<{ directorName: string }>);
+
+            const genreNames = data.genre_ids.map((id) => {
+              const genre = genres?.find((genre) => genre.id === id);
+              return genre ? genre.name : null;
+            }).filter((id): id is string => id !== null);
+
             work = await workMutation.mutateAsync({
               externalId: data.id,
               type: mediaType,
@@ -65,6 +78,7 @@ export default function RatingDialog({
               description: data.overview,
               imageUrl: data.poster_path ?? undefined,
               releaseDate: data.release_date ? new Date(data.release_date) : undefined,
+              genres: genreNames.join(","),
             });
           }
 
@@ -98,7 +112,9 @@ export default function RatingDialog({
       mediaType,
       workQuery.data,
       workMutation,
-      createOrUpdateMutation
+      createOrUpdateMutation,
+      data.genre_ids,
+      genres,
     ],
   );
 

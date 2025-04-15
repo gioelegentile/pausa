@@ -16,12 +16,13 @@ export const workRouter = createTRPCRouter({
         imageUrl: z.string().optional(),
         releaseDate: z.date().optional(),
         country: z.string().optional(),
+        genres: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.work.create({
         data: {
-          ...input, //  TODO add genres
+          ...input,
           createdAt: moment().toISOString(),
         },
       });
@@ -49,6 +50,29 @@ export const workRouter = createTRPCRouter({
       );
     }),
 
+  getAllUniqueGenres: protectedProcedure
+    .input(z.enum(["movie", "tvshow", "anime", "game"]))
+    .query(async ({ ctx, input }) => {
+      const works = await ctx.db.work.findMany({
+        where: {
+          type: input,
+        },
+        select: {
+          genres: true,
+        },
+      });
+
+      return Array.from(
+        new Set(
+          works
+            .map((work) => work.genres)
+            .filter((w) => !!w)
+            .map(g => g!.split(",").map(g => g.trim()))
+            .flat()
+        ),
+      );
+    }),
+
   getByExternalId: protectedProcedure
     .input(z.number())
     .query(async ({ ctx, input }) => {
@@ -69,9 +93,13 @@ export const workRouter = createTRPCRouter({
       cursor: z.number().optional(), // id dell'ultimo work
       limit: z.number().min(1).max(50).default(10),
       type: z.enum(["movie", "tvshow", "anime", "game"]),
+      director: z.string().optional(),
+      genre: z.string().optional(),
+      minYear: z.number(),
+      maxYear: z.number(),
     }))
     .query(async ({ ctx, input }) => {
-      const { cursor, limit, type } = input;
+      const { cursor, limit, type, director, genre, minYear, maxYear } = input;
 
       // 1. Ottieni lavori con media rating, ordinati per media discendente
       const worksWithAvg = await ctx.db.workRating.groupBy({
@@ -85,6 +113,14 @@ export const workRouter = createTRPCRouter({
         where: {
           work: {
             type: type,
+            director: director,
+            genres: {
+              contains: genre,
+            },
+            releaseDate: {
+              gte: new Date(minYear, 0, 1),
+              lte: new Date(maxYear, 11, 31)
+            },
           },
         },
         orderBy: {
@@ -108,6 +144,8 @@ export const workRouter = createTRPCRouter({
           id: {
             in: paginatedIds,
           },
+          type: type,
+          ...(director ? { director } : {}),
         },
         include: {
           ratings: true,
