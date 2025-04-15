@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type StarRatingSliderProps = {
   stars?: number;
@@ -19,7 +19,6 @@ export default function StarRatingSlider({
   onRatingChange,
   onTempRateChange,
 }: StarRatingSliderProps) {
-
   const [tempRating, setTempRating] = useState(currentRating * 10);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -28,21 +27,24 @@ export default function StarRatingSlider({
   const calculateRating = (n: number) => ((n + 1) / 2) * 10;
 
   // Helper function to find which rect is being touched based on coordinates
-  const findRectIndexFromCoordinates = useCallback((clientX: number) => {
-    if (!svgRef.current) return 0;
+  const findRectIndexFromCoordinates = useCallback(
+    (clientX: number) => {
+      if (!svgRef.current) return 0;
 
-    const svgRect = svgRef.current.getBoundingClientRect();
-    const relativeX = clientX - svgRect.left;
-    const svgWidth = svgRect.width;
+      const svgRect = svgRef.current.getBoundingClientRect();
+      const relativeX = clientX - svgRect.left;
+      const svgWidth = svgRect.width;
 
-    // Calculate the relative position within the SVG (0 to 1)
-    const relativePosition = Math.max(0, Math.min(1, relativeX / svgWidth));
+      // Calculate the relative position within the SVG (0 to 1)
+      const relativePosition = Math.max(0, Math.min(1, relativeX / svgWidth));
 
-    // Convert to the rectangle index (0 to stars*2-1)
-    const rectIndex = Math.floor(relativePosition * stars * 2);
+      // Convert to the rectangle index (0 to stars*2-1)
+      const rectIndex = Math.floor(relativePosition * stars * 2);
 
-    return Math.max(0, Math.min(stars * 2 - 1, rectIndex));
-  }, [stars, svgRef]);
+      return Math.max(0, Math.min(stars * 2 - 1, rectIndex));
+    },
+    [stars, svgRef],
+  );
 
   // EVENTI DI INIZIO SLIDE
   const handleMouseDown = (n: number) => {
@@ -107,14 +109,16 @@ export default function StarRatingSlider({
       };
 
       // Add passive: false to allow preventDefault() on touchmove
-      document.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
-      document.addEventListener('touchend', handleGlobalTouchEnd);
-      document.addEventListener('touchcancel', handleGlobalTouchEnd);
+      document.addEventListener("touchmove", handleGlobalTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleGlobalTouchEnd);
+      document.addEventListener("touchcancel", handleGlobalTouchEnd);
 
       return () => {
-        document.removeEventListener('touchmove', handleGlobalTouchMove);
-        document.removeEventListener('touchend', handleGlobalTouchEnd);
-        document.removeEventListener('touchcancel', handleGlobalTouchEnd);
+        document.removeEventListener("touchmove", handleGlobalTouchMove);
+        document.removeEventListener("touchend", handleGlobalTouchEnd);
+        document.removeEventListener("touchcancel", handleGlobalTouchEnd);
       };
     }
   }, [isDragging, selectedRating, tempRating, findRectIndexFromCoordinates]);
@@ -139,7 +143,7 @@ export default function StarRatingSlider({
         d={`M${n * 100} 0h102v100h-102v-100m91 42a6 6 90 00-4-10l-22-1a1 1 90 01-1 0l-8-21a6 6 90 00-11 0l-8 21a1 1 90 01-1 1l-22 1a6 6 90 00-4 10l18 14a1 1 90 010 1l-6 22a6 6 90 008 6l19-13a1 1 90 011 0l19 13a6 6 90 006 0a6 6 90 002-6l-6-22a1 1 90 010-1z`}
       />
     );
-  }
+  };
 
   const rect = (n: number) => (
     <rect
@@ -165,16 +169,12 @@ export default function StarRatingSlider({
     >
       <rect width="100%" height="100" fill={emptyColor} />
       <rect id="rating" width={`${tempRating}%`} height="100" fill={color} />
-      {
-        Array(stars)
-          .fill(undefined)
-          .map((_, n) => path(n))
-      }
-      {
-        Array(stars * 2)
-          .fill(undefined)
-          .map((_, n) => rect(n))
-      }
+      {Array(stars)
+        .fill(undefined)
+        .map((_, n) => path(n))}
+      {Array(stars * 2)
+        .fill(undefined)
+        .map((_, n) => rect(n))}
     </svg>
   );
 }

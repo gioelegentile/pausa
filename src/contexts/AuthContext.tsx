@@ -3,7 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type User = {
   id: string;
@@ -27,18 +33,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadUserData() {
       try {
-        const response = await fetch('/api/auth/user');
-        
+        const response = await fetch("/api/auth/user");
+
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error ?? 'Errore durante il caricamento dei dati utente');
+          throw new Error(
+            errorData.error ?? "Errore durante il caricamento dei dati utente",
+          );
         }
-        
+
         const data = await response.json();
         setUser(data.user);
       } catch (err) {
-        console.error('Errore di autenticazione:', err);
-        setError(err instanceof Error ? err.message : 'Errore sconosciuto');
+        console.error("Errore di autenticazione:", err);
+        setError(err instanceof Error ? err.message : "Errore sconosciuto");
       } finally {
         setLoading(false);
       }
@@ -57,10 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
-    throw new Error('useAuth deve essere utilizzato all\'interno di un AuthProvider');
+    throw new Error(
+      "useAuth deve essere utilizzato all'interno di un AuthProvider",
+    );
   }
-  
+
   return context;
 }

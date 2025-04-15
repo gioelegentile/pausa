@@ -2,12 +2,12 @@ import StarRatingSlider from "./star-rating-slider";
 import { type Movie } from "../api/movies/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar, faTimes } from "@fortawesome/free-solid-svg-icons";
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
 import { type MediaType } from "../models/types";
-import {useQuery} from "@tanstack/react-query";
-import {getGenresFromTmdb} from "~/app/_utils/tmdb";
+import { useQuery } from "@tanstack/react-query";
+import { getGenresFromTmdb } from "~/app/_utils/tmdb";
 
 type RatingDialogProps = {
   data: Movie;
@@ -44,11 +44,11 @@ export default function RatingDialog({
   const { data: genres } = useQuery({
     queryKey: ["genres", mediaType],
     queryFn: () => getGenresFromTmdb(mediaType),
-  })
+  });
 
   useEffect(() => {
     setCurrentRating(rating.data ? rating.data.rating : 0);
-    setResetKey(prev => prev + 1); // Increment key to force re-render
+    setResetKey((prev) => prev + 1); // Increment key to force re-render
   }, [rating.data]);
 
   const handleSetRate = useCallback(
@@ -63,12 +63,19 @@ export default function RatingDialog({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-            const director = await fetch("/api/director?id=" + data.id).then(r => r.json() as Promise<{ directorName: string }>);
+            const director = await fetch("/api/director?id=" + data.id).then(
+              (r) =>
+                r.json() as Promise<{
+                  directorName: string;
+                }>,
+            );
 
-            const genreNames = data.genre_ids.map((id) => {
-              const genre = genres?.find((genre) => genre.id === id);
-              return genre ? genre.name : null;
-            }).filter((id): id is string => id !== null);
+            const genreNames = data.genre_ids
+              .map((id) => {
+                const genre = genres?.find((genre) => genre.id === id);
+                return genre ? genre.name : null;
+              })
+              .filter((id): id is string => id !== null);
 
             work = await workMutation.mutateAsync({
               externalId: data.id,
@@ -77,7 +84,9 @@ export default function RatingDialog({
               director: director.directorName,
               description: data.overview,
               imageUrl: data.poster_path ?? undefined,
-              releaseDate: data.release_date ? new Date(data.release_date) : undefined,
+              releaseDate: data.release_date
+                ? new Date(data.release_date)
+                : undefined,
               genres: genreNames.join(","),
             });
           }
@@ -89,7 +98,9 @@ export default function RatingDialog({
                 workId: work.id,
                 rating: rate,
               })
-              .catch((error) => console.error("Error creating or updating rating:", error));
+              .catch((error) =>
+                console.error("Error creating or updating rating:", error),
+              );
           } else {
             console.error(
               "ratingMutation.mutateAsync is not available or work is null",
@@ -98,7 +109,6 @@ export default function RatingDialog({
         } catch (error) {
           console.error("Error in handleSetRate:", error);
         }
-
       }
 
       setIsLoading(false);
@@ -127,14 +137,14 @@ export default function RatingDialog({
   const handleConfirm = async () => {
     await handleSetRate(rate);
     onClose();
-  }
+  };
 
   const handleReset = () => {
     setCurrentRating(0);
     setRate(0);
     setTempRate(0);
-    setResetKey(prev => prev + 1); // Increment key to force re-render
-  }
+    setResetKey((prev) => prev + 1); // Increment key to force re-render
+  };
 
   const getRate = () => {
     const rateToShow = (rate > 0 ? rate : tempRate).toFixed(1);
@@ -142,7 +152,7 @@ export default function RatingDialog({
       return "";
     }
     return rateToShow;
-  }
+  };
 
   return (
     <div
@@ -191,14 +201,14 @@ export default function RatingDialog({
         </div>
         <button
           disabled={isLoading || rate === 0}
-          className="disabled:bg-gray-500 disabled:pointer-events-none w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-center text-white shadow-md hover:bg-gradient-to-bl"
+          className="w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-center text-white shadow-md hover:bg-gradient-to-bl disabled:pointer-events-none disabled:bg-gray-500"
           onClick={handleConfirm}
         >
           Conferma
         </button>
         <button
           disabled={isLoading || rate === 0}
-          className="disabled:bg-gray-500 disabled:pointer-events-none mt-2 w-full rounded bg-red-500 px-4 py-2 text-center text-white hover:bg-red-400"
+          className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-center text-white hover:bg-red-400 disabled:pointer-events-none disabled:bg-gray-500"
           onClick={handleReset}
         >
           Reset

@@ -19,7 +19,7 @@ export function Rating({
   return (
     <div className={`flex items-center ${className}`}>
       <div className="mr-1 flex">
-        <FontAwesomeIcon 
+        <FontAwesomeIcon
           icon={faStartSolid}
           className={`h-4 w-4 ${mine ? "text-emerald-400" : "text-yellow-400"}`}
         />
@@ -38,11 +38,7 @@ export function Rating({
           ({votes > 999 ? `${(votes / 1000).toFixed(1)}k` : votes})
         </span>
       )}
-      {mine && (
-        <span className="ml-1 text-xs text-gray-300 italic">
-           (tuo)
-        </span>
-      )}
+      {mine && <span className="ml-1 text-xs text-gray-300 italic">(tuo)</span>}
     </div>
   );
 }

@@ -33,7 +33,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
     switch (mediaType) {
       case "movie":
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-blue-500 text-white mb-2 mr-1">
+          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white">
             Film
           </span>
         );
@@ -51,7 +51,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
         );
       case "game":
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2 mr-1">
+          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
             Gioco
           </span>
         );
@@ -62,7 +62,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
   return (
     <div
-      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl transition-all duration-300 shadow-gray-300 dark:shadow-none shadow-md"
+      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl shadow-md shadow-gray-300 transition-all duration-300 dark:shadow-none"
       onClick={handleNavigateToDetails}
     >
       {/* Poster */}
@@ -91,13 +91,15 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
           {getMediaTypeBadge()}
 
           {/* Badge per contenuti nuovi o popolari */}
-          {moment(data.release_date).isAfter(moment().subtract(3, 'months')) && (
-            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2">
+          {moment(data.release_date).isAfter(
+            moment().subtract(3, "months"),
+          ) && (
+            <span className="mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
               Nuovo
             </span>
           )}
           {data.vote_average > 7.5 && (
-            <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-500 text-white mb-2 ml-1">
+            <span className="mb-2 ml-1 inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white">
               Popolare
             </span>
           )}
@@ -112,9 +114,16 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
           )}
 
           {/* Valutazione media */}
-          {rating.isLoading && <div className="h-3 w-3 mx-0.5 my-1 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div>}
+          {rating.isLoading && (
+            <div className="mx-0.5 my-1 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div>
+          )}
           {!rating.isLoading && rating.data && rating.data.rating !== 0 && (
-            <Rating value={rating.data.rating} isLoading={rating.isRefetching} mine className="mt-1" />
+            <Rating
+              value={rating.data.rating}
+              isLoading={rating.isRefetching}
+              mine
+              className="mt-1"
+            />
           )}
           {!!data.vote_average && (
             <Rating value={data.vote_average} votes={data.vote_count} />
@@ -122,15 +131,16 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
           {/* Pulsante per votare */}
           <button
-            className="cursor-pointer mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 h-6"
+            className="mt-2 h-6 cursor-pointer rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700"
             onClick={onClickVoting}
           >
-            {rating.isLoading && <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>}
-            {!rating.isLoading && (<>{rating.data ? "Modifica voto" : "Vota"}</>)}
+            {rating.isLoading && (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
+            )}
+            {!rating.isLoading && <>{rating.data ? "Modifica voto" : "Vota"}</>}
           </button>
         </div>
       </div>
-
     </div>
   );
 }

@@ -98,7 +98,10 @@ export function Filters({ mediaType, onConfirm }: FiltersProps) {
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   value={filters.director ?? ""}
                   onChange={(e) =>
-                    setFilters({ ...filters, director: e.target.value ? e.target.value : undefined })
+                    setFilters({
+                      ...filters,
+                      director: e.target.value ? e.target.value : undefined,
+                    })
                   }
                 >
                   <option value="">Seleziona un regista</option>
@@ -160,7 +163,10 @@ export function Filters({ mediaType, onConfirm }: FiltersProps) {
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   value={filters.genre ?? ""}
                   onChange={(e) =>
-                    setFilters({ ...filters, genre: e.target.value ? e.target.value : undefined })
+                    setFilters({
+                      ...filters,
+                      genre: e.target.value ? e.target.value : undefined,
+                    })
                   }
                 >
                   <option value="">Seleziona un genere</option>
@@ -174,13 +180,13 @@ export function Filters({ mediaType, onConfirm }: FiltersProps) {
             )}
             <div className="mt-4 flex justify-end space-x-2">
               <button
-                className="cursor-pointer rounded-md bg-gray-500 hover:bg-gray-400 px-4 py-2 text-white"
+                className="cursor-pointer rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-400"
                 onClick={handleReset}
               >
                 Reset
               </button>
               <button
-                className="cursor-pointer rounded-md bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl px-4 py-2 text-white"
+                className="cursor-pointer rounded-md bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-white hover:bg-gradient-to-bl"
                 onClick={handleConfirm} // Usa handleConfirm per chiudere il popup
               >
                 Conferma

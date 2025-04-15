@@ -9,18 +9,20 @@ export default async function Votes({
 }) {
   const { mediaType } = await params;
 
-  await api.work.getAllUniqueDirectors.prefetch(mediaType);
-  await api.work.getAllUniqueGenres.prefetch(mediaType);
-  await api.work.getInfiniteWorks.prefetchInfinite({
-    limit: 10,
-    type: mediaType,
-    minYear: 1900,
-    maxYear: new Date().getFullYear(),
-  });
+  await Promise.all([
+    api.work.getAllUniqueGenres.prefetch(mediaType),
+    api.work.getAllUniqueDirectors.prefetch(mediaType),
+    api.work.getInfiniteWorks.prefetchInfinite({
+      limit: 10,
+      type: mediaType,
+      minYear: 1900,
+      maxYear: new Date().getFullYear(),
+    }),
+  ]);
 
   return (
     <HydrateClient>
-      <RatedWorks mediaType={mediaType}  />
+      <RatedWorks mediaType={mediaType} />
     </HydrateClient>
   );
 }

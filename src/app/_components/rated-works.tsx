@@ -23,20 +23,26 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
     setFilters(filters);
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isFetching, refetch } =
-    api.work.getInfiniteWorks.useInfiniteQuery(
-      {
-        limit: 10,
-        type: mediaType,
-        director: filters.director,
-        genre: filters.genre,
-        minYear: filters.minYear,
-        maxYear: filters.maxYear,
-      },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
-      },
-    );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+    refetch,
+  } = api.work.getInfiniteWorks.useInfiniteQuery(
+    {
+      limit: 10,
+      type: mediaType,
+      director: filters.director,
+      genre: filters.genre,
+      minYear: filters.minYear,
+      maxYear: filters.maxYear,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

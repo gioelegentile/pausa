@@ -1,14 +1,13 @@
-import * as jose from 'jose';
-import { NextResponse } from 'next/server';
-import { type NextRequest } from 'next/server';
-import { env } from './env';
+import * as jose from "jose";
+import { type NextRequest, NextResponse } from "next/server";
+import { env } from "./env";
 
 function testUser(req: NextRequest) {
   const requestHeaders = new Headers(req.headers);
-  requestHeaders.set('x-user-email', 'test@gmail.com');
-  requestHeaders.set('x-user-id', 'test-user');
-  requestHeaders.set('x-user-name', 'test user');
-  requestHeaders.set('x-user-picture', '');
+  requestHeaders.set("x-user-email", "test@gmail.com");
+  requestHeaders.set("x-user-id", "test-user");
+  requestHeaders.set("x-user-name", "test user");
+  requestHeaders.set("x-user-picture", "");
 
   return NextResponse.next({
     request: {
@@ -18,12 +17,11 @@ function testUser(req: NextRequest) {
 }
 
 export async function middleware(req: NextRequest) {
-
-  if (env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === "development") {
     // In development mode, allow access to all routes without authentication
     return testUser(req);
   }
-  
+
   // In production mode, require authentication for all routes except the ones specified in the matcher
 
   // The Application Audience (AUD) tag for your application
@@ -35,8 +33,10 @@ export async function middleware(req: NextRequest) {
   const JWKS = jose.createRemoteJWKSet(new URL(CERTS_URL));
 
   // Permetti accesso alle risorse statiche
-  if (req.nextUrl.pathname.startsWith('/_next') || 
-      req.nextUrl.pathname.startsWith('/public')) {
+  if (
+    req.nextUrl.pathname.startsWith("/_next") ||
+    req.nextUrl.pathname.startsWith("/public")
+  ) {
     return NextResponse.next();
   }
 
@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
   if (!token) {
     return NextResponse.json(
       { error: "Autenticazione richiesta" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -60,17 +60,19 @@ export async function middleware(req: NextRequest) {
 
     // Estrai i dati dell'utente dal payload
     const userEmail = result.payload.email as string;
-    const customPayload = result.payload.custom as { name?: string, picture?: string } | undefined;
-    const userName = customPayload?.name ?? '';
-    const userPicture = customPayload?.picture ?? '';
+    const customPayload = result.payload.custom as
+      | { name?: string; picture?: string }
+      | undefined;
+    const userName = customPayload?.name ?? "";
+    const userPicture = customPayload?.picture ?? "";
     const userIdentity = result.payload.sub!;
 
     // Aggiungi informazioni utente alla richiesta che saranno disponibili per l'applicazione
     const requestHeaders = new Headers(req.headers);
-    requestHeaders.set('x-user-email', userEmail);
-    requestHeaders.set('x-user-id', userIdentity);
-    requestHeaders.set('x-user-name', userName || '');
-    requestHeaders.set('x-user-picture', userPicture || '');
+    requestHeaders.set("x-user-email", userEmail);
+    requestHeaders.set("x-user-id", userIdentity);
+    requestHeaders.set("x-user-name", userName || "");
+    requestHeaders.set("x-user-picture", userPicture || "");
 
     // Continua con la richiesta
     return NextResponse.next({
@@ -78,17 +80,16 @@ export async function middleware(req: NextRequest) {
         headers: requestHeaders,
       },
     });
-  } catch (error) {    
+  } catch (error) {
     console.error("Errore durante la verifica del token JWT:", error);
     return NextResponse.json(
       { error: "Token di autenticazione non valido" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 }
 
 // Configura il middleware per essere eseguito su tutte le route eccetto quelle specificate
 export const config = {
-  matcher: ['/((?!api/health|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!api/health|_next/static|_next/image|favicon.ico).*)"],
 };
-

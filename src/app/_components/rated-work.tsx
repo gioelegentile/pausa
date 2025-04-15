@@ -21,11 +21,7 @@ type RatedWorkProps = {
   index: number;
 };
 
-export default function RatedWork({
-  mediaType,
-  work,
-  index
-}: RatedWorkProps) {
+export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
   return (
     <Link href={`/work/${work.id}`} key={work.id}>
       <div className="flex border-b border-gray-700 p-4 transition-colors hover:bg-gray-800/30">
@@ -43,10 +39,7 @@ export default function RatedWork({
             />
           ) : (
             <div className="inset-0 flex h-24 w-16 flex-col items-center justify-center rounded bg-gray-300">
-              <FontAwesomeIcon
-                icon={faFilm}
-                className="p-2 text-gray-500"
-              />
+              <FontAwesomeIcon icon={faFilm} className="p-2 text-gray-500" />
             </div>
           )}
         </div>

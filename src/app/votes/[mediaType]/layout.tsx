@@ -9,8 +9,8 @@ export default async function VotesPageLayout({
   children,
   params,
 }: {
-  children: React.ReactNode
-  params: Promise<{ mediaType: MediaType }>
+  children: React.ReactNode;
+  params: Promise<{ mediaType: MediaType }>;
 }) {
   const { mediaType } = await params;
 
@@ -18,7 +18,6 @@ export default async function VotesPageLayout({
     <div className="flex-1 px-4 py-8 sm:px-6 lg:px-8">
       <div className="relative">
         <div className="flex flex-col items-center justify-center gap-4">
-
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               I voti della community
@@ -78,7 +77,6 @@ export default async function VotesPageLayout({
           </div>
 
           {children}
-
         </div>
       </div>
     </div>
