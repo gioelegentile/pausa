@@ -8,7 +8,7 @@ import { narutoIcon } from "~/app/_icons/naruto";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { getMediaTitle } from "~/app/_utils/media-type";
 import { QueryClient } from "@tanstack/react-query";
-import { getGenresFromTmdb } from "~/app/_utils/tmdb";
+import { fetchGenres } from "~/app/_utils/tmdb";
 
 async function Header({ mediaType }: { mediaType: MediaType }) {
   const mediaTypeTitle = await getMediaTitle(mediaType);
@@ -92,7 +92,7 @@ export default async function SearchPage({
 
   await queryClient.prefetchQuery({
     queryKey: ["genres", mediaType],
-    queryFn: () => getGenresFromTmdb(mediaType),
+    queryFn: () => fetchGenres(mediaType),
   });
 
   return (

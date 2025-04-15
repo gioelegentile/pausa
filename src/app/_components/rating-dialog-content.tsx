@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { type Work } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import { getGenresFromTmdb } from "~/app/_utils/tmdb";
+import { fetchGenres } from "~/app/_utils/tmdb";
 import LoadingSpinner from "~/app/_components/ui/loading-spinner";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
 
@@ -42,7 +42,7 @@ export default function RatingDialogContent({
 
   const { data: genres } = useQuery({
     queryKey: ["genres", mediaType],
-    queryFn: () => getGenresFromTmdb(mediaType),
+    queryFn: () => fetchGenres(mediaType),
   });
 
   useEffect(() => {
@@ -62,12 +62,17 @@ export default function RatingDialogContent({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-            const director = await fetch("/api/director?id=" + data.id).then(
-              (r) =>
-                r.json() as Promise<{
-                  directorName: string;
-                }>,
-            );
+
+            let director = { directorName: "" };
+
+            if (mediaType === "movie") {
+              director = await fetch("/api/director?id=" + data.id).then(
+                (r) =>
+                  r.json() as Promise<{
+                    directorName: string;
+                  }>,
+              );
+            }
 
             const genreNames = data.genreIds
               .map((id) => {

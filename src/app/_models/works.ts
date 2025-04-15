@@ -15,7 +15,7 @@ export type WorkModel = {
   voteCount: number;
 };
 
-export interface TmdbResponse<T> {
+export type TmdbResponse<T> = {
   page: number;
   results: T[];
   total_pages: number;
@@ -55,3 +55,59 @@ export type Movie = {
   vote_average: number;
   vote_count: number;
 };
+
+export type GameApiResponse = {
+  results: Game[];
+}
+
+export type Game = {
+  id: number;
+  slug: string;
+  name: string;
+  released: string;
+  tba: boolean;
+  background_image: string;
+  rating: number;
+  rating_top: number;
+  ratings: Record<string, unknown>;
+  ratings_count: number;
+  reviews_text_count: string;
+  added: number;
+  added_by_status: Record<string, unknown>;
+  metacritic: number;
+  playtime: number;
+  suggestions_count: number;
+  updated: string;
+  esrb_rating: ESRBRating;
+  platforms: Platform[];
+  genres: GameGenre[];
+}
+
+export type GameGenre = {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export type ESRBRating = {
+  id: number;
+  slug: string;
+  name: string;
+}
+
+export type Platform = {
+  platform: PlatformInfo;
+  released_at: string;
+  requirements: PlatformRequirements;
+}
+
+export type PlatformInfo = {
+  id: number;
+  slug: string;
+  name: string;
+}
+
+export type PlatformRequirements = {
+  minimum: string;
+  recommended: string;
+}

@@ -31,7 +31,7 @@ export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
           </span>
           {work.imageUrl ? (
             <Image
-              src={`https://image.tmdb.org/t/p/w92${work.imageUrl}`}
+              src={mediaType === "game" ? work.imageUrl : `https://image.tmdb.org/t/p/w500${work.imageUrl}`}
               alt={work.title ?? ""}
               className="h-24 w-16 rounded object-cover"
               width={200}

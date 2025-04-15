@@ -68,7 +68,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
       {/* Poster */}
       {data.posterPath ? (
         <Image
-          src={`https://image.tmdb.org/t/p/w500${data.posterPath}`}
+          src={mediaType === "game" ? data.posterPath : `https://image.tmdb.org/t/p/w500${data.posterPath}`}
           alt={data.title}
           layout="fill"
           objectFit="cover"
