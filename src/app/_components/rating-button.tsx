@@ -13,7 +13,7 @@ export default function RatingButton({ onClickVoting, isLoading, alreadyRated }:
       {isLoading && (
         <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
       )}
-      {!isLoading && <>{alreadyRated ? "Modifica voto" : "Vota"}</>}
+      {!isLoading && <span className="text-nowrap">{alreadyRated ? "Modifica voto" : "Vota"}</span>}
     </button>
   )
 }
