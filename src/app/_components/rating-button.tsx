@@ -1,3 +1,5 @@
+import { Button } from "~/app/_components/ui/button";
+
 type RatingButtonProps = {
   onClickVoting: () => void;
   isLoading: boolean;
@@ -6,7 +8,7 @@ type RatingButtonProps = {
 
 export default function RatingButton({ onClickVoting, isLoading, alreadyRated }: RatingButtonProps) {
   return (
-    <button
+    <Button
       className="mt-2 h-6 cursor-pointer rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 text-white w-fit"
       onClick={onClickVoting}
     >
@@ -14,6 +16,6 @@ export default function RatingButton({ onClickVoting, isLoading, alreadyRated }:
         <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
       )}
       {!isLoading && <span className="text-nowrap">{alreadyRated ? "Modifica voto" : "Vota"}</span>}
-    </button>
+    </Button>
   )
 }

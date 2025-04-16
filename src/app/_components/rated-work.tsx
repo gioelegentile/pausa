@@ -5,8 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { Rating } from "~/app/_components/rating";
 import RatingButton from "./rating-button";
-import Dialog from "./ui/dialog";
-import RatingDialogContent from "./rating-dialog-content";
+import RatingDialog from "./rating-dialog";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
@@ -108,28 +107,13 @@ export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
               )}
             </div>
 
-            <RatingButton
-              onClickVoting={() => setVoting(true)}
-              isLoading={isLoading}
-              alreadyRated={!!data}
-            />
+            {workModel && (
+              <RatingDialog data={workModel} mediaType={mediaType} />
+            )}
           </div>
         </div>
       </div>
 
-      {workModel && (
-        <Dialog
-          bgClassName="bg-gray-800"
-          isOpen={voting}
-          onClose={() => setVoting(false)}
-        >
-          <RatingDialogContent
-            mediaType={mediaType}
-            onClose={() => setVoting(false)}
-            data={workModel}
-          />
-        </Dialog>
-      )}
     </div>
   );
 }

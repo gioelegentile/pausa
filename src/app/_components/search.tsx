@@ -10,13 +10,13 @@ import {
 import Reset from "./reset-search";
 import { useDebounce } from "~/app/_hooks/debouce";
 import { LoadingSearch } from "~/app/_components/loading-search";
-import RatingDialogContent from "~/app/_components/rating-dialog-content";
-import Dialog from "~/app/_components/ui/dialog";
+import RatingDialog from "~/app/_components/rating-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useMobile } from "~/app/_hooks/mobile";
 import { fetchWorks } from "~/app/_utils/tmdb";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
 import { StaleTimes } from "~/app/_utils/stale-times";
+import { Dialog } from "~/app/_components/ui/dialog";
 
 type SearchProps = {
   mediaType: MediaType;
@@ -30,8 +30,6 @@ export function Search({
   headerContent,
 }: SearchProps) {
   const [searchText, setSearchText] = useState("");
-  const [voting, setVoting] = useState(false);
-  const [selectedWork, setSelectedWork] = useState<WorkModel | null>(null);
   const deferredSearchText = useDebounce(searchText, 500);
   const { isSearchFocused, handleSearchFocus, handleExitSearchFocus } =
     useMobile();
@@ -42,11 +40,6 @@ export function Search({
     enabled: !!deferredSearchText,
     staleTime: StaleTimes.ONE_WEEK,
   });
-
-  const handleVoting = async (work: WorkModel) => {
-    setVoting(true);
-    setSelectedWork(work);
-  };
 
   return (
     <>
@@ -113,7 +106,6 @@ export function Search({
               <Work
                 data={result}
                 mediaType={mediaType}
-                onClickVoting={() => handleVoting(result)}
               />
             </div>
           ))}
@@ -129,19 +121,6 @@ export function Search({
         </div>
       )}
 
-      <Dialog
-        bgClassName="bg-gray-800"
-        isOpen={voting && !!selectedWork}
-        onClose={() => setVoting(false)}
-      >
-        {selectedWork && (
-          <RatingDialogContent
-            mediaType={mediaType}
-            onClose={() => setVoting(false)}
-            data={selectedWork}
-          />
-        )}
-      </Dialog>
     </>
   );
 }

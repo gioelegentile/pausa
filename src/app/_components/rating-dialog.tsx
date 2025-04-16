@@ -9,18 +9,19 @@ import { fetchGenres } from "~/app/_utils/tmdb";
 import LoadingSpinner from "~/app/_components/ui/loading-spinner";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
 import { StaleTimes } from "~/app/_utils/stale-times";
+import { Button } from "~/app/_components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "~/app/_components/ui/dialog";
 
 type RatingDialogProps = {
   data: WorkModel;
   mediaType: MediaType;
-  onClose: () => void;
 };
 
-export default function RatingDialogContent({
+export default function RatingDialog({
   data,
-  onClose,
   mediaType,
 }: RatingDialogProps) {
+  const [open, setOpen] = useState(false);
   const [currentRating, setCurrentRating] = useState(0);
   const [rate, setRate] = useState(0);
   const [tempRate, setTempRate] = useState(0);
@@ -136,7 +137,7 @@ export default function RatingDialogContent({
 
   const handleConfirm = async () => {
     await handleSetRate(rate);
-    onClose();
+    setOpen(false);
   };
 
   const handleReset = () => {
@@ -155,44 +156,64 @@ export default function RatingDialogContent({
   };
 
   return (
-    <div className={`${isLoading ? "pointer-events-none" : ""}`}>
-      <div
-        className="relative mb-4 flex w-full items-center justify-center text-center"
-        style={{ minHeight: "120px" }}
-      >
-        <FontAwesomeIcon
-          icon={faStar}
-          className={`relative text-yellow-500 transition-all`}
-          style={{ height: `${((rate === 0 ? tempRate : rate) + 20) * 4}px` }}
-        />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button color="indigo" className="mt-2 h-6 cursor-pointer rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700 text-white w-fit">
+          {rating.isLoading && (
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
+          )}
+          {!rating.isLoading && <span className="text-nowrap">{!!rating.data ? "Modifica voto" : "Vota"}</span>}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="bg-gray-800 text-white border-0">
+        <DialogTitle></DialogTitle>
+        <DialogDescription></DialogDescription>
 
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-semibold text-white text-shadow-lg/20">
-          {getRate()}
+        <div
+          className="relative mb-4 flex w-full items-center justify-center text-center"
+          style={{ minHeight: "120px" }}
+        >
+          <FontAwesomeIcon
+            icon={faStar}
+            className={`relative text-yellow-500 transition-all`}
+            style={{ height: `${((rate === 0 ? tempRate : rate) + 20) * 4}px` }}
+          />
+
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-semibold text-white text-shadow-lg/20">
+            {getRate()}
+          </div>
         </div>
-      </div>
-      <h2 className="mb-4 text-center text-lg font-semibold text-white">
-        {data.title}
-      </h2>
-      <div className="mb-4 flex items-center justify-center">
-        <StarRatingSlider
-          key={resetKey} // Use resetKey to force re-render
-          currentRating={currentRating}
-          onTempRateChange={setTempRate}
-          onRatingChange={setRate}
-        />
-      </div>
-      <button
-        className="w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 px-4 py-2 text-center text-white shadow-md hover:bg-gradient-to-bl"
-        onClick={handleConfirm}
-      >
-        {isLoading ? <LoadingSpinner /> : "Conferma"}
-      </button>
-      <button
-        className="mt-2 w-full rounded bg-red-500 px-4 py-2 text-center text-white hover:bg-red-400"
-        onClick={handleReset}
-      >
-        Reset
-      </button>
-    </div>
+        <h2 className="mb-4 text-center text-lg font-semibold text-white">
+          {data.title}
+        </h2>
+        <div className="mb-4 flex items-center justify-center">
+          <StarRatingSlider
+            key={resetKey} // Use resetKey to force re-render
+            currentRating={currentRating}
+            onTempRateChange={setTempRate}
+            onRatingChange={setRate}
+          />
+        </div>
+
+        <DialogFooter>
+          <div className="w-full flex flex-col items-center justify-center gap-2 text-sm text-gray-400">
+            <Button
+              type="button"
+              className="w-full rounded bg-gradient-to-br from-purple-600 to-blue-500 text-center text-white shadow-md hover:bg-gradient-to-bl"
+              onClick={handleConfirm}
+            >
+              {isLoading ? <LoadingSpinner /> : "Conferma"}
+            </Button>
+            <Button
+              type="reset"
+              className="w-full rounded bg-gray-600 text-center text-white hover:bg-red-400"
+              onClick={handleReset}
+            >
+              Reset
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
