@@ -4,7 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { AuthProvider } from "~/contexts/AuthContext";
+import { AuthProvider } from "~/app/_contexts/AuthContext";
 import Logo from "./_components/logo";
 import Link from "next/link";
 import { env } from "~/env";

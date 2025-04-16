@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMobile } from "~/app/_hooks/mobile";
 import { fetchWorks } from "~/app/_utils/tmdb";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type SearchProps = {
   mediaType: MediaType;
@@ -39,6 +40,7 @@ export function Search({
     queryKey: [mediaType, deferredSearchText],
     queryFn: () => fetchWorks(mediaType, deferredSearchText),
     enabled: !!deferredSearchText,
+    staleTime: StaleTimes.ONE_WEEK,
   });
 
   const handleVoting = async (work: WorkModel) => {

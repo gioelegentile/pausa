@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
+import {findUniqueUser} from "~/server/auth/user";
 
 export async function GET(req: NextRequest) {
   // Ottieni le informazioni dell'utente dalle intestazioni impostate dal middleware
@@ -15,9 +16,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // L'utente ora dovrebbe già esistere nel DB grazie alla gestione in cloudflare.ts
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await findUniqueUser(userId);
 
     if (!user) {
       return NextResponse.json(

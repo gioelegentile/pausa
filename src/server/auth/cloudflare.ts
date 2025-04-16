@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { cache } from "react";
 import { db } from "../db";
+import {findUniqueUser} from "~/server/auth/user";
 
 export interface CloudflareSession {
   user: {
@@ -50,9 +51,7 @@ export const getSession = cache(async (): Promise<CloudflareSession> => {
   }
 
   // Cerca l'utente nel database per ottenere altre informazioni se necessario
-  let user = await db.user.findUnique({
-    where: { id: userId },
-  });
+  let user = await findUniqueUser(userId);
 
   // Se l'utente non esiste, crealo immediatamente
   if (!user) {

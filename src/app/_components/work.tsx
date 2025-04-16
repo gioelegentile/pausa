@@ -12,6 +12,7 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
 import RatingButton from "./rating-button";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type WorkProps = {
   data: WorkModel;
@@ -22,7 +23,9 @@ type WorkProps = {
 
 export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
   const router = useRouter();
-  const rating = api.workRating.getByExternalId.useQuery(data.id);
+  const rating = api.workRating.getByExternalId.useQuery(data.id, {
+    staleTime: StaleTimes.ONE_WEEK,
+  });
 
   const handleNavigateToDetails = useCallback(() => {
     // Se non stiamo votando, navighiamo alla pagina di dettaglio
@@ -69,7 +72,11 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
       {/* Poster */}
       {data.posterPath ? (
         <Image
-          src={mediaType === "game" ? data.posterPath : `https://image.tmdb.org/t/p/w500${data.posterPath}`}
+          src={
+            mediaType === "game"
+              ? data.posterPath
+              : `https://image.tmdb.org/t/p/w500${data.posterPath}`
+          }
           alt={data.title}
           layout="fill"
           objectFit="cover"
@@ -122,7 +129,11 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
             <Rating value={data.voteAverage} votes={data.voteCount} />
           )}
 
-          <RatingButton onClickVoting={onClickVoting} isLoading={rating.isLoading} alreadyRated={!!rating.data} />
+          <RatingButton
+            onClickVoting={onClickVoting}
+            isLoading={rating.isLoading}
+            alreadyRated={!!rating.data}
+          />
         </div>
       </div>
     </div>

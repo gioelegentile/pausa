@@ -10,6 +10,7 @@ import { type Filters, filtersInitialState } from "~/app/_models/filters";
 import { api } from "~/trpc/react";
 import Dialog from "~/app/_components/ui/dialog";
 import { type MediaType } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type FiltersProps = {
   mediaType: MediaType;
@@ -21,9 +22,15 @@ export function Filters({ mediaType, onConfirm }: FiltersProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(filtersInitialState);
 
-  const { data: directors } =
-    api.work.getAllUniqueDirectors.useQuery(mediaType);
-  const { data: genres } = api.work.getAllUniqueGenres.useQuery(mediaType);
+  const { data: directors } = api.work.getAllUniqueDirectors.useQuery(
+    mediaType,
+    {
+      staleTime: StaleTimes.ONE_WEEK,
+    },
+  );
+  const { data: genres } = api.work.getAllUniqueGenres.useQuery(mediaType, {
+    staleTime: StaleTimes.ONE_WEEK,
+  });
 
   const handleOpen = () => {
     setFiltersOpen(true);

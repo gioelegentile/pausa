@@ -7,8 +7,9 @@ import { Search } from "~/app/_components/search";
 import { narutoIcon } from "~/app/_icons/naruto";
 import { MediaTypeButton } from "~/app/_components/media-type-button";
 import { getMediaTitle } from "~/app/_utils/media-type";
-import { QueryClient } from "@tanstack/react-query";
 import { fetchGenres } from "~/app/_utils/tmdb";
+import { createQueryClient } from "~/trpc/query-client";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 async function Header({ mediaType }: { mediaType: MediaType }) {
   const mediaTypeTitle = await getMediaTitle(mediaType);
@@ -88,11 +89,12 @@ export default async function SearchPage({
   const { mediaType } = await params;
   const mediaTypeTitle = await getMediaTitle(mediaType);
 
-  const queryClient = new QueryClient();
+  const queryClient = createQueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ["genres", mediaType],
     queryFn: () => fetchGenres(mediaType),
+    staleTime: StaleTimes.ONE_WEEK,
   });
 
   return (

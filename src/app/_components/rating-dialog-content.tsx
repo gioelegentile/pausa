@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchGenres } from "~/app/_utils/tmdb";
 import LoadingSpinner from "~/app/_components/ui/loading-spinner";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type RatingDialogProps = {
   data: WorkModel;
@@ -30,6 +31,8 @@ export default function RatingDialogContent({
   const workMutation = api.work.create.useMutation({
     onSuccess: async () => {
       await utils.work.getByExternalId.invalidate(data.id);
+      await utils.work.getAllUniqueGenres.invalidate();
+      await utils.work.getAllUniqueDirectors.invalidate();
     },
   });
   const createOrUpdateMutation = api.workRating.createOrUpdate.useMutation({
@@ -44,6 +47,7 @@ export default function RatingDialogContent({
   const { data: genres } = useQuery({
     queryKey: ["genres", mediaType],
     queryFn: () => fetchGenres(mediaType),
+    staleTime: StaleTimes.ONE_WEEK,
   });
 
   useEffect(() => {
@@ -63,7 +67,6 @@ export default function RatingDialogContent({
           if (workQuery.data) {
             work = workQuery.data;
           } else {
-
             let director = { directorName: "" };
 
             if (mediaType === "movie") {

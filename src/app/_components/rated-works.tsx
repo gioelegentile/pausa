@@ -10,6 +10,7 @@ import RatedWork from "~/app/_components/rated-work";
 import { Filters } from "~/app/_components/filters";
 import { LoadingRatingList } from "~/app/_components/loading-rating-list";
 import { type MediaType } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type RatedWorksProps = {
   mediaType: MediaType;
@@ -41,6 +42,7 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
+      staleTime: StaleTimes.ONE_DAY,
     },
   );
 
