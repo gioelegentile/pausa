@@ -60,7 +60,7 @@ export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
       </div>
 
       <div className="flex-1 relative">
-        <div className="flex items-start justify-between h-full">
+        <div className="flex items-start justify-between h-full gap-3">
 
           <div>
             <h2 className="font-medium text-gray-800 dark:text-white">
