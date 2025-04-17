@@ -7,7 +7,7 @@ import {
 } from "../_models/filters";
 import React, { useEffect, useRef, useState } from "react";
 import RatedWork from "~/app/_components/rated-work";
-import { Filters } from "~/app/_components/filters";
+import { FiltersDialog } from "~/app/_components/filters-dialog";
 import { LoadingRatingList } from "~/app/_components/loading-rating-list";
 import { type MediaType } from "~/app/_models/works";
 import { StaleTimes } from "~/app/_utils/stale-times";
@@ -37,8 +37,8 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
       type: mediaType,
       director: filters.director,
       genre: filters.genre,
-      minYear: filters.minYear,
-      maxYear: filters.maxYear,
+      minYear: parseInt(filters.minYear),
+      maxYear: parseInt(filters.maxYear),
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -79,7 +79,7 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
   return (
     <div className="w-full">
       <div className="flex justify-end p-4">
-        <Filters mediaType={mediaType} onConfirm={handleConfirm} />
+        <FiltersDialog mediaType={mediaType} onConfirm={handleConfirm} />
       </div>
 
       {isFetching && <LoadingRatingList />}
