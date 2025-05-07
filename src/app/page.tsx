@@ -1,14 +1,5 @@
-// page.tsx (Server Component)
-import { HydrateClient } from "~/trpc/server";
-import { auth } from "~/server/auth/cloudflare";
-import MainPage from "./_components/main-page";
+import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const session = await auth();
-
-  return (
-    <HydrateClient>
-      <MainPage session={session} />
-    </HydrateClient>
-  );
+export default function Home() {
+  redirect("/search/movie");
 }

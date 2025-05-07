@@ -12,6 +12,7 @@ export const env = createEnv({
     TEAM_DOMAIN: z.string(),
     DATABASE_URL: z.string().url(),
     TMDB_API_KEY: z.string(),
+    RAWG_API_KEY: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -36,6 +37,7 @@ export const env = createEnv({
     TEAM_DOMAIN: process.env.TEAM_DOMAIN,
     DATABASE_URL: process.env.DATABASE_URL,
     TMDB_API_KEY: process.env.TMDB_API_KEY,
+    RAWG_API_KEY: process.env.RAWG_API_KEY,
     NODE_ENV: process.env.NODE_ENV,
     APP_VERSION: process.env.APP_VERSION,
   },

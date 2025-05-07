@@ -1,227 +1,147 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import React, { type ReactNode, useState } from "react";
 import { Work } from "./work";
-import { type Movie, type MoviesResponse } from "../api/search/route";
-import { MagnifyingGlassIcon, FilmIcon, TvIcon } from "@heroicons/react/24/outline";
-import { FireIcon } from "@heroicons/react/24/solid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faArrowLeft,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
+import Reset from "./reset-search";
+import { useDebounce } from "~/app/_hooks/debouce";
+import { LoadingSearch } from "~/app/_components/loading-search";
+import RatingDialogContent from "~/app/_components/rating-dialog-content";
+import Dialog from "~/app/_components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { useMobile } from "~/app/_hooks/mobile";
+import { fetchWorks } from "~/app/_utils/tmdb";
+import { type MediaType, type WorkModel } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
-type MediaType = "movie" | "tv" | "anime";
+type SearchProps = {
+  mediaType: MediaType;
+  mediaTypeTitle: string;
+  headerContent?: ReactNode;
+};
 
-export function Search() {
-  const searchInitialState = useMemo(() => ({
-    page: 0,
-    results: [],
-    total_pages: 0,
-    total_results: 0,
-  }), []);
-
+export function Search({
+  mediaType,
+  mediaTypeTitle,
+  headerContent,
+}: SearchProps) {
   const [searchText, setSearchText] = useState("");
-  const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] = useState<MoviesResponse>(searchInitialState);
-  const [topRatedMedia, setTopRatedMedia] = useState<Movie[]>([]);
-  const [isLoadingTopRated, setIsLoadingTopRated] = useState(true);
+  const [voting, setVoting] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<WorkModel | null>(null);
+  const deferredSearchText = useDebounce(searchText, 500);
+  const { isSearchFocused, handleSearchFocus, handleExitSearchFocus } =
+    useMobile();
 
-  // Stato per il tipo di media selezionato
-  const [mediaType, setMediaType] = useState<MediaType>("movie");
+  const { isLoading, data, isFetched } = useQuery<WorkModel[]>({
+    queryKey: [mediaType, deferredSearchText],
+    queryFn: () => fetchWorks(mediaType, deferredSearchText),
+    enabled: !!deferredSearchText,
+    staleTime: StaleTimes.ONE_WEEK,
+  });
 
-  const handleSearch = useCallback(() => {
-    if (!searchText.trim()) return;
-
-    setIsSearching(true);
-
-    if (mediaType === "movie") {
-    fetch(`/api/search?query=${encodeURIComponent(searchText)}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to search movies');
-        }
-        return response.json();
-      })
-      .then((data: MoviesResponse) => {
-        console.log(data);
-        setSearchResult(data);
-      })
-      .catch((error) => {
-        console.error('Error searching movies:', error);
-        setSearchResult(searchInitialState);
-      })
-      .finally(() => {
-        setIsSearching(false);
-      });
-    } else if (mediaType === "tv") {
-      setIsSearching(false);
-    } else if (mediaType === "anime") {
-      setIsSearching(false);
-    }
-  }, [searchText, mediaType, searchInitialState]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSearch();
-    }
-  };
-
-  // Funzione per ottenere il titolo in base al tipo di media
-  const getMediaTitle = (type: MediaType): string => {
-    switch (type) {
-      case "movie": return "Movies";
-      case "tv": return "TV Shows";
-      case "anime": return "Anime";
-      default: return "Movies";
-    }
+  const handleVoting = async (work: WorkModel) => {
+    setVoting(true);
+    setSelectedWork(work);
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header con titolo */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
-          <span className="bg-gradient-to-bl from-blue-400 to-indigo-600 bg-clip-text text-transparent">
-            {getMediaTitle(mediaType)}
-          </span>
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300">
-          Discover and rate your favorite entertainment
-        </p>
-      </div>
-
-      {/* Pulsanti di selezione del tipo di media */}
-      <div className="flex justify-center mb-8">
-        <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={() => setMediaType("movie")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mediaType === "movie"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "bg-white text-gray-700 border border-gray-300 hover:text-indigo-600 hover:border-indigo-400 hover:shadow"
-            }`}
-          >
-            <div className="flex items-center">
-              <FilmIcon className="h-5 w-5 mr-2" />
-              Movies
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMediaType("tv")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mediaType === "tv"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "bg-white text-gray-700 border border-gray-300 hover:text-indigo-600 hover:border-indigo-400 hover:shadow"
-            }`}
-          >
-            <div className="flex items-center">
-              <TvIcon className="h-5 w-5 mr-2" />
-              TV Shows
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMediaType("anime")}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-              mediaType === "anime"
-                ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
-                : "bg-white text-gray-700 border border-gray-300 hover:text-indigo-600 hover:border-indigo-400 hover:shadow"
-            }`}
-          >
-            <div className="flex items-center">
-              <FireIcon className="h-5 w-5 mr-2" />
-              Anime
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* Barra di ricerca */}
-      <div className="max-w-3xl mx-auto mb-12">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-grow">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder={`Search ${getMediaTitle(mediaType).toLowerCase()}...`}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="w-full pl-10 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 px-4 py-3 text-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 transition-all"
-            />
-          </div>
-          <button
-            type="button"
-            className="rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 px-6 py-3 text-white font-medium shadow-md hover:bg-gradient-to-bl focus:ring-4 focus:ring-blue-300 transition-all"
-            disabled={searching || !searchText.trim()}
-            onClick={handleSearch}
-          >
-            {searching ? (
-              <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Searching...
-              </div>
-            ) : "Search"}
-          </button>
-        </div>
-      </div>
-
-      {/* Risultati della ricerca */}
-      {searchResult.results.length > 0 && (
-        <div className="mb-16">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Search Results
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {searchResult.results.map((result: Movie) => (
-              <div
-                className="transition ease-in-out hover:scale-105 hover:z-10"
-                key={result.id}
-              >
-                <Work data={result} mediaType={mediaType} />
-              </div>
-            ))}
-          </div>
-        </div>
+    <>
+      {/* Header content che viene mostrato solo quando non c'è il focus sulla ricerca */}
+      {headerContent && !isSearchFocused && (
+        <div className="header-content">{headerContent}</div>
       )}
 
-      {/* Contenuti con i voti più alti */}
-      {topRatedMedia.length > 0 && searchResult.results.length === 0 && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            {mediaType === "anime" ? "Top Anime" : `Top Rated ${getMediaTitle(mediaType)}`}
-          </h2>
-          {isLoadingTopRated ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-              {topRatedMedia.map((media: Movie) => (
-                <div
-                  className="transition ease-in-out hover:scale-105 hover:z-10"
-                  key={media.id}
-                >
-                  <Work data={media} mediaType={mediaType} />
-                </div>
-              ))}
-            </div>
+      {/* Barra di ricerca */}
+      <div
+        className={`${
+          isSearchFocused
+            ? "fixed top-0 right-0 left-0 z-50 bg-white px-4 py-3 dark:bg-gray-900"
+            : "mx-auto mb-12 max-w-3xl"
+        }`}
+      >
+        <div className="flex items-center">
+          {isSearchFocused && (
+            <button
+              type="button"
+              onClick={handleExitSearchFocus}
+              className="mr-2 flex items-center p-2 text-gray-600"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
+            </button>
           )}
+          <div className="relative flex-grow">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <FontAwesomeIcon
+                icon={faMagnifyingGlass}
+                className="h-5 w-5 text-gray-400"
+              />
+            </div>
+            {isLoading && (
+              <div className="pointer-events-none absolute inset-y-0 right-8 flex items-center pr-3">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
+              </div>
+            )}
+            <input
+              type="text"
+              placeholder={`Cerca ${mediaTypeTitle}...`}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onFocus={handleSearchFocus}
+              className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            />
+            {searchText.length > 0 && (
+              <Reset onClick={() => setSearchText("")} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {isLoading && <LoadingSearch />}
+
+      {/* Risultati della ricerca */}
+      {!isLoading && (data ?? []).length > 0 && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6 lg:grid-cols-6">
+          {data?.map((result: WorkModel) => (
+            <div
+              className="transition ease-in-out hover:z-10 hover:scale-105"
+              key={result.id}
+            >
+              <Work
+                data={result}
+                mediaType={mediaType}
+                onClickVoting={() => handleVoting(result)}
+              />
+            </div>
+          ))}
         </div>
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {searchResult.results.length === 0 && searchText && !searching && (
-        <div className="text-center py-12">
+      {isFetched && data?.length === 0 && !isLoading && (
+        <div className="py-12 text-center">
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            No results found for &#34;{searchText}&#34;
+            Nessun risultato trovato per &#34;{searchText}&#34;
           </p>
         </div>
       )}
-    </div>
+
+      <Dialog
+        bgClassName="bg-gray-800"
+        isOpen={voting && !!selectedWork}
+        onClose={() => setVoting(false)}
+      >
+        {selectedWork && (
+          <RatingDialogContent
+            mediaType={mediaType}
+            onClose={() => setVoting(false)}
+            data={selectedWork}
+          />
+        )}
+      </Dialog>
+    </>
   );
 }
