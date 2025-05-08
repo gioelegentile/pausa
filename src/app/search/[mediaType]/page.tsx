@@ -27,10 +27,9 @@ async function Header({ mediaType }: { mediaType: MediaType }) {
           Scopri e vota i tuoi preferiti
         </p>
       </div>
-
+      
       {/* Pulsanti di selezione del tipo di media */}
-      <div className="mb-8 flex justify-center">
-        <div className="flex space-x-2">
+      <div className="mx-auto mb-12 max-w-3xl flex flex-wrap justify-center gap-2">
           <MediaTypeButton
             mediaTypeTitle={"Film"}
             href="/search/movie"
@@ -75,7 +74,7 @@ async function Header({ mediaType }: { mediaType: MediaType }) {
               />
             }
           />
-        </div>
+      
       </div>
     </>
   );

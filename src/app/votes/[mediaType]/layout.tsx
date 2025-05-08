@@ -27,9 +27,8 @@ export default async function VotesPageLayout({
             </p>
           </div>
 
-          <div className="mb-8 flex justify-center">
-            <div className="flex space-x-2">
-              <MediaTypeButton
+          <div className="mx-auto mb-12 max-w-3xl flex flex-wrap justify-center gap-2">
+            <MediaTypeButton
                 mediaTypeTitle={"Film"}
                 href="/votes/movie"
                 active={mediaType === "movie"}
@@ -80,7 +79,6 @@ export default async function VotesPageLayout({
             {children}
           </div>
           
-        </div>
       </div>
     </div>
   );
