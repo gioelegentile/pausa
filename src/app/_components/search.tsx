@@ -1,183 +1,52 @@
 "use client";
 
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { type ReactNode, useState } from "react";
 import { Work } from "./work";
-import { type Movie, type MoviesResponse } from "../api/movie/route";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import Reset from "./reset-search";
-import { type MediaType } from "~/app/models/types";
 import { useDebounce } from "~/app/_hooks/debouce";
+import { LoadingSearch } from "~/app/_components/loading-search";
+import RatingDialogContent from "~/app/_components/rating-dialog-content";
+import Dialog from "~/app/_components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { useMobile } from "~/app/_hooks/mobile";
+import { fetchWorks } from "~/app/_utils/tmdb";
+import { type MediaType, type WorkModel } from "~/app/_models/works";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type SearchProps = {
-  onSearchFocusAction?: () => void;
-  onSearchBlurAction?: () => void;
   mediaType: MediaType;
   mediaTypeTitle: string;
   headerContent?: ReactNode;
-  isSearchFocused?: boolean; // Nuova prop per controllare lo stato dall'esterno
 };
 
 export function Search({
-  onSearchFocusAction,
-  onSearchBlurAction,
   mediaType,
   mediaTypeTitle,
   headerContent,
-  isSearchFocused: externalIsSearchFocused,
 }: SearchProps) {
-  const searchInitialState = useMemo(
-    () => ({
-      page: 0,
-      results: [],
-      total_pages: 0,
-      total_results: 0,
-    }),
-    [],
-  );
-
   const [searchText, setSearchText] = useState("");
-  const [searching, setIsSearching] = useState(false);
-  const [searchResult, setSearchResult] =
-    useState<MoviesResponse>(searchInitialState);
-  const [hasSearched, setHasSearched] = useState(false);
-  // Usa lo stato esterno se fornito, altrimenti gestisci internamente
-  const [internalIsSearchFocused, setInternalIsSearchFocused] = useState(false);
-  const isSearchFocused = externalIsSearchFocused ?? internalIsSearchFocused;
-  const [isMobile, setIsMobile] = useState(false);
+  const [voting, setVoting] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<WorkModel | null>(null);
+  const deferredSearchText = useDebounce(searchText, 500);
+  const { isSearchFocused, handleSearchFocus, handleExitSearchFocus } =
+    useMobile();
 
-  // Check if we're on mobile
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+  const { isLoading, data, isFetched } = useQuery<WorkModel[]>({
+    queryKey: [mediaType, deferredSearchText],
+    queryFn: () => fetchWorks(mediaType, deferredSearchText),
+    enabled: !!deferredSearchText,
+    staleTime: StaleTimes.ONE_WEEK,
+  });
 
-    // Initial check
-    checkIfMobile();
-
-    // Set up listener for resize
-    window.addEventListener("resize", checkIfMobile);
-
-    // Handle back button press
-    const handlePopState = () => {
-      if (isSearchFocused) {
-        if (externalIsSearchFocused === undefined) {
-          setInternalIsSearchFocused(false);
-        }
-        onSearchBlurAction?.();
-      }
-    };
-
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("resize", checkIfMobile);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [isSearchFocused, onSearchBlurAction, externalIsSearchFocused]);
-
-  const handleSearchFocus = useCallback(() => {
-    if (isMobile) {
-      if (externalIsSearchFocused === undefined) {
-        setInternalIsSearchFocused(true);
-      }
-      onSearchFocusAction?.();
-      // Add history entry to handle back button
-      window.history.pushState({ searchFocused: true }, "");
-    }
-  }, [isMobile, onSearchFocusAction, externalIsSearchFocused]);
-
-  const handleExitSearchFocus = useCallback(() => {
-    if (isSearchFocused) {
-      if (externalIsSearchFocused === undefined) {
-        setInternalIsSearchFocused(false);
-      }
-      onSearchBlurAction?.();
-      window.history.back(); // This will trigger the popstate event handler
-    }
-  }, [isSearchFocused, onSearchBlurAction, externalIsSearchFocused]);
-
-  const handleSearch = useCallback(() => {
-    if (!searchText.trim()) {
-      // Clear results if search text is empty
-      setSearchResult(searchInitialState);
-      return;
-    }
-
-    setHasSearched(true);
-    setIsSearching(true);
-
-    if (mediaType === "movie") {
-      fetch(`/api/movie?query=${encodeURIComponent(searchText)}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to search movies");
-          }
-          return response.json();
-        })
-        .then((data: MoviesResponse) => {
-          setSearchResult(data);
-        })
-        .catch((error) => {
-          console.error("Error searching movies:", error);
-          setSearchResult(searchInitialState);
-        })
-        .finally(() => {
-          setIsSearching(false);
-        });
-    } else if (mediaType === "tvshow" || mediaType === "anime") {
-      fetch(
-        `/api/tvshow?query=${encodeURIComponent(searchText)}&type=${mediaType}`,
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to search serie TV");
-          }
-          return response.json();
-        })
-        .then((data: MoviesResponse) => {
-          setSearchResult(data);
-        })
-        .catch((error) => {
-          console.error("Error searching serie TV:", error);
-          setSearchResult(searchInitialState);
-        })
-        .finally(() => {
-          setIsSearching(false);
-        });
-    } else if (mediaType === "game") {
-      setIsSearching(false);
-    }
-  }, [searchText, mediaType, searchInitialState]);
-
-  // Debounced search function - triggers search after 500ms of typing inactivity
-  const debouncedSearch = useDebounce(handleSearch, 500);
-
-  // Trigger search when text changes
-  useEffect(() => {
-    debouncedSearch();
-  }, [searchText, debouncedSearch]);
-
-  // Handle text input change
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
+  const handleVoting = async (work: WorkModel) => {
+    setVoting(true);
+    setSelectedWork(work);
   };
-
-  // Funzione per resettare la ricerca
-  const handleReset = useCallback(() => {
-    setSearchText("");
-    setSearchResult(searchInitialState);
-    setHasSearched(false);
-  }, [searchInitialState]);
 
   return (
     <>
@@ -211,8 +80,8 @@ export function Search({
                 className="h-5 w-5 text-gray-400"
               />
             </div>
-            {searching && (
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            {isLoading && (
+              <div className="pointer-events-none absolute inset-y-0 right-8 flex items-center pr-3">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
               </div>
             )}
@@ -220,41 +89,59 @@ export function Search({
               type="text"
               placeholder={`Cerca ${mediaTypeTitle}...`}
               value={searchText}
-              onChange={handleTextChange}
+              onChange={(e) => setSearchText(e.target.value)}
               onFocus={handleSearchFocus}
-              onBlur={onSearchBlurAction}
               className="focus:ring-opacity-50 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pl-10 text-gray-700 shadow-sm transition-all focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
-            {searchText.length > 0 && <Reset onClick={handleReset} />}
+            {searchText.length > 0 && (
+              <Reset onClick={() => setSearchText("")} />
+            )}
           </div>
         </div>
       </div>
 
+      {isLoading && <LoadingSearch />}
+
       {/* Risultati della ricerca */}
-      {searchResult.results.length > 0 && (
+      {!isLoading && (data ?? []).length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 md:gap-6 lg:grid-cols-6">
-          {searchResult.results.map((result: Movie) => (
+          {data?.map((result: WorkModel) => (
             <div
               className="transition ease-in-out hover:z-10 hover:scale-105"
               key={result.id}
             >
-              <Work data={result} mediaType={mediaType} />
+              <Work
+                data={result}
+                mediaType={mediaType}
+                onClickVoting={() => handleVoting(result)}
+              />
             </div>
           ))}
         </div>
       )}
 
       {/* Messaggio quando non ci sono risultati */}
-      {hasSearched &&
-        searchResult.results.length === 0 &&
-        searchText &&
-        !searching && (
-          <div className="py-12 text-center">
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Nessun risultato trovato per &#34;{searchText}&#34;
-            </p>
-          </div>
+      {isFetched && data?.length === 0 && !isLoading && (
+        <div className="py-12 text-center">
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            Nessun risultato trovato per &#34;{searchText}&#34;
+          </p>
+        </div>
+      )}
+
+      <Dialog
+        bgClassName="bg-gray-800"
+        isOpen={voting && !!selectedWork}
+        onClose={() => setVoting(false)}
+      >
+        {selectedWork && (
+          <RatingDialogContent
+            mediaType={mediaType}
+            onClose={() => setVoting(false)}
+            data={selectedWork}
+          />
         )}
+      </Dialog>
     </>
   );
 }

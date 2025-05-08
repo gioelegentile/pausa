@@ -6,7 +6,9 @@ export default async function UserInfo() {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm font-medium">{session.user!.name}</span>
+      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+        {session.user!.name}
+      </span>
       <div className="h-8 w-8 overflow-hidden rounded-full border border-gray-200">
         {session.user!.image ? (
           <Image

@@ -1,138 +1,43 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 "use client";
 
 import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
-import { type Movie } from "../api/movie/route";
-import { type Work as WorkType } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import StarRatingSlider from "./star-rating-slider";
+import { type MediaType, type WorkModel } from "~/app/_models/works";
+import RatingButton from "./rating-button";
+import { StaleTimes } from "~/app/_utils/stale-times";
 
 type WorkProps = {
-  data: Movie;
-  mediaType?: "movie" | "tvshow" | "anime" | "game";
+  data: WorkModel;
+  mediaType?: MediaType;
+  onClickVoting: () => void;
+  currentRating?: number;
 };
 
-export function Work({ data, mediaType = "movie" }: WorkProps) {
-  const [voting, setVoting] = useState(false);
-  const [rate, setRate] = useState(0);
-  const [showPing, setShowPing] = useState(false);
+export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
   const router = useRouter();
-
-  const utils = api.useUtils();
-  const workMutation = api.work.create.useMutation({
-    onSuccess: async () => {
-      await utils.work.getByExternalId.invalidate(data.id);
-    },
+  const rating = api.workRating.getByExternalId.useQuery(data.id, {
+    staleTime: StaleTimes.ONE_WEEK,
   });
-  const createRatingMutation = api.workRating.create.useMutation({
-    onSuccess: async () => {
-      await utils.workRating.getByExternalId.invalidate(data.id);
-    },
-  });
-  const updateRatingMutation = api.workRating.update.useMutation({
-    onSuccess: async () => {
-      await utils.workRating.getByExternalId.invalidate(data.id);
-    },
-  });
-  const workQuery = api.work.getByExternalId.useQuery(data.id);
-  const rating = api.workRating.getByExternalId.useQuery(data.id);
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (!voting) {
-        setVoting(true);
-        e.stopPropagation();
-      } else {
-        setVoting(false);
-      }
-    },
-    [voting],
-  );
 
   const handleNavigateToDetails = useCallback(() => {
-    if (!voting) {
-      // Se non stiamo votando, navighiamo alla pagina di dettaglio
-      router.push(`/details/${mediaType}/${data.id}`);
-    }
-  }, [voting, router, mediaType, data.id]);
-
-  const handleSetRate = useCallback(
-    async (rate: number) => {
-      setRate(rate);
-      setShowPing(true);
-      setVoting(false);
-
-      if (rate > 0) {
-        try {
-          let work: WorkType | null = null;
-
-          if (workQuery.data) {
-            work = workQuery.data;
-          } else {
-            work = await workMutation.mutateAsync(
-              { externalId: data.id, type: mediaType }
-            );
-          }
-
-          if (work) {
-            if (rating.data) {
-              updateRatingMutation
-                .mutateAsync({
-                  id: rating.data.id,
-                  rating: rate,
-                })
-                .catch((error) => console.error("Error updating rating:", error));
-            } else {
-              createRatingMutation
-                .mutateAsync({
-                  externalId: data.id,
-                  workId: work.id,
-                  rating: rate,
-                })
-                .catch((error) => console.error("Error rating media:", error));
-            }
-          } else {
-            console.error(
-              "ratingMutation.mutateAsync is not available or work is null",
-            );
-          }
-        } catch (error) {
-          console.error("Error in handleSetRate:", error);
-        }
-
-      }
-    },
-    [data.id, rating.data, workQuery.data, workMutation, createRatingMutation, updateRatingMutation, mediaType],
-  );
-
-  useEffect(() => {
-    if (workQuery.data) {
-      if (rating.data) {
-        setRate(rating.data.rating);
-      }
-    }
-  }, [workQuery.data, rating.data]);
-
-  useEffect(() => {
-    if (showPing) {
-      const timer = setTimeout(() => {
-        setShowPing(false);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [showPing]);
+    // Se non stiamo votando, navighiamo alla pagina di dettaglio
+    // router.push(`/details/${mediaType}/${data.id}`);
+  }, [router, mediaType, data.id]);
 
   // Determina il tipo di badge da mostrare
   const getMediaTypeBadge = () => {
     switch (mediaType) {
       case "movie":
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-blue-500 text-white mb-2 mr-1">
+          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-blue-500 px-2 py-1 text-xs font-medium text-white">
             Film
           </span>
         );
@@ -150,7 +55,7 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
         );
       case "game":
         return (
-          <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2 mr-1">
+          <span className="mr-1 mb-2 inline-flex items-center rounded-md bg-green-500 px-2 py-1 text-xs font-medium text-white">
             Gioco
           </span>
         );
@@ -161,13 +66,17 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
 
   return (
     <div
-      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl shadow-lg transition-all duration-300"
+      className="group relative aspect-[2/3] cursor-pointer overflow-hidden rounded-xl shadow-md shadow-gray-300 transition-all duration-300 dark:shadow-none"
       onClick={handleNavigateToDetails}
     >
       {/* Poster */}
-      {data.poster_path ? (
+      {data.posterPath ? (
         <Image
-          src={`https://image.tmdb.org/t/p/w500${data.poster_path}`}
+          src={
+            mediaType === "game"
+              ? data.posterPath
+              : `https://image.tmdb.org/t/p/w500${data.posterPath}`
+          }
           alt={data.title}
           layout="fill"
           objectFit="cover"
@@ -184,83 +93,49 @@ export function Work({ data, mediaType = "movie" }: WorkProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-70 transition-opacity group-hover:opacity-80"></div>
 
       {/* Contenuto */}
-      {!voting && (
-        <div className="absolute inset-0 z-10 flex flex-col justify-between p-4 text-white">
-          <div>
-            {/* Badge per il tipo di media */}
-            {getMediaTypeBadge()}
+      <div className="absolute inset-0 z-10 flex flex-col justify-between p-4 text-white">
+        <div>
+          {/* Badge per il tipo di media */}
+          {getMediaTypeBadge()}
 
-            {/* Badge per contenuti nuovi o popolari */}
-            {moment(data.release_date).isAfter(moment().subtract(3, 'months')) && (
-              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-green-500 text-white mb-2">
-                Nuovo
-              </span>
-            )}
-            {data.vote_average > 7.5 && (
-              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-yellow-500 text-white mb-2 ml-1">
-                Popolare
-              </span>
-            )}
-          </div>
-
-          <div>
-            <h2 className="line-clamp-2 text-lg font-bold">{data.title}</h2>
-            {data.release_date && (
-              <p className="mb-1 text-sm text-gray-300">
-                {moment(data.release_date, "YYYY-MM-DD").year()}
-              </p>
-            )}
-
-            {!!rate && <Rating value={rate} mine className="mt-1" />}
-            {!!data.vote_average && (
-              <Rating value={data.vote_average} votes={data.vote_count} />
-            )}
-
-            {/* Pulsante per votare */}
-            <button
-              className="mt-2 rounded-md bg-indigo-600 px-2 py-1 text-xs transition-colors hover:bg-indigo-700"
-              onClick={handleClick}
-            >
-              {rate > 0 ? "Modifica voto" : "Vota"}
-            </button>
-          </div>
+          {data.voteAverage > 7.5 && (
+            <span className="mb-2 ml-1 inline-flex items-center rounded-md bg-yellow-500 px-2 py-1 text-xs font-medium text-white">
+              Popolare
+            </span>
+          )}
         </div>
-      )}
 
-      {/* UI per votare */}
-      {voting && (
-        <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/70 p-4"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h3 className="mb-4 text-center text-lg font-medium text-white">
-            {data.title}
-          </h3>
-          <div className="flex">
-            <StarRatingSlider
-              onChange={(rating) => handleSetRate(rating)}
-              initialRating={rate}
+        <div>
+          <h2 className="line-clamp-2 text-lg font-bold">{data.title}</h2>
+          {data.date && (
+            <p className="mb-1 text-sm text-gray-300">
+              {moment(data.date, "YYYY-MM-DD").year()}
+            </p>
+          )}
+
+          {/* Valutazione media */}
+          {rating.isLoading && (
+            <div className="mx-0.5 my-1 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div>
+          )}
+          {!rating.isLoading && rating.data && rating.data.rating !== 0 && (
+            <Rating
+              value={rating.data.rating}
+              isLoading={rating.isRefetching}
+              mine
+              className="mt-1"
             />
-          </div>
-          <p className="text-white text-sm mt-3">
-            Scorri per votare
-          </p>
+          )}
+          {!!data.voteAverage && (
+            <Rating value={data.voteAverage} votes={data.voteCount} />
+          )}
 
-          {/* Pulsante per chiudere la UI di voto */}
-          <button
-            className="mt-4 rounded-md bg-gray-600 px-3 py-1 text-sm text-white transition-colors hover:bg-gray-700"
-            onClick={handleClick}
-          >
-            Chiudi
-          </button>
+          <RatingButton
+            onClickVoting={onClickVoting}
+            isLoading={rating.isLoading}
+            alreadyRated={!!rating.data}
+          />
         </div>
-      )}
-
-      {showPing && (
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="animate-ping absolute h-full w-full bg-yellow-400"></span>
-        </span>
-      )}
+      </div>
     </div>
   );
 }

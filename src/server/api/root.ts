@@ -1,6 +1,6 @@
-import { workRouter } from "~/server/api/routers/work";
-import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { workRatingRouter } from "./routers/work-rating";
+import {workRouter} from "~/server/api/routers/work";
+import {createCallerFactory, createTRPCRouter} from "~/server/api/trpc";
+import {workRatingRouter} from "./routers/work-rating";
 
 /**
  * This is the primary router for your server.

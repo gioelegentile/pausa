@@ -15,16 +15,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Genre {
-  id         Int    @id @default(autoincrement())
-  type       String
-  externalId Int
-  name       String
-  works      Work[]
-
-  @@unique([externalId, type])
-}
-
 model Work {
   id          Int          @id @default(autoincrement())
   externalId  Int
@@ -36,7 +26,7 @@ model Work {
   imageUrl    String?
   releaseDate DateTime?
   country     String?
-  genres      Genre[]
+  genres      String?
   ratings     WorkRating[]
 
   @@unique([externalId, type])
