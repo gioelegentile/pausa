@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { cache } from "react";
 import { db } from "../db";
-import {findUniqueUser} from "~/server/auth/user";
+import { findUniqueUser, findUserByEmail } from "~/server/auth/user";
 
 export interface CloudflareSession {
   user: {
@@ -55,21 +55,42 @@ export const getSession = cache(async (): Promise<CloudflareSession> => {
 
   // Se l'utente non esiste, crealo immediatamente
   if (!user) {
+
     // Elabora l'immagine del profilo se esiste un URL
     let imageBase64 = null;
     if (userPicture) {
       imageBase64 = await convertImageToBase64(userPicture);
     }
 
-    // Crea un nuovo utente
-    user = await db.user.create({
-      data: {
-        id: userId,
-        email: userEmail,
-        name: userName ?? "",
-        image: imageBase64 ?? "",
-      },
-    });
+    user = await findUserByEmail(userEmail);
+
+    if (!user) {
+
+      // Crea un nuovo utente
+      user = await db.user.create({
+        data: {
+          id: userId,
+          email: userEmail,
+          name: userName ?? "",
+          image: imageBase64 ?? "",
+        },
+      });
+
+    } else {
+
+      user = await db.user.update({
+        where: {
+          email: userEmail,
+        },
+        data: {
+          id: userId,
+          name: userName ?? "",
+          image: imageBase64 ?? "",
+        }
+      })
+
+    }
+
   }
 
   return {
