@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { cache } from "react";
 import { db } from "../db";
-import { findUniqueUser, findUserByEmail } from "~/server/auth/user";
+import { findUserByEmail } from "~/server/auth/user";
 
 export interface CloudflareSession {
   user: {
@@ -51,7 +51,7 @@ export const getSession = cache(async (): Promise<CloudflareSession> => {
   }
 
   // Cerca l'utente nel database per ottenere altre informazioni se necessario
-  let user = await findUniqueUser(userId);
+  let user = await findUserByEmail(userEmail);
 
   // Se l'utente non esiste, crealo immediatamente
   if (!user) {
@@ -62,33 +62,27 @@ export const getSession = cache(async (): Promise<CloudflareSession> => {
       imageBase64 = await convertImageToBase64(userPicture);
     }
 
-    user = await findUserByEmail(userEmail);
+    // Crea un nuovo utente
+    user = await db.user.create({
+      data: {
+        id: userId,
+        email: userEmail,
+        name: userName ?? "",
+        image: imageBase64 ?? "",
+      },
+    });
 
-    if (!user) {
+  } else {
 
-      // Crea un nuovo utente
-      user = await db.user.create({
-        data: {
-          id: userId,
-          email: userEmail,
-          name: userName ?? "",
-          image: imageBase64 ?? "",
-        },
-      });
-
-    } else {
-
-      user = await db.user.update({
-        where: {
-          email: userEmail,
-        },
-        data: {
-          id: userId,
-          name: userName ?? "",
-          image: imageBase64 ?? "",
-        }
-      })
-
+    if (user.image === null && userPicture) {
+      // Se l'immagine è null, prova a convertirla in base64
+      const imageBase64 = await convertImageToBase64(userPicture);
+      if (imageBase64) {
+        user = await db.user.update({
+          where: { id: user.id },
+          data: { image: imageBase64 },
+        });
+      }
     }
 
   }
