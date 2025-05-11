@@ -2,8 +2,9 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env";
-import { type Game, type Movie, type TvShow, type MediaType, type WorkModel } from "~/app/_models/works";
-import { mapAnime, mapGame, mapMovie, mapTvShow } from "~/app/_mappers/works-mapper";
+import { type Game, type Movie, type TvShow, type MediaType, type MoviesDetail, WorkModelDetail, type TvShowDetail } from "~/app/_models/works";
+import { mapAnime, mapGame, mapDetailMovie, mapTvShow, mapDetailTvShow, mapDetailAnime } from "~/app/_mappers/works-mapper";
+import { off } from "process";
 
 function endpoint(mediaType: MediaType, id: number) {
     switch (mediaType) {
@@ -33,17 +34,20 @@ function queryString(mediaType: MediaType) {
     }
 }
 
-async function extractWork(mediaType: MediaType, response: Response): Promise<WorkModel> {
+async function extractWork(mediaType: MediaType, response: Response): Promise<WorkModelDetail> {
     switch (mediaType) {
         case "movie": 
-            return mapMovie((await response.json()) as Movie);
+            return mapDetailMovie((await response.json()) as MoviesDetail);
         case "tvshow": 
-            return mapTvShow((await response.json()) as TvShow);
+            return mapDetailTvShow((await response.json()) as TvShowDetail);
         case "anime": 
-            return mapAnime((await response.json()) as TvShow);
-        case "game":
-            return mapGame((await response.json()) as Game);
+            return mapDetailAnime((await response.json()) as TvShowDetail);
+        // case "game":
+        //     return mapDetailGame((await response.json()) as Game);
+        default:
+            return Promise.resolve({} as WorkModelDetail)
     }
+    
 }
 
 export async function GET(

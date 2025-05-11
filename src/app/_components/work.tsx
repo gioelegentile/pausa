@@ -29,7 +29,7 @@ export function Work({ data, onClickVoting, mediaType = "movie" }: WorkProps) {
 
   const handleNavigateToDetails = useCallback(() => {
     // Se non stiamo votando, navighiamo alla pagina di dettaglio
-    // router.push(`/details/${mediaType}/${data.id}`);
+    router.push(`/details/${mediaType}/${data.id}`);
   }, [router, mediaType, data.id]);
 
   // Determina il tipo di badge da mostrare
