@@ -4,17 +4,10 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 "use client";
 
-import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
-import { Rating } from "./rating";
-import React, { useCallback, useEffect, useState } from "react";
-import { api } from "~/trpc/react";
-import { useRouter } from "next/navigation";
-import { TvShowDetail, WorkModelDetail, type MediaType, type WorkModel, type MovieCredits, CastMember } from "~/app/_models/works";
-import RatingButton from "./rating-button";
-import { StaleTimes } from "~/app/_utils/stale-times";
-import { env } from "~/env";
+import React, { useEffect, useState } from "react";
+import { type WorkModelDetail, type MediaType, type WorkModel, type MovieCredits, type CastMember } from "~/app/_models/works";
 
 
 export type DetailPageComponentProps = {

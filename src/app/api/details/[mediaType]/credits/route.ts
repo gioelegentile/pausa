@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { MediaType, MovieCredits } from "~/app/_models/works";
+import { type NextRequest, NextResponse } from "next/server";
+import { type MovieCredits } from "~/app/_models/works";
 import { env } from "~/env";
 
 
@@ -11,7 +11,7 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   let { mediaType } = await params
   const id = searchParams.get('id');
-  mediaType === 'tvshow' ? mediaType = 'tv' : null
+  mediaType = mediaType === 'tvshow' ? 'tv' : mediaType
 
   if (!id) {
     return NextResponse.json({ error: 'Il parametro di ricerca è obbligatorio' }, { status: 400 });

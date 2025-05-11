@@ -4,17 +4,10 @@
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 "use client";
 
-import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
-import { Rating } from "./rating";
-import React, { useCallback, useEffect, useState } from "react";
-import { api } from "~/trpc/react";
-import { useRouter } from "next/navigation";
-import { CastMember, MovieCredits, MoviesDetail, WorkModelDetail, type MediaType, type WorkModel } from "~/app/_models/works";
-import RatingButton from "./rating-button";
-import { StaleTimes } from "~/app/_utils/stale-times";
-import { env } from "~/env";
+import React, { useEffect, useState } from "react";
+import { type CastMember, type MovieCredits, type WorkModelDetail, type MediaType, type WorkModel } from "~/app/_models/works";
 
 
 export type DetailPageComponentProps = {
@@ -63,10 +56,10 @@ export function DetailMovieComponent({mediaType, id, detail, credits}: DetailPag
   }
 
   const renderDurata = () => {
-    let time = detail.duration
+    const time = detail.duration
     if(time){
-      var hours = Math.floor(time /60)
-      var minutes = time % 60
+      const hours = Math.floor(time /60)
+      const minutes = time % 60
       return hours+'h' + ' ' + minutes+'m'
     } else {return ''}
   }

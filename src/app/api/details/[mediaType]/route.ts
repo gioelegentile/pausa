@@ -2,9 +2,8 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env";
-import { type Game, type Movie, type TvShow, type MediaType, type MoviesDetail, WorkModelDetail, type TvShowDetail } from "~/app/_models/works";
-import { mapAnime, mapGame, mapDetailMovie, mapTvShow, mapDetailTvShow, mapDetailAnime } from "~/app/_mappers/works-mapper";
-import { off } from "process";
+import { type MediaType, type MoviesDetail, type WorkModelDetail, type TvShowDetail } from "~/app/_models/works";
+import { mapDetailMovie, mapDetailTvShow, mapDetailAnime } from "~/app/_mappers/works-mapper";
 
 function endpoint(mediaType: MediaType, id: number) {
     switch (mediaType) {

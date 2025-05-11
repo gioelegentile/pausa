@@ -1,4 +1,4 @@
-import { MoviesDetail, TvShowDetail, WorkModelDetail, type Game, type Movie, type TvShow, type WorkModel } from "~/app/_models/works";
+import { type MoviesDetail, type TvShowDetail, type WorkModelDetail, type Game, type Movie, type TvShow, type WorkModel } from "~/app/_models/works";
 
 export function mapTvShow(show: TvShow): WorkModel {
   return {

@@ -1,4 +1,4 @@
-import { MediaType, MovieCredits, WorkModelDetail } from "~/app/_models/works";
+import { type MediaType, type MovieCredits, type WorkModelDetail } from "~/app/_models/works";
 import { env } from "~/env";
 import { HydrateClient } from "~/trpc/server";
 import React from "react";
@@ -19,9 +19,8 @@ export default async function DetailsPage({
   
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const detail: WorkModelDetail = await detailResp.json()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const credits: MovieCredits = await creditsResp.json()
-
-  console.log('CREDITS', credits)
         
   return (
     <HydrateClient>
