@@ -27,7 +27,16 @@ jobs:
       - name: Extract current version from package.json
         id: get-version
         run: |
-          version=$(node -p "require('./package.json').version.replace('-snapshot', '')")
+          version=$(node -p "require('./package.json').version")
+          if [[ $version == *"-snapshot"* ]]; then
+            # Remove snapshot suffix
+            version=$(echo $version | sed 's/-snapshot//')
+          else
+            # Increment patch version
+            IFS='.' read -r major minor patch <<< "$version"
+            patch=$((patch+1))
+            version="${major}.${minor}.${patch}"
+          fi
           echo "VERSION=$version" >> $GITHUB_ENV
 
       - name: Docker meta
