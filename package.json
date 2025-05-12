@@ -1,6 +1,6 @@
 {
   "name": "pausa",
-  "version": "0.1.5",
+  "version": "0.1.6-snapshot",
   "type": "module",
   "scripts": {
     "build": "next build",
@@ -53,7 +53,10 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
+    "axios": "^1.9.0",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250405",
+    "csv-parse": "^5.6.0",
+    "dotenv": "^16.5.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.0.1",
     "husky": "^9.1.7",
