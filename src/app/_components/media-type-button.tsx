@@ -15,7 +15,7 @@ export async function MediaTypeButton({
   return (
     <Link
       href={href}
-      className={`rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+      className={`w-[140px] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
         active
           ? "bg-gradient-to-br from-purple-600 to-blue-500 text-white shadow-md hover:bg-gradient-to-bl"
           : "border border-gray-300 bg-white text-gray-700 hover:border-indigo-400 hover:text-indigo-600 hover:shadow dark:border-gray-400 dark:bg-gray-600 dark:text-gray-100 dark:hover:text-indigo-300"

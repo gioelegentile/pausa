@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "~/server/db";
-import {findUniqueUser} from "~/server/auth/user";
+import { findUniqueUser } from "~/server/auth/user";
 
 export async function GET(req: NextRequest) {
   // Ottieni le informazioni dell'utente dalle intestazioni impostate dal middleware
