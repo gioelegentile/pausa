@@ -19,6 +19,7 @@ type RatedWorksProps = {
 export default function RatedWorks({ mediaType }: RatedWorksProps) {
   const [filters, setFilters] = useState<FiltersType>(filtersInitialState);
   const observerTarget = useRef(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const handleConfirm = (filters: FiltersType) => {
     setFilters(filters);
@@ -52,14 +53,20 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
   }, [filters, refetch]);
 
   useEffect(() => {
+    const loadMoreItems = async () => {
+      setIsLoadingMore(true);
+      await fetchNextPage();
+      setIsLoadingMore(false);
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage && !isLoadingMore) {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          fetchNextPage();
+          loadMoreItems();
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0.5, rootMargin: "100px" },
     );
 
     const currentTarget = observerTarget.current;
@@ -72,7 +79,7 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
         observer.unobserve(currentTarget);
       }
     };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isLoadingMore]);
 
   const works = data?.pages.flatMap((p) => p.works) ?? [];
 
@@ -82,9 +89,9 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
         <Filters mediaType={mediaType} onConfirm={handleConfirm} />
       </div>
 
-      {isFetching && <LoadingRatingList />}
+      {isFetching && !isFetchingNextPage && <LoadingRatingList />}
 
-      {!isFetching && works.length !== 0 && (
+      {(!isFetching || isFetchingNextPage) && works.length !== 0 && (
         <div className="flex flex-col rounded-lg border-2 border-gray-700 bg-gray-800/20">
           {works
             .filter((w) => !!w)
@@ -105,10 +112,10 @@ export default function RatedWorks({ mediaType }: RatedWorksProps) {
         </div>
       )}
 
-      <div ref={observerTarget} className="flex justify-center p-4">
-        {isFetchingNextPage ? (
+      <div ref={observerTarget} className="flex justify-center p-4" aria-hidden="true">
+        {isFetchingNextPage && (
           <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-green-600"></div>
-        ) : null}
+        )}
       </div>
     </div>
   );
