@@ -2,6 +2,7 @@
   "name": "pausa",
   "version": "0.1.9",
   "type": "module",
+  "private": true,
   "scripts": {
     "build": "next build",
     "check": "next lint && tsc --noEmit",
