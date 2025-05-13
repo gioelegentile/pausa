@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "check": "next lint && tsc --noEmit",
     "db:generate": "prisma migrate dev",
     "db:create-migration": "prisma migrate dev --create-only",
     "db:deploy": "npx prisma migrate deploy && npx prisma generate",
