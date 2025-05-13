@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/gioelegentile/pausa/compare/v1.0.0...v1.0.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* simplified workflow ([7119894](https://github.com/gioelegentile/pausa/commit/711989457cb63fc9b75eda53925af189d2fd580c))
+
 # 1.0.0 (2025-05-13)
 
 
