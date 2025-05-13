@@ -1,3 +1,11 @@
+## [1.1.1](https://github.com/gioelegentile/pausa/compare/v1.1.0...v1.1.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* add release and production deployment workflows ([f2a89e5](https://github.com/gioelegentile/pausa/commit/f2a89e5e4cc2b86958cc8ae8e8758fe794b7b4b9))
+* update webhook URL to use production secret ([7c02b2c](https://github.com/gioelegentile/pausa/commit/7c02b2c4d2c4a483f88134364a51324016c7ceb9))
+
 # [1.1.0](https://github.com/gioelegentile/pausa/compare/v1.0.3...v1.1.0) (2025-05-13)
 
 
