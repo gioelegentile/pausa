@@ -13,9 +13,6 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-    outputs:
-      new_release_published: ${{ steps.semantic-release.outputs.new_release_published }}
-      new_release_version: ${{ steps.semantic-release.outputs.new_release_version }}
     
     steps:
       - name: Checkout
@@ -41,7 +38,6 @@ jobs:
   docker-release:
     name: Docker Release
     needs: semantic-release
-    if: needs.semantic-release.outputs.new_release_published == 'true'
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -61,10 +57,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Get release version
+        id: get_release_version
+        run: echo "RELEASE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           platforms: linux/arm64
-          tags: ghcr.io/${{ github.repository }}:${{ needs.semantic-release.outputs.new_release_version }}
+          tags: ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
