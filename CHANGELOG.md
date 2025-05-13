@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/gioelegentile/pausa/compare/v1.0.3...v1.1.0) (2025-05-13)
+
+
+### Bug Fixes
+
+* remove unnecessary checkout step from trigger webhook workflow ([d48f525](https://github.com/gioelegentile/pausa/commit/d48f525cc37487dd117e6cea34faf7cb289193cb))
+* rename workflow from 'Trigger Webhook' to 'Deploy to Production' ([c9c3b20](https://github.com/gioelegentile/pausa/commit/c9c3b20adc32ad1c924bbbff552b129466490c84))
+
+
+### Features
+
+* add trigger webhook workflow for manual deployment ([a71d473](https://github.com/gioelegentile/pausa/commit/a71d473b70628bc3ff26bb69105d5172cf6952ae))
+
 ## [1.0.3](https://github.com/gioelegentile/pausa/compare/v1.0.2...v1.0.3) (2025-05-13)
 
 
