@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/gioelegentile/pausa/compare/v1.0.2...v1.0.3) (2025-05-13)
+
+
+### Bug Fixes
+
+* simplify dependency installation in release workflow ([1a466d3](https://github.com/gioelegentile/pausa/commit/1a466d394eb1ca1dd56573eaf1e47bb567c2b6bb))
+
 ## [1.0.2](https://github.com/gioelegentile/pausa/compare/v1.0.1...v1.0.2) (2025-05-13)
 
 
