@@ -23,4 +23,4 @@ jobs:
         with:
           webhook_url: ${{ secrets.WEBHOOK_URL }}
           webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-          data: '{"tag": "${{ github.event.inputs.tag }}"}'
+          data: '{"env": "prod", "tag": "${{ github.event.inputs.tag }}"}'

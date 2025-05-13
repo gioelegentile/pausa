@@ -74,3 +74,11 @@ jobs:
           push: true
           platforms: linux/arm64
           tags: ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
+
+      - name: Send webhook
+        id: webhook
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL_DEV }}
+          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+          data: '{"env": "dev", "tag": "${{ env.RELEASE_VERSION }}"}'
