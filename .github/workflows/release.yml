@@ -27,7 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci -D semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/npm @semantic-release/github @semantic-release/git
+        run: npm ci
 
       - name: Semantic Release
         id: semantic-release
@@ -46,6 +46,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: 'main'
+          fetch-depth: 0
+      
+      - name: Fetch latest changes
+        run: git fetch --tags --force
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
