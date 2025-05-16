@@ -8,4 +8,6 @@ export type Filters = {
 export const filtersInitialState: Filters = {
   minYear: "1900",
   maxYear: new Date().getFullYear().toString(),
+  director: "",
+  genre: "",
 };

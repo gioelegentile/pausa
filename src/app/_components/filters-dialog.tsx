@@ -37,6 +37,8 @@ const formSchema = z.object({
 const defaultValues: z.infer<typeof formSchema> = { 
   minYear: "1900",
   maxYear: new Date().getFullYear().toString(),
+  director: "",
+  genre: "",
 }
 
 export function FiltersDialog({ mediaType, onConfirm }: FiltersProps) {
@@ -123,9 +125,7 @@ export function FiltersDialog({ mediaType, onConfirm }: FiltersProps) {
                                 <CommandItem
                                   value={director}
                                   key={director}
-                                  onSelect={() => {
-                                    form.setValue("director", director)
-                                  }}
+                                  onSelect={() => form.setValue("director", director)}
                                 >
                                   {director}
                                   <Check
@@ -237,9 +237,7 @@ export function FiltersDialog({ mediaType, onConfirm }: FiltersProps) {
                                 <CommandItem
                                   value={genre}
                                   key={genre}
-                                  onSelect={() => {
-                                    form.setValue("genre", genre)
-                                  }}
+                                  onSelect={() => form.setValue("genre", genre)}
                                 >
                                   {genre}
                                   <Check

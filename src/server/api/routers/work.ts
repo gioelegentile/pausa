@@ -115,9 +115,11 @@ export const workRouter = createTRPCRouter({
         where: {
           work: {
             type: type,
-            director: director,
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            director: director ? director : undefined,
             genres: {
-              contains: genre,
+              // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+              contains: genre ? genre : undefined,
             },
             releaseDate: {
               gte: new Date(minYear, 0, 1),
