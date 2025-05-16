@@ -32,12 +32,12 @@ export default async function RootLayout({
                   <Logo />
                   <div className="ml-2 text-lg font-bold text-gray-800">
                     <Link href="/" className="ml-4 lg:ml-8">
-                      <span className="text-gray-800 dark:text-gray-200">
+                      <span className="text-xs sm:text-sm md:text-base text-gray-800 dark:text-gray-200">
                         Cerca
                       </span>
                     </Link>
                     <Link href="/votes/movie" className="ml-4">
-                      <span className="text-gray-800 dark:text-gray-200">
+                      <span className="text-xs sm:text-sm md:text-base text-gray-800 dark:text-gray-200">
                         Voti
                       </span>
                     </Link>

@@ -7,15 +7,12 @@ import moment from "moment";
 import Image from "next/legacy/image";
 import { NoPoster } from "./no-poster";
 import { Rating } from "./rating";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
-import RatingButton from "./rating-button";
 import { StaleTimes } from "~/app/_utils/stale-times";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from "~/app/_components/ui/dialog";
 import RatingDialog from "./rating-dialog";
-import { Button } from "~/app/_components/ui/button";
 
 type WorkProps = {
   data: WorkModel;
@@ -23,7 +20,6 @@ type WorkProps = {
 };
 
 export function Work({ data, mediaType }: WorkProps) {
-  const [voting, setVoting] = useState(false);
   const router = useRouter();
   const rating = api.workRating.getByExternalId.useQuery(data.id, {
     staleTime: StaleTimes.ONE_WEEK,

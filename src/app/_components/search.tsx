@@ -10,13 +10,11 @@ import {
 import Reset from "./reset-search";
 import { useDebounce } from "~/app/_hooks/debouce";
 import { LoadingSearch } from "~/app/_components/loading-search";
-import RatingDialog from "~/app/_components/rating-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { useMobile } from "~/app/_hooks/mobile";
 import { fetchWorks } from "~/app/_utils/tmdb";
 import { type MediaType, type WorkModel } from "~/app/_models/works";
 import { StaleTimes } from "~/app/_utils/stale-times";
-import { Dialog } from "~/app/_components/ui/dialog";
 
 type SearchProps = {
   mediaType: MediaType;

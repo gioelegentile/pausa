@@ -4,10 +4,7 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilm } from "@fortawesome/free-solid-svg-icons";
 import { Rating } from "~/app/_components/rating";
-import RatingButton from "./rating-button";
 import RatingDialog from "./rating-dialog";
-import { useState } from "react";
-import { api } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { StaleTimes } from "~/app/_utils/stale-times";
 
@@ -27,12 +24,7 @@ type RatedWorkProps = {
 };
 
 export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
-  const [voting, setVoting] = useState(false);
-
-  const { isLoading: trpcLoading, data } =
-    api.workRating.getByExternalId.useQuery(work.externalId);
-
-  const { isLoading: fetchLoading, data: workModel } = useQuery<WorkModel>({
+  const { data: workModel } = useQuery<WorkModel>({
     queryKey: ["work", work.id],
     queryFn: () =>
       fetch(`/api/details/${mediaType}?id=${work.externalId}`).then((res) =>
@@ -40,8 +32,6 @@ export default function RatedWork({ mediaType, work, index }: RatedWorkProps) {
       ),
     staleTime: StaleTimes.ONE_WEEK,
   });
-
-  const isLoading = trpcLoading || fetchLoading;
 
   return (
     <div className="flex border-b border-gray-700 p-4 transition-colors hover:bg-gray-800/30">

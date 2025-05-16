@@ -1,0 +1,26 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Versione di PAUSA da rilasciare in PROD'
+        required: true
+        type: string
+
+jobs:
+  trigger-webhook:
+    name: Trigger Webhook
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Display Selected Tag
+        run: "echo \"Selected tag: ${{ github.event.inputs.tag }}\""
+      
+      - name: Send webhook
+        id: webhook
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+          data: '{"env": "prod", "tag": "${{ github.event.inputs.tag }}"}'

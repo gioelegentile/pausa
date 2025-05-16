@@ -5,8 +5,8 @@ import {
   faFilterCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
-import { type Filters, filtersInitialState } from "~/app/_models/filters";
+import React, { useState } from "react";
+import { type Filters } from "~/app/_models/filters";
 import { api } from "~/trpc/react";
 import { type MediaType } from "~/app/_models/works";
 import { StaleTimes } from "~/app/_utils/stale-times";
@@ -14,14 +14,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
-import { useForm, UseFormHandleSubmit } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { cn } from "../_lib/utils";
-import { min } from "moment";
 
 type FiltersProps = {
   mediaType: MediaType;
